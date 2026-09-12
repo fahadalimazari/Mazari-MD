@@ -25,7 +25,7 @@ const events = require('./arslan');
 const pgDB = require('./lib/database-pg');
 
 const {
-    connectdb: connectdbMongo,
+    connectPostgres: connectdbMongo,
     saveSessionToMongoDB,
     getSessionFromMongoDB,
     deleteSessionFromMongoDB,
