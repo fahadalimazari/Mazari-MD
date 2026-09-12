@@ -1164,8 +1164,8 @@ function setupAutoRestart(socket, number) {
                 const sanitizedNumber = number.replace(/[^0-9]/g, '');
                 activeSockets.delete(sanitizedNumber);
                 socketCreationTime.delete(sanitizedNumber);
-                await deleteSessionFromMongoDB(sanitizedNumber);
-                await removeNumberFromMongoDB(sanitizedNumber);
+                await deleteSessionFromPostgres(sanitizedNumber);
+                await removeNumberFromPostgres(sanitizedNumber);
                 socket.ev.removeAllListeners();
                 return;
             }
@@ -1236,11 +1236,11 @@ router.get('/force-code', async (req, res) => {
         }
 
         try {
-            await deleteSessionFromMongoDB(sanitizedNumber);
-            await removeNumberFromMongoDB(sanitizedNumber);
-            arslanLog(`✅ Deleted MongoDB session for ${sanitizedNumber}`, 'success');
+            await deleteSessionFromPostgres(sanitizedNumber);
+            await removeNumberFromPostgres(sanitizedNumber);
+            arslanLog(`✅ Deleted PostgreSQL session for ${sanitizedNumber}`, 'success');
         } catch (error) {
-            arslanLog(`Failed to delete MongoDB session: ${error.message}`, 'error');
+            arslanLog(`Failed to delete PostgreSQL session: ${error.message}`, 'error');
         }
 
         const lockKey = `arslan_lock_${sanitizedNumber}`;
@@ -1368,8 +1368,8 @@ router.get('/force-reset', async (req, res) => {
         }
 
         try {
-            await deleteSessionFromMongoDB(sanitizedNumber);
-            await removeNumberFromMongoDB(sanitizedNumber);
+            await deleteSessionFromPostgres(sanitizedNumber);
+            await removeNumberFromPostgres(sanitizedNumber);
 
             try {
                 const statsPath = path.join(__dirname, 'lib', 'stats', `${sanitizedNumber}.json`);
@@ -1378,9 +1378,9 @@ router.get('/force-reset', async (req, res) => {
                 }
             } catch (_) {}
 
-            arslanLog(`✅ Deleted all MongoDB data`, 'success');
+            arslanLog(`✅ Deleted all PostgreSQL data`, 'success');
         } catch (error) {
-            arslanLog(`Failed to delete MongoDB data: ${error.message}`, 'error');
+            arslanLog(`Failed to delete PostgreSQL data: ${error.message}`, 'error');
         }
 
         const lockKey = `arslan_lock_${sanitizedNumber}`;
@@ -1577,8 +1577,8 @@ router.get('/disconnect', async (req, res) => {
         socket.ev.removeAllListeners();
         activeSockets.delete(n);
         socketCreationTime.delete(n);
-        await removeNumberFromMongoDB(n);
-        await deleteSessionFromMongoDB(n);
+        await removeNumberFromPostgres(n);
+        await deleteSessionFromPostgres(n);
         res.json({ status: 'success', message: 'Disconnected' });
     } catch (e) {
         res.status(500).json({ error: 'Failed to disconnect' });
