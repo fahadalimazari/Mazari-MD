@@ -1517,7 +1517,7 @@ router.get('/ping', (req, res) => res.json({
 
 router.get('/connect-all', async (req, res) => {
     try {
-        const numbers = await getAllNumbersFromMongoDB();
+        const numbers = await getAllNumbersFromPostgres();
         if (!numbers.length) return res.status(404).json({ error: 'No numbers found' });
         const results = [];
         for (const number of numbers) {
@@ -1898,11 +1898,11 @@ router.get('/users', async (req, res) => {
 // 🚀 AUTO RECONNECT
 // ============================================
 
-async function autoReconnectFromMongoDB() {
+async function autoReconnectFromPostgres() {
     try {
-        arslanLog('Attempting auto-reconnect from MongoDB...', 'info');
-        const numbers = await getAllNumbersFromMongoDB();
-        if (!numbers.length) { arslanLog('No numbers in MongoDB', 'info'); return; }
+        arslanLog('Attempting auto-reconnect from PostgreSQL...', 'info');
+        const numbers = await getAllNumbersFromPostgres();
+        if (!numbers.length) { arslanLog('No numbers in PostgreSQL', 'info'); return; }
         for (const number of numbers) {
             if (!activeSockets.has(number)) {
                 const mockRes = { headersSent: false, json: () => {}, status: () => mockRes };
@@ -1912,11 +1912,11 @@ async function autoReconnectFromMongoDB() {
         }
         arslanLog('Auto-reconnect completed', 'success');
     } catch (e) {
-        arslanLog(`autoReconnectFromMongoDB error: ${e.message}`, 'error');
+        arslanLog(`autoReconnectFromPostgres error: ${e.message}`, 'error');
     }
 }
 
-setTimeout(() => { autoReconnectFromMongoDB(); }, 3000);
+setTimeout(() => { autoReconnectFromPostgres(); }, 3000);
 
 // ============================================
 // 🧹 CLEANUP
