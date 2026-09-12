@@ -37,7 +37,8 @@ const {
     saveOTPToPostgres,
     verifyOTPFromPostgres,
     incrementStats,
-    getStatsForNumber
+    getStatsForNumber,
+    getSessionCountForServer
 } = pgDB;
 
 // ========== ANTI-DELETE FIXED IMPORT ==========
@@ -106,12 +107,15 @@ router.get('/code', async (req, res) => {
     // Create a mock response that captures the pairing code
     let capturedCode = null;
     let hasCode = false;
+    let isServerFull = false;
     const mockRes = {
         headersSent: false,
         json: (data) => {
             if (data.code) {
                 capturedCode = data.code;
                 hasCode = true;
+            } else if (data.status === 'server_full') {
+                isServerFull = true;
             }
             return { send: () => {} };
         },
@@ -119,11 +123,20 @@ router.get('/code', async (req, res) => {
             if (data && data.code) {
                 capturedCode = data.code;
                 hasCode = true;
+            } else if (data && data.status === 'server_full') {
+                isServerFull = true;
             }
             return { status: () => ({ json: () => {} }) };
         },
         status: (code) => {
-            return { json: (data) => {} };
+            return {
+                json: (data) => {
+                    if (data && data.status === 'server_full') {
+                        isServerFull = true;
+                    }
+                    return {};
+                }
+            };
         }
     };
     
@@ -131,6 +144,8 @@ router.get('/code', async (req, res) => {
         await arslanPair(sanitizedNumber, mockRes);
         if (hasCode && capturedCode) {
             res.json({ code: capturedCode });
+        } else if (isServerFull) {
+            res.json({ status: 'server_full' });
         } else {
             res.status(500).json({ error: 'Failed to get pairing code' });
         }
@@ -584,6 +599,18 @@ async function arslanPair(number, res = null) {
 
         if (!existingSession) {
             arslanLog(`No PostgreSQL session for ${sanitizedNumber} — new pairing required`, 'info');
+            
+            // ---- NEW 30-session limit check for new pairings only ----
+            const currentCount = await getSessionCountForServer();
+            if (currentCount >= 30) {
+                arslanLog(`Server limit reached (${currentCount} sessions) - refusing new pairing`, 'warning');
+                if (res && !res.headersSent) {
+                    return res.json({ status: 'server_full', error: 'Maximum of 30 sessions reached' });
+                }
+                return;
+            }
+            // -----------------------------------------------------------
+            
             if (fs.existsSync(sessionPath)) {
                 await fs.remove(sessionPath);
                 arslanLog(`Cleaned leftover local session for ${sanitizedNumber}`, 'info');

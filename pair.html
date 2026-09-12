@@ -426,12 +426,22 @@ async function getCode() {
         const data = await res.json();
         
         if (data.code) {
+            // Show the pairing code (as before)
             codeBox.style.letterSpacing = "4px";
             codeBox.style.color = "#fff";
             codeBox.innerText = data.code;
-        } else {
+        } else if (data.status === "server_full") {
+            // Explicit server-full response
             codeBox.style.color = "#ff4d6d";
             codeBox.innerText = "SERVER FULL";
+        } else if (data.error) {
+            // Any other backend error
+            codeBox.style.color = "#ff4d6d";
+            codeBox.innerText = data.error.toUpperCase();
+        } else {
+            // Fallback for unexpected missing fields
+            codeBox.style.color = "#ff4d6d";
+            codeBox.innerText = "NO CODE RECEIVED";
         }
     } catch (e) {
         codeBox.style.color = "#ff4d6d";
