@@ -4,7 +4,7 @@
 // 🔥 Auto delete links + Warn + Kick
 // ============================================
 
-const { arslan } = require('../arslan');
+const { cmd } = require('../arslan');
 const config = require('../config');
 
 // ─── ALLOWED DOMAINS ───
@@ -60,14 +60,14 @@ function extractLinks(text) {
 // ============================================
 // 📌 MAIN COMMAND
 // ============================================
-arslan({
+cmd({
     pattern: "antilink",
     alias: ["al", "nolink", "linkfilter"],
     desc: "🔗 Anti-Link System for groups",
     category: "admin",
     react: "🔗",
     filename: __filename
-}, async (arslan, mek, m, { from, isGroup, isAdmins, isBotAdmins, isOwner, reply, args, prefix }) => {
+}, async (conn, mek, m, { from, isGroup, isAdmins, isBotAdmins, isOwner, reply, args, prefix }) => {
 
     // ─── CHECK GROUP ───
     if (!isGroup) {
@@ -129,7 +129,7 @@ arslan({
 
 💖 Powered by ARSLAN-MD`);
 
-        await arslan.sendMessage(from, {
+        await conn.sendMessage(from, {
             text: `╭────────────────────◇
 │✦ *🔗 ANTI-LINK ACTIVATED* 🔥
 │✦ Group: ${mek.pushName || 'Unknown'}
@@ -159,11 +159,11 @@ arslan({
 // ============================================
 
 // ─── LISTEN FOR MESSAGES ───
-arslan({
+cmd({
     pattern: "antilink_handler",
     on: "body",
     filename: __filename
-}, async (arslan, mek, m, { from, isGroup, isBotAdmins, isAdmins, isOwner, sender, senderNumber, reply }) => {
+}, async (conn, mek, m, { from, isGroup, isBotAdmins, isAdmins, isOwner, sender, senderNumber, reply }) => {
 
     // ─── SKIP IF NOT GROUP ───
     if (!isGroup) return;
@@ -205,7 +205,7 @@ arslan({
 
     // ─── DELETE MESSAGE ───
     try {
-        await arslan.sendMessage(from, {
+        await conn.sendMessage(from, {
             delete: mek.key
         });
         console.log(`[AntiLink] 🗑️ Deleted link message from ${senderNumber}`);
@@ -226,7 +226,7 @@ arslan({
 
 💖 Powered by ARSLAN-MD`;
 
-    await arslan.sendMessage(from, {
+    await conn.sendMessage(from, {
         text: warnMsg,
         mentions: [sender]
     });
@@ -234,8 +234,8 @@ arslan({
     // ─── ACTION: KICK ───
     if (action === 'kick' && warnCount >= maxWarns) {
         try {
-            await arslan.groupParticipantsUpdate(from, [sender], 'remove');
-            await arslan.sendMessage(from, {
+            await conn.groupParticipantsUpdate(from, [sender], 'remove');
+            await conn.sendMessage(from, {
                 text: `👢 *User kicked!*
 
 📌 Reason: Repeated links (${warnCount} warns)

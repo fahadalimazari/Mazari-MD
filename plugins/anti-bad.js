@@ -4,7 +4,7 @@
 // 🔥 Auto delete bad words + Warn + Kick
 // ============================================
 
-const { arslan } = require('../arslan');
+const { cmd } = require('../arslan');
 const config = require('../config');
 
 // ─── BAD WORDS LIST ───
@@ -46,14 +46,14 @@ const BAD_PATTERNS = [
 // ============================================
 // 📌 MAIN COMMAND
 // ============================================
-arslan({
+cmd({
     pattern: "antibad",
     alias: ["ab", "badword", "filterbad", "badfilter"],
     desc: "🚫 Anti-Bad Words System for groups",
     category: "admin",
     react: "🚫",
     filename: __filename
-}, async (arslan, mek, m, { from, isGroup, isAdmins, isBotAdmins, isOwner, reply, args, prefix }) => {
+}, async (conn, mek, m, { from, isGroup, isAdmins, isBotAdmins, isOwner, reply, args, prefix }) => {
 
     // ─── CHECK GROUP ───
     if (!isGroup) {
@@ -115,7 +115,7 @@ arslan({
 
 💖 Powered by ARSLAN-MD`);
 
-        await arslan.sendMessage(from, {
+        await conn.sendMessage(from, {
             text: `╭────────────────────◇
 │✦ *🚫 ANTI-BAD ACTIVATED* 🔥
 │✦ Group: ${mek.pushName || 'Unknown'}
@@ -145,11 +145,11 @@ arslan({
 // ============================================
 
 // ─── LISTEN FOR MESSAGES ───
-arslan({
+cmd({
     pattern: "antibad_handler",
     on: "body",
     filename: __filename
-}, async (arslan, mek, m, { from, isGroup, isBotAdmins, isAdmins, isOwner, sender, senderNumber, reply }) => {
+}, async (conn, mek, m, { from, isGroup, isBotAdmins, isAdmins, isOwner, sender, senderNumber, reply }) => {
 
     // ─── SKIP IF NOT GROUP ───
     if (!isGroup) return;
@@ -209,7 +209,7 @@ arslan({
 
     // ─── DELETE BAD MESSAGE ───
     try {
-        await arslan.sendMessage(from, {
+        await conn.sendMessage(from, {
             delete: mek.key
         });
         console.log(`[AntiBad] 🗑️ Deleted bad message from ${senderNumber}`);
@@ -228,7 +228,7 @@ arslan({
 
 💖 Powered by ARSLAN-MD`;
 
-    await arslan.sendMessage(from, {
+    await conn.sendMessage(from, {
         text: warnMsg,
         mentions: [sender]
     });
@@ -236,8 +236,8 @@ arslan({
     // ─── ACTION: KICK ───
     if (action === 'kick' && warnCount >= maxWarns) {
         try {
-            await arslan.groupParticipantsUpdate(from, [sender], 'remove');
-            await arslan.sendMessage(from, {
+            await conn.groupParticipantsUpdate(from, [sender], 'remove');
+            await conn.sendMessage(from, {
                 text: `👢 *User kicked!*
 
 📌 Reason: Repeated bad words (${warnCount} warns)

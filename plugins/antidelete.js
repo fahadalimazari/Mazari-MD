@@ -1,6 +1,7 @@
 // plugins/antidelete.js
 const { cmd } = require("../arslan");
-const { updateUserConfigInMongoDB } = require('../lib/database');
+const pgDB = require('../lib/database-pg');
+const { updateUserConfigInPostgres, getUserConfigFromPostgres } = pgDB;
 
 cmd({
     pattern: "antidelete",
@@ -32,7 +33,7 @@ cmd({
         
         // Update in database for current user
         const userNumber = sender.split('@')[0];
-        await updateUserConfigInMongoDB(userNumber, { ANTIDELETE: status });
+        await updateUserConfigInPostgres(userNumber, { ANTIDELETE: status });
         
         global.antideleteStatus = status === 'true' ? 'ON' : 'OFF';
         
@@ -63,7 +64,7 @@ cmd({
         if (!isCreator) return reply("❌ Only bot owner can use this command.");
         
         const userNumber = sender.split('@')[0];
-        const config = await getUserConfigFromMongoDB(userNumber);
+        const config = await getUserConfigFromPostgres(userNumber);
         const status = config.ANTIDELETE || 'true';
         
         reply(`📊 *Antidelete Status*\n\n` +

@@ -1,5 +1,6 @@
 const { cmd } = require('../arslan');
-const { updateUserConfig } = require('../lib/database');
+const pgDB = require('../lib/database-pg');
+const { updateUserConfigInPostgres } = pgDB;
 
 // Helper function to update config in memory and database
 const updateConfig = async (key, value, botNumber, config, reply) => {
@@ -11,7 +12,7 @@ const updateConfig = async (key, value, botNumber, config, reply) => {
         const newConfig = { ...config }; 
         newConfig[key] = value;
         
-        await updateUserConfig(botNumber, newConfig);
+        await updateUserConfigInPostgres(botNumber, newConfig);
         
         return reply(`✅ *${key}* has been updated to: *${value}*`);
     } catch (e) {
