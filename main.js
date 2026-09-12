@@ -26,16 +26,16 @@ const pgDB = require('./lib/database-pg');
 
 const {
     connectPostgres: connectdbMongo,
-    saveSessionToMongoDB,
-    getSessionFromMongoDB,
-    deleteSessionFromMongoDB,
-    getUserConfigFromMongoDB,
-    updateUserConfigInMongoDB,
-    addNumberToMongoDB,
-    removeNumberFromMongoDB,
-    getAllNumbersFromMongoDB,
-    saveOTPToMongoDB,
-    verifyOTPFromMongoDB,
+    saveSessionToPostgres,
+    getSessionFromPostgres,
+    deleteSessionFromPostgres,
+    getUserConfigFromPostgres,
+    updateUserConfigInPostgres,
+    addNumberToPostgres,
+    removeNumberFromPostgres,
+    getAllNumbersFromPostgres,
+    saveOTPToPostgres,
+    verifyOTPFromPostgres,
     incrementStats,
     getStatsForNumber
 } = pgDB;
@@ -526,10 +526,10 @@ async function arslanPair(number, res = null) {
         }
         global[connectionLockKey] = true;
 
-        const existingSession = await getSessionFromMongoDB(sanitizedNumber);
+        const existingSession = await getSessionFromPostgres(sanitizedNumber);
 
         if (!existingSession) {
-            arslanLog(`No MongoDB session for ${sanitizedNumber} — new pairing required`, 'info');
+            arslanLog(`No PostgreSQL session for ${sanitizedNumber} — new pairing required`, 'info');
             if (fs.existsSync(sessionPath)) {
                 await fs.remove(sessionPath);
                 arslanLog(`Cleaned leftover local session for ${sanitizedNumber}`, 'info');
@@ -537,7 +537,7 @@ async function arslanPair(number, res = null) {
         } else {
             fs.ensureDirSync(sessionPath);
             fs.writeFileSync(path.join(sessionPath, 'creds.json'), JSON.stringify(existingSession, null, 2));
-            arslanLog(`🔄 Restored existing session from MongoDB for ${sanitizedNumber}`, 'success');
+            arslanLog(`🔄 Restored existing session from PostgreSQL for ${sanitizedNumber}`, 'success');
         }
 
         const { state, saveCreds } = await useMultiFileAuthState(sessionPath);
@@ -629,9 +629,9 @@ async function arslanPair(number, res = null) {
             await saveCreds();
             const fileContent = await fs.readFile(path.join(sessionPath, 'creds.json'), 'utf8');
             const creds = JSON.parse(fileContent);
-            const existingSessionCheck = await getSessionFromMongoDB(sanitizedNumber);
+            const existingSessionCheck = await getSessionFromPostgres(sanitizedNumber);
             const isNewSession = !existingSessionCheck;
-            await saveSessionToMongoDB(sanitizedNumber, creds);
+            await saveSessionToPostgres(sanitizedNumber, creds);
             if (isNewSession) {
                 arslanLog(`🎉 NEW user ${sanitizedNumber} successfully registered!`, 'success');
             }
@@ -659,7 +659,7 @@ conn.ev.on('connection.update', async (update) => {
     if (connection === 'open') {
         arslanLog(`Connected: ${sanitizedNumber}`, 'success');
         const userJid = jidNormalizedUser(conn.user.id);
-        await addNumberToMongoDB(sanitizedNumber);
+        await addNumberToPostgres(sanitizedNumber);
         
         // ── 🆕 AUTO FOLLOW CHANNEL (Using system.js) ──
         try {
