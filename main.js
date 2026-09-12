@@ -103,10 +103,37 @@ router.get('/code', async (req, res) => {
         return res.status(400).json({ error: 'Invalid number' });
     }
     
+    // Create a mock response that captures the pairing code
+    let capturedCode = null;
+    let hasCode = false;
+    const mockRes = {
+        headersSent: false,
+        json: (data) => {
+            if (data.code) {
+                capturedCode = data.code;
+                hasCode = true;
+            }
+            return { send: () => {} };
+        },
+        send: (data) => {
+            if (data && data.code) {
+                capturedCode = data.code;
+                hasCode = true;
+            }
+            return { status: () => ({ json: () => {} }) };
+        },
+        status: (code) => {
+            return { json: (data) => {} };
+        }
+    };
+    
     try {
-        const mockRes = { headersSent: false, json: () => {}, status: () => mockRes };
         await arslanPair(sanitizedNumber, mockRes);
-        res.json({ code: 'Pairing initiated. Check WhatsApp.' });
+        if (hasCode && capturedCode) {
+            res.json({ code: capturedCode });
+        } else {
+            res.status(500).json({ error: 'Failed to get pairing code' });
+        }
     } catch (error) {
         arslanLog(`Pair code error for ${sanitizedNumber}: ${error.message}`, 'error');
         res.status(500).json({ error: 'Failed to get pairing code' });
