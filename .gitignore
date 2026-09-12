@@ -25,10 +25,11 @@ Thumbs.db
 *.log
 npm-debug.log*
 
-# MongoDB
-data/
-*.sqlite
-*.db
+# MongoDB (excluding presence.js which is required)
+data/Antidelete.js
+data/Antidelete.js.bak
+data/*.sqlite
+data/*.db
 
 # Database
 config.js.bak
