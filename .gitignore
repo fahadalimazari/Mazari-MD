@@ -1,0 +1,54 @@
+# Environment variables and secrets
+.env
+.env.local
+.env.production
+
+# Session files
+session/
+*.session
+
+# Node modules
+node_modules/
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*
+
+# MongoDB
+data/
+*.sqlite
+*.db
+
+# Database
+config.js.bak
+config.js.backup
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+*.temp
+
+# Build files
+dist/
+build/
+
+# Cache
+.cache/
+.cache/*
+!.cache/keep
+
+# OS thumbnails
+.DS_Store
+*.orig
