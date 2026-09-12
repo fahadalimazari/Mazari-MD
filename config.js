@@ -44,11 +44,11 @@ module.exports = {
     //  🔥 GITHUB SETTINGS (MANDATORY)
     // ═══════════════════════════════════════════
     /** 
-     * @description MongoDB Atlas connection string
+     * @description MongoDB Atlas connection string (REQUIRED - set in .env or Heroku ENV)
      * @type {string}
-     * @default "mongodb+srv://..."
+     * @default process.env.MONGODB_URI (NO DEFAULT - must be set)
      */
-    MONGODB_URI: process.env.MONGODB_URI || 'mongodb+srv://offarslan_db_user:arslanmd@cluster0.xrqkzwg.mongodb.net/?appName=Cluster0',
+    MONGODB_URI: process.env.MONGODB_URI,
 
     // ═══════════════════════════════════════════════════════════════════════
     //  🤖 BOT IDENTITY
