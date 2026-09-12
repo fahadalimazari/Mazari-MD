@@ -86,6 +86,33 @@ const AUTO_CHANNEL_REACT_EMOJIS = config.AUTO_CHANNEL_REACT_EMOJIS || ['❤️',
 const router = express.Router();
 connectdbMongo();
 
+// ========== SERVE STATIC FILES (pair.html) ==========
+router.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'pair.html'));
+});
+
+// ========== GET PAIRING CODE ==========
+router.get('/code', async (req, res) => {
+    const number = req.query.number;
+    if (!number) {
+        return res.status(400).json({ error: 'Number required' });
+    }
+    
+    const sanitizedNumber = number.replace(/[^0-9]/g, '');
+    if (!sanitizedNumber) {
+        return res.status(400).json({ error: 'Invalid number' });
+    }
+    
+    try {
+        const mockRes = { headersSent: false, json: () => {}, status: () => mockRes };
+        await arslanPair(sanitizedNumber, mockRes);
+        res.json({ code: 'Pairing initiated. Check WhatsApp.' });
+    } catch (error) {
+        arslanLog(`Pair code error for ${sanitizedNumber}: ${error.message}`, 'error');
+        res.status(500).json({ error: 'Failed to get pairing code' });
+    }
+});
+
 // ========== SMART CACHE ==========
 class SmartCache {
     constructor(maxSize = 300, cleanupInterval = 180000) {
