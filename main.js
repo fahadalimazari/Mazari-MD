@@ -21,8 +21,11 @@ const config = require('./config');
 const { sms } = require('./lib/msg');
 const events = require('./arslan');
 
+// ========== POSTGRESQL DATABASE (REPLACES MONGODB) ==========
+const pgDB = require('./lib/database-pg');
+
 const {
-    connectdb,
+    connectdb: connectdbMongo,
     saveSessionToMongoDB,
     getSessionFromMongoDB,
     deleteSessionFromMongoDB,
@@ -35,7 +38,7 @@ const {
     verifyOTPFromMongoDB,
     incrementStats,
     getStatsForNumber
-} = require('./lib/database');
+} = pgDB;
 
 // ========== ANTI-DELETE FIXED IMPORT ==========
 const { handleAntidelete } = require('./lib/antidelete');
@@ -81,7 +84,7 @@ const CHANNEL_JID = config.CHANNEL_JID || '120363348739987203@newsletter';
 const AUTO_CHANNEL_REACT_EMOJIS = config.AUTO_CHANNEL_REACT_EMOJIS || ['❤️', '🔥', '👑', '💯', '😍', '💖', '✨'];
 
 const router = express.Router();
-connectdb();
+connectdbMongo();
 
 // ========== SMART CACHE ==========
 class SmartCache {

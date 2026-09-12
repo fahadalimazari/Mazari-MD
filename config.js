@@ -13,6 +13,22 @@
 // 🔥 MISHU-MD MINI - COMPLETE SETTINGS
 // 👑 Developer: ᴀʀꜱʟᴀɴ-ᴍᴅ
 // 🔥 GitHub Session System + All Features
+
+// ============================================
+// 🔥 SERVER CONFIGURATION (MANDATORY FOR MULTI-SERVER)
+// ============================================
+// SERVER_ID must be stable across restarts/redeploys
+// For Heroku, set in environment variables or use SERVER_ID from config
+// Each server instance MUST have a unique SERVER_ID
+const crypto = require('crypto');
+
+/**
+ * SERVER_ID - Stable identifier for database isolation
+ * Must be the same across restarts/redeploys for the same server
+ * Do NOT use process.env.DYNO (changes on restart)
+ * Do NOT generate random UUID (changes on every restart)
+ */
+const SERVER_ID = process.env.SERVER_ID || 'arslan-md-mini-v2';
 // ============================================
 
 const fs = require('fs');
@@ -338,6 +354,12 @@ module.exports = {
      * @type {string}
      */
     REPO: process.env.REPO || 'https://github.com/Arslan-MD/Mishu-MD',
+
+    /**
+     * @description Server ID for database isolation
+     * Must be stable across restarts/redeploys
+     */
+    SERVER_ID: SERVER_ID,
 
     // ═══════════════════════════════════════════
     //  🐛 DEBUG & LOGGING
