@@ -33,7 +33,9 @@ CREATE TABLE IF NOT EXISTS server_sessions (
     phone_number VARCHAR(20) NOT NULL,
     last_connected TIMESTAMPTZ DEFAULT NOW(),
     is_active BOOLEAN DEFAULT TRUE,
+    connection_info JSONB DEFAULT '{}',
     created_at TIMESTAMPTZ DEFAULT NOW(),
+    updated_at TIMESTAMPTZ DEFAULT NOW(),
     PRIMARY KEY (server_id, phone_number)
 );
 
