@@ -1053,7 +1053,8 @@ conn.ev.on('connection.update', async (update) => {
                                 groupAdmins,
                                 isBotAdmins,
                                 isAdmins,
-                                reply: (text) => conn.sendMessage(from, { text }, { quoted: mek })
+                                reply: (text) => conn.sendMessage(from, { text }, { quoted: mek }),
+                                config: config
                             });
                         } catch (e) {
                             console.error("[ ❌ ] Command error", e.message);
