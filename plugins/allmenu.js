@@ -61,7 +61,7 @@ cmd({
         const caption = `
 *╭━━━〔 ${toSmallUnicode('MAZARI-MD')} 〕━━━⊷*
 *┃*
-*┃ ✦ ${m.sender.split('@')[0]}*
+*┃ ✦ ${toSmallUnicode('HELLO')} @${m.sender.split('@')[0]}*
 *┃*
 *┃ ✦╭────〔 ${toSmallUnicode('BOT INFO')} 〕────⊷*
 *┃ ✦│▸ ${toSmallUnicode('TOTAL COMMANDS')} : ${totalCommands}*
