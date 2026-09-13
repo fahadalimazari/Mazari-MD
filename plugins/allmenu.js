@@ -77,6 +77,7 @@ cmd({
 *┃*
 *╰━━━━━━━━━━━━━━━━━━━━⊷*
 ${menuText}
+> ${toSmallUnicode('POWERED BY MAZARI-MD')}
 `.trim();
 
         await conn.sendMessage(m.chat, {
