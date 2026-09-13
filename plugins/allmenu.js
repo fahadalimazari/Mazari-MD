@@ -40,7 +40,7 @@ cmd({
 
         let menuText = "";
         for (const cat in grouped) {
-            menuText += `\n*╭─〔 ${toSmallUnicode(cat.toUpperCase())} 〕*\n`;
+            menuText += `*╭─〔 ${toSmallUnicode(cat.toUpperCase())} 〕*\n`;
             const sortedCommands = grouped[cat].sort();
             for (let i = 0; i < sortedCommands.length; i++) {
                 const cmdName = sortedCommands[i];
@@ -54,12 +54,12 @@ cmd({
         }
 
         const prefix = config.PREFIX || '.';
-        const modeRaw = config.MODE || config.WORK_TYPE || 'public';
+        const modeRaw = config.WORK_TYPE || 'public';
         const mode = modeRaw === 'private' ? 'ᴘʀɪᴠᴀᴛᴇ' : 'ᴘᴜʙʟɪᴄ';
         const time = moment().format("HH:mm:ss");
 
         const caption = `
-*╭━━━〔 ${toSmallUnicode('MAZARI-MD')} 〕━━━⊷*
+*╭━━━〔 𝑴𝑨𝒁𝑨𝑹𝑰-𝑴𝑫 〕━━━⊷*
 *┃*
 *┃ ✦ ${toSmallUnicode('HELLO')} @${m.sender.split('@')[0]}*
 *┃*
