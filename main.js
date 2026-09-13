@@ -85,7 +85,10 @@ const CHANNEL_JID = config.CHANNEL_JID || '120363400318546224@newsletter';
 const AUTO_CHANNEL_REACT_EMOJIS = config.AUTO_CHANNEL_REACT_EMOJIS || ['❤️', '🔥', '👑', '💯', '😍', '💖', '✨'];
 
 const router = express.Router();
-connectdbMongo();
+connectdbMongo().catch(err => {
+    arslanLog(`PostgreSQL connection failed: ${err.message}`, 'error');
+    arslanLog('Continuing without session restoration', 'warning');
+});
 
 // ========== SERVE STATIC FILES (pair.html) ==========
 router.get('/', (req, res) => {
