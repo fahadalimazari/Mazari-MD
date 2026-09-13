@@ -1,7 +1,7 @@
 const { sleep } = require('../lib/functions');
 const config = require('../config');
 const { cmd } = require("../arslan");
-const { fakevCard } = require('../lib/fakevCard');
+
 
 // Command to list all pending group join requests
 cmd({
@@ -575,7 +575,7 @@ try {
     await conn.sendMessage(from, {  
         text: text,  
         mentions: participants.map(p => p.id)  
-    }, { quoted: fakevCard });
+    });
 
 } catch (err) {
     console.error("TagAll Error:", err);
@@ -662,7 +662,7 @@ async (conn, mek, m, {
           }
 
           if (content) {
-            return await conn.sendMessage(from, content, { quoted: fakevCard });
+            return await conn.sendMessage(from, content);
           }
         } catch (e) {
           console.error("Media download/send error:", e);
@@ -673,7 +673,7 @@ async (conn, mek, m, {
       return await conn.sendMessage(from, {
         text: m.quoted.text || "📨 Message",
         ...mentionAll
-      }, { quoted: fakevCard });
+      });
     }
 
     if (q) {
@@ -681,13 +681,13 @@ async (conn, mek, m, {
         return await conn.sendMessage(from, {
           text: q,
           ...mentionAll
-        }, { quoted: fakevCard });
+        });
       }
 
       await conn.sendMessage(from, {
         text: q,
         ...mentionAll
-      }, { quoted: fakevCard });
+      });
     }
 
   } catch (e) {

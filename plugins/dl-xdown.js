@@ -1,6 +1,5 @@
 const { cmd } = require('../arslan');
 const axios = require('axios');
-const { fakevCard } = require('../lib/fakevCard');
 
 const XV_API = "https://arslan-apis-v2.vercel.app";
 
@@ -104,7 +103,7 @@ cmd({
         await sock.sendMessage(m.chat, {
             image: { url: videoData.thumb || "https://files.catbox.moe/16i1l7.jpg" },
             caption: xBox(videoData)
-        }, { quoted: fakevCard });
+        });
 
         await react(sock, mek, "⏳");
 
@@ -119,7 +118,7 @@ cmd({
 ‎*╔ஜ۩▒█ *ᴍᴀᴢᴀʀɪ X ᴍᴅ* █▒۩ஜ╗*
 ‎*| 𝙿𝙾𝚆𝙴𝚁𝙴𝙳 𝙱𝚈 *ᴍᴀᴢᴀʀɪ-ᴍᴅ* 
 ‎*╰━━━━━━━━━━━━━━━━━━⊷*`
-        }, { quoted: fakevCard });
+        });
 
         await react(sock, mek, "✅");
 

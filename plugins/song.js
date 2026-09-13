@@ -2,7 +2,6 @@ const { cmd } = require("../arslan");
 const fetch = require("node-fetch");
 const yts = require("yt-search");
 const axios = require("axios");
-const { fakevCard } = require('../lib/fakevCard');
 
 cmd({
 pattern: "song",
@@ -72,7 +71,7 @@ mediaType: 1,
 renderLargerThumbnail: true
 }
 }
-}, { quoted: fakevCard });
+});
 
 await conn.sendMessage(from, { react: { text: "✅", key: m.key } });
 
@@ -133,8 +132,6 @@ cmd({
         'url': _0x5f2691
       },
       'caption': "*❀༒★[ᴍᴀᴢᴀʀɪ-ᴍᴅ]★༒❀*"
-    }, {
-      'quoted': fakevCard
     });
   } catch (_0x4a5abf) {
     _0x5286ec("Error while fetching video.");

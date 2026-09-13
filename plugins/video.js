@@ -1,7 +1,6 @@
 const axios = require('axios')
 const yts = require('yt-search')
 const { cmd } = require('../arslan')
-const { fakevCard } = require('../lib/fakevCard')
 
 cmd({
 pattern: "video",
@@ -42,7 +41,7 @@ const caption = `
 await conn.sendMessage(from,{
 image:{url:vid.thumbnail},
 caption
-},{quoted:fakevCard})
+})
 
 /* 🎥 API */
 
@@ -69,7 +68,7 @@ await conn.sendMessage(from,{
 video:{url:videoUrl},
 mimetype:"video/mp4",
 caption:`🎬 *${title}*\n\n> © ᴍᴀᴢᴀʀɪ-ᴍᴅ`
-},{quoted:fakevCard})
+})
 
 }catch(err){
 

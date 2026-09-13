@@ -70,7 +70,6 @@ const { PresenceControl, BotActivityFilter } = require('./data/presence');
 const registerAntiCall = require('./lib/anticall');
 const { getPrefix } = require('./lib/prefix');
 const { handleReaction } = require('./lib/reaction');
-const { fakevCard } = require('./lib/fakevCard');
 const AntiDelete = require('./lib/antidelete');
 
 // ========== SETTINGS.JS SE VALUES ==========

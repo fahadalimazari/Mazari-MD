@@ -1,6 +1,5 @@
 const axios = require("axios");
 const { cmd } = require('../arslan');
-const { fakevCard } = require('../lib/fakevCard');
 
 cmd({
     pattern: "igdl",
@@ -39,7 +38,7 @@ cmd({
 ‎*|* 𝙿𝙾𝚆𝙴𝚁𝙴𝙳 𝙱𝚈 *ᴍᴀᴢᴀʀɪ-ᴍᴅ* 
 ‎*╰━━━━━━━━━━━━━━━━━━⊷*
 ‎`
-            }, { quoted: fakevCard });
+            });
         }
 
         // Success reaction
@@ -95,7 +94,7 @@ cmd({
 ‎‎╔ஜ۩▒█ *ᴍᴀᴢᴀʀɪ X ᴍᴅ* █▒۩ஜ╗
 ‎*|* 𝙿𝙾𝚆𝙴𝚁𝙴𝙳 𝙱𝚈 *ᴍᴀᴢᴀʀɪ-ᴍᴅ* 
 ‎*╰━━━━━━━━━━━━━━━━━━⊷*`
-    }, { quoted: fakevCard });
+    });
 
     await conn.sendMessage(from, { react: { text: '✅', key: m.key } });
   } catch (error) {
@@ -145,7 +144,7 @@ cmd({
     await conn.sendMessage(from, {
       video: { url: videoUrl },
       caption: `📥 *Instagram Reel Downloader*\n👤 *Author:* ${author}\n💬 *Caption:* ${caption}\n❤️ *Likes:* ${likes} | 💭 *Comments:* ${comments}\n\n> ᴘᴏᴡᴇʀᴇᴅ ʙʏ ☬༒ᴍᴀᴢᴀʀɪ-ᴍᴅ༒☬`
-    }, { quoted: fakevCard });
+    });
 
     await conn.sendMessage(from, { react: { text: '✅', key: m.key } });
   } catch (error) {
@@ -187,7 +186,7 @@ async (conn, mek, m, { from, args, q, reply }) => {
             video: { url: url },
             caption: caption,
             contextInfo: { mentionedJid: [m.sender] }
-        }, { quoted: fakevCard });
+        });
         
     } catch (e) {
         console.error("Error in Instagram downloader command:", e);

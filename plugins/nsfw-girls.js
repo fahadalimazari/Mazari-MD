@@ -1,5 +1,4 @@
 const { cmd } = require("../arslan");
-const { fakevCard } = require('../lib/fakevCard');
 
 cmd({
   pattern: "boobs",
@@ -15,8 +14,6 @@ cmd({
     await conn.sendMessage(from, {
       image: { url: apiUrl },
       caption: "🌸 *Random X Girl*\n\n© MAZARI-MD"
-    }, {
-      quoted: fakevCard
     });
 
   } catch (err) {
@@ -39,8 +36,6 @@ cmd({
     await conn.sendMessage(from, {
       image: { url: apiUrl },
       caption: "🌸 *Random X Girl*\n\n© MAZARI-MD"
-    }, {
-      quoted: fakevCard
     });
 
   } catch (err) {

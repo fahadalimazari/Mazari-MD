@@ -1,5 +1,4 @@
 const { cmd, commands } = require("../arslan");
-const { fakevCard } = require('../lib/fakevCard');
 
 // Unicode small letter mapping
 const toSmallUnicode = (str) => {
@@ -86,7 +85,7 @@ ${menuText}
             contextInfo: {
                 mentionedJid: [m.sender]
             },
-        }, { quoted: fakevCard });
+        });
 
     } catch (err) {
         console.error("AllMenu Error:", err);

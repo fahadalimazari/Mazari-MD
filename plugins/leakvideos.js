@@ -1,5 +1,4 @@
 const { cmd } = require("../arslan");
-const { fakevCard } = require('../lib/fakevCard');
 
 
 //================= LEAKVIDEO 1 =================
@@ -23,7 +22,7 @@ cmd({
             mimetype: "video/mp4",
             caption: "🎬 Random Leak Video",
             contextInfo: { mentionedJid: [m.sender] }
-        }, { quoted: fakevCard });
+        });
 
     } catch (err) {
 
@@ -56,7 +55,7 @@ cmd({
             mimetype: "video/mp4",
             caption: "🔥 Random Leak Video 2",
             contextInfo: { mentionedJid: [m.sender] }
-        }, { quoted: fakevCard });
+        });
 
     } catch (err) {
 
