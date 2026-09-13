@@ -1,6 +1,6 @@
 // ============================================
-// 🚫 ANTI-BAD WORDS - ARSLAN-MD MINI
-// 👑 Developer: ᴀʀꜱʟᴀɴ-ᴍᴅ
+// 🚫 ANTI-BAD WORDS - MAZARI-MD MINI
+// 👑 Developer: MAZARI HACKER
 // 🔥 Auto delete bad words + Warn + Kick
 // ============================================
 
@@ -94,7 +94,7 @@ cmd({
 • ${prefix}antibad on kick - Kick on bad words
 • ${prefix}antibad off - Disable system
 
-💖 *Powered by ARSLAN-MD*`);
+💖 *Powered by MAZARI-MD*`);
     }
 
     // ─── TOGGLE ON ───
@@ -113,7 +113,7 @@ cmd({
 📌 *Action:* ${actionMsg}
 🔹 *Bad words will be filtered.*
 
-💖 Powered by ARSLAN-MD`);
+💖 Powered by MAZARI-MD`);
 
         await conn.sendMessage(from, {
             text: `╭────────────────────◇
@@ -123,7 +123,7 @@ cmd({
 │✦ Action: ${actionMsg}
 │✦ Admin: @${mek.key.participant?.split('@')[0] || 'Unknown'}
 ╰────────────────────○
-*© Powered by ARSLAN-MD*`,
+*© Powered by MAZARI-MD*`,
             mentions: [mek.key.participant]
         });
 
@@ -136,7 +136,7 @@ cmd({
 
 📌 Bad words will no longer be filtered.
 
-💖 Powered by ARSLAN-MD`);
+💖 Powered by MAZARI-MD`);
     }
 });
 
@@ -226,7 +226,7 @@ cmd({
 👤 User: @${senderNumber}
 📊 Warn: ${warnCount}/${maxWarns}
 
-💖 Powered by ARSLAN-MD`;
+💖 Powered by MAZARI-MD`;
 
     await conn.sendMessage(from, {
         text: warnMsg,
@@ -243,7 +243,7 @@ cmd({
 📌 Reason: Repeated bad words (${warnCount} warns)
 👤 User: @${senderNumber}
 
-💖 Powered by ARSLAN-MD`,
+💖 Powered by MAZARI-MD`,
                 mentions: [sender]
             });
             
@@ -255,4 +255,4 @@ cmd({
     }
 });
 
-console.log('🚫 ARSLAN-MD - Anti-Bad Words Plugin Loaded! 💖');
+console.log('🚫 MAZARI-MD - Anti-Bad Words Plugin Loaded! 💖');

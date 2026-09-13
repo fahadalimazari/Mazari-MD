@@ -40,7 +40,7 @@ async (conn, mek, m, { from, q, reply }) => {
 `
         }
 
-        text += "*👑 ARSLAN-MD-MINI WHATSAPP BOT 👑*"
+        text += "*👑 MAZARI-MD-MINI WHATSAPP BOT 👑*"
 
         await conn.sendMessage(
             from,

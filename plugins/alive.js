@@ -23,7 +23,7 @@ cmd({
         const runtimeHours = Math.floor(runtimeMilliseconds / (1000 * 60 * 60));
 
         const formattedInfo = `
-╭┄┄┄┄[ *ᴀʀꜱʟᴀɴ-ᴍᴅ sᴛᴀᴛᴜs* ]┄┄┄┄
+╭┄┄┄┄[ *MAZARI-MD status* ]┄┄┄┄
 ┊
 ┊     Hi 🫵🏽 ${pushname}
 ┊
@@ -32,7 +32,7 @@ cmd({
 ┊⏳ *ᴜᴘᴛɪᴍᴇ*: ${runtimeHours} hours, ${runtimeMinutes} minutes, ${runtimeSeconds} seconds
 ╰───────────────
 
-> 🤖 *Status*: *Arslan-MD-Mini is Alive and Ready!*
+> 🤖 *Status*: *MAZARI-MD-MINI is Alive and Ready!*
 
 🎉 *Enjoy the Service!*
         `.trim();
@@ -51,8 +51,8 @@ cmd({
                 forwardingScore: 999,
                 isForwarded: true,
                 forwardedNewsletterMessageInfo: {
-                    newsletterJid: '120363348739987203@newsletter',
-                    newsletterName: 'ᴀʀꜱʟᴀɴ-ᴍᴅ',
+                    newsletterJid: '120363400318546224@newsletter',
+                    newsletterName: 'MAZARI-MD',
                     serverMessageId: 143
                 }
             }

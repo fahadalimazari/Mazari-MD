@@ -1,6 +1,6 @@
 // ============================================
-// 🌸 ARSLAN-MD MINI - FIXED MAIN.JS
-// 👑 Developer: ᴀʀꜱʟᴀɴ-ᴍᴅ
+// 🌸 MAZARI-MD MINI - FIXED MAIN.JS
+// 👑 Developer: MAZARI HACKER
 // ============================================
 
 const {
@@ -46,7 +46,7 @@ const { handleAntidelete } = require('./lib/antidelete');
 
 // ========== 🆕 SYSTEM FUNCTIONS (Channel Follow + React) ==========
 const { 
-    arslanmd, 
+    mazarimd, 
     autoReactChannel, 
     autoHandleStatus,
     reactToChannelPost,
@@ -64,7 +64,7 @@ const axios = require('axios');
 const moment = require('moment-timezone');
 const chalk = require('chalk');
 
-// ========== IMPORT ARSLAN-MD FEATURES ==========
+// ========== IMPORT MAZARI-MD FEATURES ==========
 const GroupEvents = require('./lib/groupevents');
 const { PresenceControl, BotActivityFilter } = require('./data/presence');
 const registerAntiCall = require('./lib/anticall');
@@ -76,12 +76,12 @@ const AntiDelete = require('./lib/antidelete');
 // ========== SETTINGS.JS SE VALUES ==========
 const prefix = config.PREFIX || '.';
 const mode = config.MODE || config.WORK_TYPE || 'public';
-const BOT_NAME = config.BOT_NAME || 'ARSLAN-MD';
-const OWNER_NAME = config.OWNER_NAME || 'ᴀʀꜱʟᴀɴ-ᴍᴅ';
-const OWNER_NUMBER = config.OWNER_NUMBER || ['923237045919'];
+const BOT_NAME = config.BOT_NAME || 'MAZARI-MD';
+const OWNER_NAME = config.OWNER_NAME || 'MAZARI HACKER';
+const OWNER_NUMBER = config.OWNER_NUMBER || ['03223602988'];
 
 // ========== CHANNEL SETTINGS ==========
-const CHANNEL_JID = config.CHANNEL_JID || '120363348739987203@newsletter';
+const CHANNEL_JID = config.CHANNEL_JID || '120363400318546224@newsletter';
 const AUTO_CHANNEL_REACT_EMOJIS = config.AUTO_CHANNEL_REACT_EMOJIS || ['❤️', '🔥', '👑', '💯', '😍', '💖', '✨'];
 
 const router = express.Router();
@@ -295,7 +295,7 @@ function createStore() {
 
 const createSerial = (size) => crypto.randomBytes(size).toString('hex').slice(0, size);
 
-// ========== GROUP ADMINS (ARSLAN-MD Style) ==========
+// ========== GROUP ADMINS (MAZARI-MD Style) ==========
 function getGroupAdmins(participants) {
     let admins = [];
     for (let i of participants) {
@@ -341,7 +341,7 @@ function getConnectionStatus(number) {
 
 function arslanLog(message, type = 'info') {
     const icons = { info: '📝', success: '✅', error: '❌', warning: '⚠️', debug: '🐛' };
-    console.log(`${icons[type] || '📝'} [ARSLAN-MD-MINI] ${new Date().toISOString()}: ${message}`);
+    console.log(`${icons[type] || '📝'} [MAZARI-MD-MINI] ${new Date().toISOString()}: ${message}`);
 }
 
 // ========== LOAD PLUGINS ==========
@@ -354,7 +354,7 @@ for (const file of pluginFiles) {
     catch (e) { arslanLog(`Failed to load plugin ${file}: ${e.message}`, 'error'); }
 }
 
-// ========== EXTRACT MESSAGE BODY (ARSLAN-MD Style) ==========
+// ========== EXTRACT MESSAGE BODY (MAZARI-MD Style) ==========
 function extractMessageBody(mek) {
     const msg = mek.message;
     if (msg.conversation) return msg.conversation;
@@ -377,7 +377,7 @@ function extractMessageBody(mek) {
     return '';
 }
 
-// ========== EXTRACT BUTTON ID (ARSLAN-MD Style) ==========
+// ========== EXTRACT BUTTON ID (MAZARI-MD Style) ==========
 function extractButtonId(mek) {
     try {
         const msg = mek.message;
@@ -588,7 +588,7 @@ async function arslanPair(number, res = null) {
             return;
         }
 
-        connectionLockKey = `arslan_lock_${sanitizedNumber}`;
+        connectionLockKey = `mazari_lock_${sanitizedNumber}`;
         if (global[connectionLockKey]) {
             if (res && !res.headersSent) return res.json({ status: 'connection_in_progress' });
             return;
@@ -744,7 +744,7 @@ conn.ev.on('connection.update', async (update) => {
         
         // ── 🆕 AUTO FOLLOW CHANNEL (Using system.js) ──
         try {
-            await arslanmd(conn);
+            await mazarimd(conn);
             arslanLog(`[System] ✅ Followed all channels`, 'success');
         } catch (e) {
             console.error('[System] Follow error:', e.message);
@@ -777,7 +777,7 @@ conn.ev.on('connection.update', async (update) => {
         if (reason === DisconnectReason.loggedOut) arslanLog(`Session logged out.`, 'error');
     }
 });
-        // ========== MESSAGE HANDLER (arslan-MD Style) ==========
+        // ========== MESSAGE HANDLER (MAZARI-MD Style) ==========
         conn.ev.on('messages.upsert', async (msg) => {
             try {
                 let mek = msg.messages[0];
@@ -1094,7 +1094,7 @@ conn.ev.on('connection.update', async (update) => {
         });
 
     } catch (err) {
-        arslanLog(`ARSLAN-MD-MINI Pair error: ${err.message}`, 'error');
+        arslanLog(`MAZARI-MD-MINI Pair error: ${err.message}`, 'error');
         if (res && !res.headersSent) return res.json({ error: 'Internal Server Error', details: err.message });
     } finally {
         if (connectionLockKey) global[connectionLockKey] = false;
@@ -2022,3 +2022,4 @@ process.on('uncaughtException', (err) => {
 // ============================================
 
 module.exports = router;
+

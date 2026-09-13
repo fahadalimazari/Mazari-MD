@@ -1,5 +1,5 @@
 // ============================================
-// 🔗 ANTI-LINK - ARSLAN-MD MINI
+// 🔗 ANTI-LINK - MAZARI-MD MINI
 // 👑 Developer: ᴀʀꜱʟᴀɴ-ᴍᴅ
 // 🔥 Auto delete links + Warn + Kick
 // ============================================
@@ -108,7 +108,7 @@ cmd({
 • ${prefix}antilink on kick - Kick on links
 • ${prefix}antilink off - Disable system
 
-💖 *Powered by ARSLAN-MD*`);
+💖 *Powered by MAZARI-MD*`);
     }
 
     // ─── TOGGLE ON ───
@@ -127,7 +127,7 @@ cmd({
 📌 *Action:* ${actionMsg}
 🔹 *Links will be filtered (except allowed domains).*
 
-💖 Powered by ARSLAN-MD`);
+💖 Powered by MAZARI-MD`);
 
         await conn.sendMessage(from, {
             text: `╭────────────────────◇
@@ -137,7 +137,7 @@ cmd({
 │✦ Action: ${actionMsg}
 │✦ Admin: @${mek.key.participant?.split('@')[0] || 'Unknown'}
 ╰────────────────────○
-*© Powered by ARSLAN-MD*`,
+*© Powered by MAZARI-MD*`,
             mentions: [mek.key.participant]
         });
 
@@ -150,7 +150,7 @@ cmd({
 
 📌 Links will no longer be filtered.
 
-💖 Powered by ARSLAN-MD`);
+💖 Powered by MAZARI-MD`);
     }
 });
 
@@ -224,7 +224,7 @@ cmd({
 👤 User: @${senderNumber}
 📊 Warn: ${warnCount}/${maxWarns}
 
-💖 Powered by ARSLAN-MD`;
+💖 Powered by MAZARI-MD`;
 
     await conn.sendMessage(from, {
         text: warnMsg,
@@ -241,7 +241,7 @@ cmd({
 📌 Reason: Repeated links (${warnCount} warns)
 👤 User: @${senderNumber}
 
-💖 Powered by ARSLAN-MD`,
+💖 Powered by MAZARI-MD`,
                 mentions: [sender]
             });
             
@@ -253,4 +253,5 @@ cmd({
     }
 });
 
-console.log('🔗 ARSLAN-MD - Anti-Link Plugin Loaded! 💖');
+console.log('🔗 MAZARI-MD - Anti-Link Plugin Loaded! 💖');
+

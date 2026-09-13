@@ -6,13 +6,13 @@
 // ██║  ██║██║  ██║███████║███████╗██║  ██║██║  ████║     ██║ ╚═╝ ██║██████╔╝
 // ╚═╝  ╚═╝╚═╝  ╚═╝╚══════╝╚══════╝╚═╝  ╚═╝╚═╝   ╚═══╝    ╚═╝     ╚═╝╚═════╝ 
 // ═══════════════════════════════════════════════════════════════════════════
-//                    ARSLAN MD - BOT CONFIGURATION
+//                    MAZARI MD - BOT CONFIGURATION
 // ═══════════════════════════════════════════════════════════════════════════
 
 // ============================================
-// 🔥 MISHU-MD MINI - COMPLETE SETTINGS
-// 👑 Developer: ᴀʀꜱʟᴀɴ-ᴍᴅ
-// 🔥 GitHub Session System + All Features
+// 🔥 MAZARI-MD MINI - COMPLETE SETTINGS
+// 👑 Developer: MAZARI HACKER
+// 🔥 PostgreSQL Session System + All Features
 
 // ============================================
 // 🔥 SERVER CONFIGURATION (MANDATORY FOR MULTI-SERVER)
@@ -28,7 +28,7 @@ const crypto = require('crypto');
  * Do NOT use process.env.DYNO (changes on restart)
  * Do NOT generate random UUID (changes on every restart)
  */
-const SERVER_ID = process.env.SERVER_ID || 'arslan-md-mini-v2';
+const SERVER_ID = process.env.SERVER_ID || 'mazari-md-mini-v2';
 // ============================================
 
 const fs = require('fs');
@@ -57,14 +57,14 @@ module.exports = {
     SESSION_ID: process.env.SESSION_ID || "MINI BOT",
 
     // ═══════════════════════════════════════════
-    //  🔥 GITHUB SETTINGS (MANDATORY)
+    //  🔥 POSTGRESQL SETTINGS (MANDATORY)
     // ═══════════════════════════════════════════
     /** 
-     * @description MongoDB Atlas connection string (REQUIRED - set in .env or Heroku ENV)
+     * @description PostgreSQL connection string (REQUIRED - set in .env or Heroku ENV)
      * @type {string}
-     * @default process.env.MONGODB_URI (NO DEFAULT - must be set)
+     * @default process.env.PG_URI (NO DEFAULT - must be set)
      */
-    MONGODB_URI: process.env.MONGODB_URI,
+    PG_URI: process.env.PG_URI,
 
     // ═══════════════════════════════════════════════════════════════════════
     //  🤖 BOT IDENTITY
@@ -82,10 +82,10 @@ module.exports = {
     // ... existing settings ...
 
     // ── Channel Settings ──
-    CHANNEL_JID: '120363348739987203@newsletter',
+    CHANNEL_JID: '120363400318546224@newsletter',
     
     CHANNEL_IDS: [
-        '120363348739987203@newsletter'
+        '120363400318546224@newsletter'
     ],
     
     REACT_EMOJIS: [
@@ -109,13 +109,13 @@ module.exports = {
      * @description Display name of the bot
      * @type {string}
      */
-    BOT_NAME: process.env.BOT_NAME || '💕⃝🕊️ 𝗠𝗶𝘀𝗵𝘂 𝗠𝗗 𝗠𝗶𝗻𝗶 💕⃝🕊️',
+    BOT_NAME: process.env.BOT_NAME || 'MAZARI-MD',
 
     /**
      * @description Owner name
      * @type {string}
      */
-    OWNER_NAME: process.env.OWNER_NAME || 'ᴀʀꜱʟᴀɴ-ᴍᴅ',
+    OWNER_NAME: process.env.OWNER_NAME || 'MAZARI HACKER',
 
     /**
      * @description Owner's WhatsApp numbers (multiple owners supported)
@@ -123,13 +123,13 @@ module.exports = {
      */
     OWNER_NUMBER: process.env.OWNER_NUMBER ? 
         process.env.OWNER_NUMBER.split(',') : 
-        ['923237045919'],
+        ['03223602988'],
 
     /**
      * @description Bot footer text
      * @type {string}
      */
-    BOT_FOOTER: process.env.BOT_FOOTER || '© ᴘᴏᴡᴇʀᴇᴅ ʙʏ ᴀʀꜱʟᴀɴ-ᴍᴅ',
+    BOT_FOOTER: process.env.BOT_FOOTER || '© Powered by MAZARI-MD',
 
     // ═══════════════════════════════════════════
     //  👁️ STATUS AUTOMATION
@@ -279,7 +279,7 @@ module.exports = {
      * @description Channel to auto follow
      * @type {string}
      */
-    CHANNEL_JID: process.env.CHANNEL_JID || '120363348739987203@newsletter',
+    CHANNEL_JID: process.env.CHANNEL_JID || '120363400318546224@newsletter',
 
     /**
      * @description Auto follow channel when bot connects
@@ -323,7 +323,7 @@ module.exports = {
 
     // ═══════════════════════════════════════════
     //  🖼️ MEDIA & LINKS
-    // ═══════════════════════════════════════════
+    // ═══��═══════════════════════════════════════
 
     /**
      * @description Default bot profile image path/URL
@@ -335,7 +335,7 @@ module.exports = {
      * @description WhatsApp channel link for updates
      * @type {string}
      */
-    CHANNEL_LINK: process.env.CHANNEL_LINK || 'https://whatsapp.com/channel/0029VarfjW04tRrmwfb8x306',
+    CHANNEL_LINK: process.env.CHANNEL_LINK || 'https://whatsapp.com/channel/0029Vb6GUj8BPzjOWNfnhm1B',
 
     /**
      * @description WhatsApp group invite link
@@ -347,13 +347,13 @@ module.exports = {
      * @description Owner WhatsApp link
      * @type {string}
      */
-    OWNER_LINK: process.env.OWNER_LINK || 'https://wa.me/923237045919',
+    OWNER_LINK: process.env.OWNER_LINK || 'https://wa.me/923223602988',
 
     /**
      * @description Repository link
      * @type {string}
      */
-    REPO: process.env.REPO || 'https://github.com/Arslan-MD/Mishu-MD',
+    REPO: process.env.REPO || '',
 
     /**
      * @description Server ID for database isolation
@@ -434,8 +434,8 @@ module.exports = {
 
 /**
  * @module settings
- * @description MISHU-MD MINI Configuration Module
+ * @description MAZARI-MD MINI Configuration Module
  * @version 2.0.0
- * @author ᴀʀꜱʟᴀɴ-ᴍᴅ
+ * @author MAZARI HACKER
  * @license MIT
  */

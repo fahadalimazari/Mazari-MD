@@ -59,7 +59,7 @@ fileName: `${meta.title || "song"}.mp3`,
 caption:
 `🎵 *${meta.title || "Unknown Title"}*\n` +
 `🎚️ Quality: ${quality}\n\n` +
-`> © Arslan-MD`,
+`> © MAZARI-MD`,
 contextInfo: {
 externalAdReply: {
 title: meta.title
