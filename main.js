@@ -1159,8 +1159,8 @@ function setupAutoRestart(socket, number) {
             const errorMessage = lastDisconnect && lastDisconnect.error && lastDisconnect.error.message;
             arslanLog(`Connection closed for ${number}: ${statusCode} - ${errorMessage}`, 'warning');
 
-            if (statusCode === 401 || (errorMessage && errorMessage.includes('401'))) {
-                arslanLog(`Manual unlink detected for ${number}, cleaning up...`, 'warning');
+            if (statusCode === 401 || statusCode === 403 || (errorMessage && (errorMessage.includes('401') || errorMessage.includes('403')))) {
+                arslanLog(`Manual unlink or expired session detected for ${number}, cleaning up...`, 'warning');
                 const sanitizedNumber = number.replace(/[^0-9]/g, '');
                 activeSockets.delete(sanitizedNumber);
                 socketCreationTime.delete(sanitizedNumber);
