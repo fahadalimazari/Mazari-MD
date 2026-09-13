@@ -46,15 +46,8 @@ cmd({
         await conn.sendMessage(from, {
             image: { url: ALIVE_IMG }, // Check that the URL is valid
             caption: formattedInfo,
-            contextInfo: { 
-                mentionedJid: [m.sender],
-                forwardingScore: 999,
-                isForwarded: true,
-                forwardedNewsletterMessageInfo: {
-                    newsletterJid: '120363400318546224@newsletter',
-                    newsletterName: 'MAZARI-MD',
-                    serverMessageId: 143
-                }
+            contextInfo: {
+                mentionedJid: [m.sender]
             }
         }, { quoted: fakevCard });
 

@@ -65,7 +65,7 @@ externalAdReply: {
 title: meta.title
 ? meta.title.substring(0, 40)
 : "YouTube Song",
-body: "▶︎ •၊၊||၊|။||||။‌‌‌‌‌၊|• ★彡ᴀʀꜱʟᴀɴ-ᴍᴅ-ʙᴇᴀᴛꜱ彡★",
+body: "▶︎ ��၊၊||၊|။||||။‌‌‌‌‌၊|• ★彡ᴍᴀᴢᴀʀɪ-ᴍᴅ-ʙᴇᴀᴛꜱ彡★",
 thumbnailUrl: video.thumbnail,
 sourceUrl: video.url,
 mediaType: 1,
@@ -132,7 +132,7 @@ cmd({
       'video': {
         'url': _0x5f2691
       },
-      'caption': "*❀༒★[ᴀʀꜱʟᴀɴ-ᴍᴅ]★༒❀*"
+      'caption': "*❀༒★[ᴍᴀᴢᴀʀɪ-ᴍᴅ]★༒❀*"
     }, {
       'quoted': fakevCard
     });

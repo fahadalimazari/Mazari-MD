@@ -37,9 +37,7 @@ async (conn, mek, m, { from, sender, reply }) => {
         await conn.sendMessage(from, { 
             text: status,
             contextInfo: {
-                mentionedJid: [sender],   // ✅ FIXED
-                forwardingScore: 999,
-                isForwarded: true
+                mentionedJid: [sender]
             }
         }, { quoted: mek });
 

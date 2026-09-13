@@ -84,14 +84,7 @@ ${menuText}
             image: { url: "https://files.catbox.moe/prkkzj.png" },
             caption,
             contextInfo: {
-                forwardingScore: 999,
-                isForwarded: true,
-                mentionedJid: [m.sender],
-                forwardedNewsletterMessageInfo: {
-                    newsletterJid: "120363400318546224@newsletter",
-                    newsletterName: "MAZARI-MD MINI V²",
-                    serverMessageId: 2,
-                },
+                mentionedJid: [m.sender]
             },
         }, { quoted: fakevCard });
 
