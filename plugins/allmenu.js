@@ -44,9 +44,9 @@ cmd({
             for (let i = 0; i < sortedCommands.length; i++) {
                 const cmdName = sortedCommands[i];
                 if (i === sortedCommands.length - 1) {
-                    menuText += `*│⬥└─ ${toSmallUnicode(cmdName)}*\n`;
+                    menuText += `*_│⬥└─ ${toSmallUnicode(cmdName)}_*\n`;
                 } else {
-                    menuText += `*│⬥├─ ${toSmallUnicode(cmdName)}*\n`;
+                    menuText += `*_│⬥├─ ${toSmallUnicode(cmdName)}_*\n`;
                 }
             }
             menuText += `*╰─────────────┈⊷*\n`;
