@@ -40,37 +40,37 @@ cmd({
 
         let menuText = "";
         for (const cat in grouped) {
-            menuText += `\n╭─〔 ${toSmallUnicode(cat.toUpperCase())} 〕\n`;
+            menuText += `\n*╭─〔 ${toSmallUnicode(cat.toUpperCase())} 〕*\n`;
             const sortedCommands = grouped[cat].sort();
             for (let i = 0; i < sortedCommands.length; i++) {
                 const cmdName = sortedCommands[i];
                 if (i === sortedCommands.length - 1) {
-                    menuText += `│⬥└─ ${toSmallUnicode(cmdName)}\n`;
+                    menuText += `*│⬥└─ ${toSmallUnicode(cmdName)}*\n`;
                 } else {
-                    menuText += `│⬥├─ ${toSmallUnicode(cmdName)}\n`;
+                    menuText += `*│⬥├─ ${toSmallUnicode(cmdName)}*\n`;
                 }
             }
-            menuText += `╰─────────────┈⊷\n`;
+            menuText += `*╰─────────────┈⊷*\n`;
         }
 
         const prefix = config.PREFIX || '.';
         const modeRaw = config.MODE || config.WORK_TYPE || 'public';
         const mode = modeRaw === 'private' ? 'ᴘʀɪᴠᴀᴛᴇ' : 'ᴘᴜʙʟɪᴄ';
-        const time = moment().tz("Africa/Kampala").format("HH:mm:ss");
+        const time = moment().format("HH:mm:ss");
 
         const caption = `
-╭━━━〔 ${toSmallUnicode('MAZARI-MD')} 〕━━━⊷
-┃
-┃ ✦ ${toSmallUnicode('HELLO @' + m.sender.split('@')[0])}
-┃
-┃ ✦╭────〔 ${toSmallUnicode('BOT INFO')} 〕────⊷
-┃ ✦│▸ ${toSmallUnicode('TOTAL COMMANDS')} : ${totalCommands}
-┃ ✦│▸ ${toSmallUnicode('TIME')} : ${time}
-┃ ✦│▸ ${toSmallUnicode('PREFIX')} : ${prefix}
-┃ ✦│▸ ${toSmallUnicode('MODE')} : ${mode}
-┃ ✦╰─────────────┈⊷
-┃
-╰━━━━━━━━━━━━━━━━━━━━⊷
+*╭━━━〔 ${toSmallUnicode('MAZARI-MD')} 〕━━━⊷*
+*┃*
+*┃ ✦ ${m.sender.split('@')[0]}*
+*┃*
+*┃ ✦╭────〔 ${toSmallUnicode('BOT INFO')} 〕────⊷*
+*┃ ✦│▸ ${toSmallUnicode('TOTAL COMMANDS')} : ${totalCommands}*
+*┃ ✦│▸ ${toSmallUnicode('TIME')} : ${time}*
+*┃ ✦│▸ ${toSmallUnicode('PREFIX')} : ${prefix}*
+*┃ ✦│▸ ${toSmallUnicode('MODE')} : ${mode}*
+*┃ ✦╰─────────────┈⊷*
+*┃*
+*╰━━━━━━━━━━━━━━━━━━━━⊷*
 ${menuText}
 `.trim();
 
