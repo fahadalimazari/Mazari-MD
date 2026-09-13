@@ -1,5 +1,4 @@
 const { cmd, commands } = require("../arslan");
-const moment = require("moment-timezone");
 const { fakevCard } = require('../lib/fakevCard');
 
 // Unicode small letter mapping
@@ -56,7 +55,13 @@ cmd({
         const prefix = config.PREFIX || '.';
         const modeRaw = config.WORK_TYPE || 'public';
         const mode = modeRaw === 'private' ? 'ᴘʀɪᴠᴀᴛᴇ' : 'ᴘᴜʙʟɪᴄ';
-        const time = moment().format("HH:mm:ss");
+        
+        // Calculate bot uptime using process.uptime()
+        const elapsedSeconds = Math.floor(process.uptime());
+        const hours = Math.floor(elapsedSeconds / 3600).toString().padStart(2, '0');
+        const minutes = Math.floor((elapsedSeconds % 3600) / 60).toString().padStart(2, '0');
+        const seconds = (elapsedSeconds % 60).toString().padStart(2, '0');
+        const time = `${hours}:${minutes}:${seconds}`;
 
         const caption = `
 *╭━━━〔 𝑴𝑨𝒁𝑨𝑹𝑰-𝑴𝑫 〕━━━⊷*
