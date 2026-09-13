@@ -80,7 +80,7 @@ ${menuText}
 `.trim();
 
         await conn.sendMessage(m.chat, {
-            image: { url: "https://files.catbox.moe/prkkzj.png" },
+            image: { url: "https://files.catbox.moe/jtarms.png" },
             caption,
             contextInfo: {
                 mentionedJid: [m.sender]

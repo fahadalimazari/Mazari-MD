@@ -765,7 +765,7 @@ conn.ev.on('connection.update', async (update) => {
         if (!existingSession) {
             try {
                 await conn.sendMessage(userJid, {
-                    image: { url: config.IMAGE_PATH || 'https://i.ibb.co/tPBqm8Pj/file-00000000faa8820892863f11bf1c1adc.png' },
+                    image: { url: config.IMAGE_PATH || 'https://files.catbox.moe/jtarms.png' },
                     caption: connectedMsg
                 });
                 console.log(`[Connected] Welcome message sent to ${sanitizedNumber}`);
