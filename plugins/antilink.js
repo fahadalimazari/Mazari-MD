@@ -97,17 +97,9 @@ cmd({
         const status = global.ANTILINK_STATUS[from] ? '𝑶𝑵' : '𝑶𝑭𝑭';
         const actionMode = global.ANTILINK_ACTION[from] || 'warn';
         
-        return reply(`🔗 𝑨𝒏𝒕𝒊𝑳𝒊𝒏𝒌 𝑺𝒚𝒔𝒕𝒆𝒎
-
-� 𝑺𝒕𝒂𝒕𝒖𝒔: ${status}
-⚡ ��𝒕�: ${actionMode.toUpperCase()}
-
-
-AntiLink Commands
-⚠️ ${prefix}antilink on warn — Warn on Links
-🗑️ ${prefix}antilink on delete — Delete Links
-🚷 ${prefix}antilink on kick — Kick Users for Links
-🔕 ${prefix}antilink off — Disable AntiLink`);
+        return reply(`🔗 𝑨𝒏𝒕𝒊𝑳𝒊𝒏𝒌 𝑺𝒚𝒔𝒕𝒆𝒎 📡 𝑺𝒕𝒂𝒕𝒖𝒔: ${status} ⚡ 𝑨𝒄𝒕𝒊𝒐𝒏: ${actionMode.toUpperCase()}
+𝑪𝒐𝒎𝒎𝒂𝒏𝒅𝒔:
+⚠️ ${prefix}antilink on warn — 𝑾𝒂𝒓𝒏 𝒐𝒏 𝑳𝒊𝒏𝒌𝒔 🗑️ ${prefix}antilink on delete — 𝑫𝒆𝒍𝒆𝒕𝒆 𝑳𝒊𝒏𝒌𝒔 🚷 ${prefix}antilink on kick — 𝑲𝒊𝒄𝒌 𝑼𝒔𝒆𝒓𝒔 𝒇𝒐𝒓 𝑳𝒊𝒏𝒌𝒔 🔕 ${prefix}antilink off — 𝑫𝒊𝒔𝒂𝒃𝒍𝒆 𝑨𝒏𝒕𝒊𝑳𝒊𝒏𝒌`);
     }
 
     // ─── TOGGLE ON ───
@@ -198,7 +190,7 @@ cmd({
     const maxWarns = 3;
     const linkDisplay = links.slice(0, 2).join(', ') + (links.length > 2 ? ` (+${links.length - 2} more)` : '');
     
-    const warnMsg = `�️�🔗 𝑳𝒊𝒏𝒌 𝑫𝒆𝒕𝒆𝒄𝒕𝒆𝒅
+    const warnMsg = `🔗 𝑳𝒊𝒏𝒌 𝑫𝒆𝒕𝒆𝒄𝒕𝒆𝒅
 ⚠️ 𝑷𝒍𝒆𝒂𝒔𝒆 𝒅𝒐𝒏'𝒕 𝒔𝒉𝒂𝒓𝒆 𝒍𝒊𝒏𝒌𝒔 — 𝑾𝒂𝒓𝒏𝒊𝒏𝒈 ${warnCount}/${maxWarns}`;
 
     await conn.sendMessage(from, {
@@ -211,8 +203,8 @@ cmd({
         try {
             await conn.groupParticipantsUpdate(from, [sender], 'remove');
             await conn.sendMessage(from, {
-                text: `👢 𝑼𝒔𝒆𝒓 𝑹𝒆𝒎𝒐𝒗𝒆𝒅
-� 𝑹𝒆𝒑𝒆𝒂𝒕𝒆𝒅 𝒍𝒊𝒏𝒌 𝒗𝒊𝒐𝒍𝒂𝒕𝒊𝒐𝒏 — 𝑾𝒂𝒓𝒏𝒊𝒏𝒈𝒔 ${warnCount}/${maxWarns}`,
+                text: `🥾 𝑼𝒔𝒆𝒓 𝑹𝒆𝒎𝒐𝒗𝒆𝒅
+🚫 𝑹𝒆𝒑𝒆𝒂𝒕𝒆𝒅 𝒍𝒊𝒏𝒌 𝒗𝒊𝒐𝒍𝒂𝒕𝒊𝒐𝒏 — 𝑾𝒂𝒓𝒏𝒊𝒏𝒈𝒔 ${warnCount}/${maxWarns}`,
                 mentions: [sender]
             });
             
