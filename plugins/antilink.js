@@ -87,6 +87,7 @@ cmd({
     if (!global.ANTILINK_STATUS) global.ANTILINK_STATUS = {};
     if (!global.ANTILINK_ACTION) global.ANTILINK_ACTION = {};
     if (!global.ANTILINK_WARN) global.ANTILINK_WARN = {};
+    if (!global.ANTILINK_WARN_TIMER) global.ANTILINK_WARN_TIMER = {};
 
     // ─── GET ARGUMENT ───
     const action = args[0]?.toLowerCase() || '';
@@ -175,8 +176,24 @@ cmd({
     if (!global.ANTILINK_WARN[from]) global.ANTILINK_WARN[from] = {};
     if (!global.ANTILINK_WARN[from][senderNumber]) global.ANTILINK_WARN[from][senderNumber] = 0;
 
+    // ─── CLEAR EXISTING TIMER IF ANY ───
+    const timerKey = `${from}_${senderNumber}`;
+    if (global.ANTILINK_WARN_TIMER[timerKey]) {
+        clearTimeout(global.ANTILINK_WARN_TIMER[timerKey]);
+        delete global.ANTILINK_WARN_TIMER[timerKey];
+    }
+
     // ─── INCREMENT WARN ───
     global.ANTILINK_WARN[from][senderNumber]++;
+
+    // ─── START 5-MINUTE EXPIRY TIMER ───
+    const fiveMinutes = 5 * 60 * 1000; // 5 minutes in milliseconds
+    global.ANTILINK_WARN_TIMER[timerKey] = setTimeout(() => {
+        // Timer expired - delete warning count
+        delete global.ANTILINK_WARN[from][senderNumber];
+        delete global.ANTILINK_WARN_TIMER[timerKey];
+        console.log(`[AntiLink] Timer expired for ${senderNumber} in group ${from}`);
+    }, fiveMinutes);
 
     // ─── DELETE MESSAGE ───
     try {
@@ -214,6 +231,10 @@ cmd({
             });
             
             delete global.ANTILINK_WARN[from][senderNumber];
+            if (global.ANTILINK_WARN_TIMER[timerKey]) {
+                clearTimeout(global.ANTILINK_WARN_TIMER[timerKey]);
+                delete global.ANTILINK_WARN_TIMER[timerKey];
+            }
             console.log(`[AntiLink] 👢 Kicked ${senderNumber} for links`);
         } catch (e) {
             console.log('[AntiLink] Kick error:', e.message);
