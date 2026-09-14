@@ -79,17 +79,14 @@ ${menuText}
 > ${toSmallUnicode('POWERED BY MAZARI-MD')}
 `.trim();
 
+        // Send menu with channel link in caption
+        const channelLink = `\n\n📢 Channel: https://whatsapp.com/channel/0029Vb6GUj8BPzjOWNfnhm1B`;
         await conn.sendMessage(m.chat, {
             image: { url: "https://files.catbox.moe/jtarms.png" },
-            caption: caption,
+            caption: caption + channelLink,
             contextInfo: {
                 mentionedJid: [m.sender]
             }
-        });
-
-        // Send channel link as simple text message
-        await conn.sendMessage(m.chat, {
-            text: `🔗 𝑴𝑨𝒁𝑨𝑹𝑰 𝑴𝑫 𝑪𝒉𝒂𝒏𝒏𝒆𝒍\n\n📢 𝑽𝒊𝒆𝒘 𝑪𝒉𝒂𝒏𝒏𝒆𝒍:\nhttps://whatsapp.com/channel/0029Vb6GUj8BPzjOWNfnhm1B`
         });
 
     } catch (err) {
