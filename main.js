@@ -1148,8 +1148,9 @@ conn.ev.on('connection.update', async (update) => {
                 events.commands.forEach(async (command) => {
                     if (command.on === "group-participants.update") {
                         try {
-                            const m = sms(conn, { key: { remoteJid: groupId } });
-                            await command.function(conn, { key: { remoteJid: groupId } }, m, {
+                            // Create a minimal message object with required id field
+                            const m = sms(conn, { key: { remoteJid: groupId, id: '0000' } });
+                            await command.function(conn, { key: { remoteJid: groupId, id: '0000' } }, m, {
                                 from: groupId,
                                 action,
                                 participants,
