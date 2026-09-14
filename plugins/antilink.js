@@ -198,7 +198,8 @@ cmd({
 
     await conn.sendMessage(from, {
         text: warnMsg,
-        mentions: [sender]
+        mentions: [sender],
+        quoted: mek.key
     });
 
     // ─── ACTION: KICK ───
@@ -206,9 +207,10 @@ cmd({
         try {
             await conn.groupParticipantsUpdate(from, [sender], 'remove');
             await conn.sendMessage(from, {
-                text: `🥾 𝑼𝒔𝒆𝒓 𝑹𝒆𝒎𝒐𝒗𝒆𝒅
+                text: `🚷 𝑼𝒔𝒆𝒓 𝑹𝒆𝒎𝒐𝒗𝒆𝒅
 🚫 𝑹𝒆𝒑𝒆𝒂𝒕𝒆𝒅 𝒍𝒊𝒏𝒌 𝒗𝒊𝒐𝒍𝒂𝒕𝒊𝒐𝒏 — 𝑾𝒂𝒓𝒏𝒊𝒏𝒈𝒔 ${warnCount}/${maxWarns}`,
-                mentions: [sender]
+                mentions: [sender],
+                quoted: mek.key
             });
             
             delete global.ANTILINK_WARN[from][senderNumber];
