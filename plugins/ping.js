@@ -44,31 +44,23 @@ cmd({
 
       const ping = Date.now() - start;
 
-      await conn.relayMessage(from, {
-        protocolMessage: {
-          key: msg.key,
-          type: 14,
-          editedMessage: {
-            interactiveMessage: {
-              body: {
-                text: `⚡ 𝑷𝒊𝒏𝑔 : ${ping} ms`
-              },
-              nativeFlowMessage: {
-                buttons: [
-                  {
-                    name: "cta_url",
-                    buttonParamsJson: JSON.stringify({
-                      display_text: "📢 𝑽𝒊𝒆𝒘 𝑪𝒉𝒂𝒏𝒏𝒆𝒍",
-                      url: "https://whatsapp.com/channel/0029Vb6GUj8BPzjOWNfnhm1B",
-                      merchant_url: "https://whatsapp.com/channel/0029Vb6GUj8BPzjOWNfnhm1B"
-                    })
-                  }
-                ]
-              }
+      await conn.sendMessage(from, {
+          interactiveMessage: {
+            body: { text: `⚡ 𝑷𝒊𝒏𝑔 : ${ping} ms` },
+            nativeFlowMessage: {
+              buttons: [
+                {
+                  name: "cta_url",
+                  buttonParamsJson: JSON.stringify({
+                    display_text: "📢 𝑽𝒊𝒆𝒘 𝑪𝒉𝒂𝒏𝒏𝒆𝒍",
+                    url: "https://whatsapp.com/channel/0029Vb6GUj8BPzjOWNfnhm1B",
+                    merchant_url: "https://whatsapp.com/channel/0029Vb6GUj8BPzjOWNfnhm1B"
+                  })
+                }
+              ]
             }
           }
-        }
-      }, {});
+        }, { quoted: mek });
 
       await sleep(1000);
     }
