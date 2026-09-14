@@ -14,18 +14,18 @@ cmd({
     const start = Date.now();
 
     // Send initial message with channel button - measures real bot latency
-    const msg = await conn.sendMessage(from, {
-      text: `⚡ 𝑷𝒊𝒏𝑔 : ${Date.now() - start} ms`,
-      templateButtons: [
-        {
-          index: 1,
-          urlButton: {
-            displayText: "📢 𝑽𝒊𝒆𝒘 𝑪𝒉𝒂𝒏𝒏𝒆𝒍",
-            url: "https://whatsapp.com/channel/0029Vb6GUj8BPzjOWNfnhm1B"
+      const msg = await conn.sendMessage(from, {
+        text: `⚡ 𝑷𝒊𝒏𝑔 : ${Date.now() - start} ms`,
+        buttons: [
+          {
+            index: 1,
+            urlButton: {
+              displayText: "📢 𝑽𝒊𝒆𝒘 𝑪𝒉𝒂𝒏𝒏𝒆𝑙",
+              url: "https://whatsapp.com/channel/0029Vb6GUj8BPzjOWNfnhm1B"
+            }
           }
-        }
-      ]
-    }, { quoted: mek });
+        ]
+      }, { quoted: mek });
 
     // 🔁 live update loop (30 seconds) - measure real latency on each iteration
     for (let i = 0; i < 30; i++) {
@@ -37,18 +37,18 @@ cmd({
 
       const ping = Date.now() - start;
 
-      await conn.sendMessage(from, {
-        text: `⚡ 𝑷𝒊𝒏𝑔 : ${ping} ms`,
-        templateButtons: [
-          {
-            index: 1,
-            urlButton: {
-              displayText: "📢 𝑽𝒊𝒆𝒘 𝑪𝒉𝒂𝒏𝒏𝒆𝒍",
-              url: "https://whatsapp.com/channel/0029Vb6GUj8BPzjOWNfnhm1B"
-            }
-          }
-        ]
-      }, { quoted: mek });
+       await conn.sendMessage(from, {
+         text: `⚡ 𝑷𝒊𝒏𝑔 : ${ping} ms`,
+         buttons: [
+           {
+             index: 1,
+             urlButton: {
+               displayText: "📢 𝑽𝒊𝒆𝒘 𝑪𝒉𝒂𝒏𝒏𝒆𝑙",
+               url: "https://whatsapp.com/channel/0029Vb6GUj8BPzjOWNfnhm1B"
+             }
+           }
+         ]
+       }, { quoted: mek });
 
       await sleep(1000);
     }
