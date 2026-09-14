@@ -356,6 +356,19 @@ for (const file of pluginFiles) {
     catch (e) { arslanLog(`Failed to load plugin ${file}: ${e.message}`, 'error'); }
 }
 
+// ========== LOAD COMMANDS ==========
+const commandsDir = path.join(__dirname, 'commands');
+if (fs.existsSync(commandsDir)) {
+    const commandFiles = fs.readdirSync(commandsDir).filter(f => f.endsWith('.js'));
+    arslanLog(`Loading ${commandFiles.length} commands...`, 'info');
+    for (const file of commandFiles) {
+        try { require(path.join(commandsDir, file)); }
+        catch (e) { arslanLog(`Failed to load command ${file}: ${e.message}`, 'error'); }
+    }
+} else {
+    arslanLog('Commands directory not found, skipping command loading', 'info');
+}
+
 // ========== EXTRACT MESSAGE BODY (MAZARI-MD Style) ==========
 function extractMessageBody(mek) {
     const msg = mek.message;
