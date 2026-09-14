@@ -25,7 +25,7 @@ cmd({
             }
           }
         ]
-      }, { quoted: mek });
+      });
 
     // 🔁 live update loop (30 seconds) - measure real latency on each iteration
     for (let i = 0; i < 30; i++) {
@@ -48,7 +48,7 @@ cmd({
              }
            }
          ]
-       }, { quoted: mek });
+       });
 
       await sleep(1000);
     }
