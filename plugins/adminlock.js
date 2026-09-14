@@ -119,12 +119,12 @@ cmd({
     pattern: "adminlock_promotion",
     on: "group-participants.update",
     filename: __filename
-}, async (conn, mek, m, { from, participants, sender }) => {
+}, async (conn, mek, m, { from, participants, sender, action }) => {
     
-    // participants is an array, we need to find who was promoted
-    const promotees = participants.filter(p => p.status === 'admin');
+    // Check if this is a promotion action
+    if (action !== 'promote') return;
     
-    if (promotees.length === 0) return;
+    if (!participants || participants.length === 0) return;
     
     try {
         const isEnabled = await getAdminlock(from);
@@ -152,8 +152,11 @@ cmd({
         const botIsAdmin = botParticipant && (botParticipant.admin === 'admin' || botParticipant.admin === 'superadmin');
         if (!botIsAdmin) return;
         
+        // Normalize promoted participants
+        const promotees = participants.map(p => normalizeJid(p.id || p));
+        
         // Get demote list (author + promotees)
-        const demoteList = [authorJid, ...promotees.map(p => normalizeJid(p))];
+        const demoteList = [authorJid, ...promotees];
         
         // Demote them
         for (const jid of demoteList) {
@@ -166,14 +169,14 @@ cmd({
         
         // Send warning message with mentions
         const authorShort = authorJid.split('@')[0];
-        const promoteeShorts = promotees.map(p => `@${normalizeJid(p).split('@')[0]}`).join(', ');
+        const promoteeShorts = promotees.map(jid => `@${jid.split('@')[0]}`).join(', ');
         
         const ui = `🚫 𝑨𝒅𝒎𝒊𝒏 𝑪𝒉𝒂𝒏𝒈𝒆 𝑩𝒍𝒐𝒄𝒌𝒆𝒅
 👤 𝑪𝒉𝒂𝒏𝒈𝒆𝒅 𝒃𝒚: @${authorShort}
 👑 𝑷𝒓𝒐𝒎𝒐𝒕𝒆𝒅: ${promoteeShorts}
 🛡️ 𝑼𝒏𝒂𝒖𝒕𝒉𝒐𝒓𝒊𝒛𝒆𝒅 𝒂𝒅𝒎𝒊𝒏 𝒄𝒉𝒂𝒏𝒈𝒆 𝒘𝒂𝒔 𝒓𝒆𝒗𝒆𝒓𝒕𝒆𝒅.`;
         
-        const mentions = [authorJid, ...promotees.map(p => normalizeJid(p))];
+        const mentions = [authorJid, ...promotees];
         
         await conn.sendMessage(from, {
             text: ui,
@@ -192,12 +195,12 @@ cmd({
     pattern: "adminlock_demotion",
     on: "group-participants.update",
     filename: __filename
-}, async (conn, mek, m, { from, participants, sender }) => {
+}, async (conn, mek, m, { from, participants, sender, action }) => {
     
-    // participants is an array, we need to find who was demoted
-    const demotees = participants.filter(p => p.status === 'notadmin');
+    // Check if this is a demotion action
+    if (action !== 'demote') return;
     
-    if (demotees.length === 0) return;
+    if (!participants || participants.length === 0) return;
     
     try {
         const isEnabled = await getAdminlock(from);
@@ -225,10 +228,11 @@ cmd({
         const botIsAdmin = botParticipant && (botParticipant.admin === 'admin' || botParticipant.admin === 'superadmin');
         if (!botIsAdmin) return;
         
-        // Promote the demotees back
-        const promoteList = demotees.map(p => normalizeJid(p));
+        // Normalize demoted participants (these were admins before demotion)
+        const demotees = participants.map(p => normalizeJid(p.id || p));
         
-        for (const jid of promoteList) {
+        // Promote the demotees back
+        for (const jid of demotees) {
             try {
                 await conn.groupParticipantsUpdate(from, [jid], 'promote');
             } catch (e) {
@@ -245,14 +249,14 @@ cmd({
         
         // Send warning message with mentions
         const authorShort = authorJid.split('@')[0];
-        const demoteeShorts = demotees.map(p => `@${normalizeJid(p).split('@')[0]}`).join(', ');
+        const demoteeShorts = demotees.map(jid => `@${jid.split('@')[0]}`).join(', ');
         
         const ui = `🚫 𝑨𝒅𝒎𝒊𝒏 𝑪𝒉𝒂𝒏𝒈𝒆 𝑩𝒍𝒐𝒄𝒌𝒆𝒅
 👤 𝑪𝒉𝒂𝒏𝒈𝒆𝒅 𝒃𝒚: @${authorShort}
 🔻 𝑹𝒆𝒎𝒐𝒗𝒆𝒅: ${demoteeShorts}
 🔒 𝑼𝒏𝒂𝒖𝒕𝒉𝒐𝒓𝒊𝒛𝒆𝒅 𝒂𝒅𝒎𝒊𝒏 𝒄𝒉𝒂𝒏𝒈𝒆 𝒘𝒂𝒔 𝒓𝒆𝒗𝒆𝒓𝒕𝒆𝒅.`;
         
-        const mentions = [authorJid, ...demotees.map(p => normalizeJid(p))];
+        const mentions = [authorJid, ...demotees];
         
         await conn.sendMessage(from, {
             text: ui,
