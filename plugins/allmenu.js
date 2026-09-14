@@ -87,29 +87,9 @@ ${menuText}
             }
         });
 
-        // Send channel button as separate message
+        // Send channel link as simple text message
         await conn.sendMessage(m.chat, {
-            viewOnceMessage: {
-                message: {
-                    interactiveMessage: {
-                        body: {
-                            text: "🔗 Join our official channel for updates:"
-                        },
-                        nativeFlowMessage: {
-                            buttons: [
-                                {
-                                    name: "cta_url",
-                                    buttonParamsJson: JSON.stringify({
-                                        display_text: "📢 𝑽𝒊𝒆𝒘 𝑪𝒉𝒂𝒏𝒏𝒆𝒍",
-                                        url: "https://whatsapp.com/channel/0029Vb6GUj8BPzjOWNfnhm1B",
-                                        merchant_url: "https://whatsapp.com/channel/0029Vb6GUj8BPzjOWNfnhm1B"
-                                    })
-                                }
-                            ]
-                        }
-                    }
-                }
-            }
+            text: `🔗 𝑴𝑨𝒁𝑨𝑹𝑰 𝑴𝑫 𝑪𝒉𝒂𝒏𝒏𝒆𝒍\n\n📢 𝑽𝒊𝒆𝒘 𝑪𝒉𝒂𝒏𝒏𝒆𝒍:\nhttps://whatsapp.com/channel/0029Vb6GUj8BPzjOWNfnhm1B`
         });
 
     } catch (err) {
