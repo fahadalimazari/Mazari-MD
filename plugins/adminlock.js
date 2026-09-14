@@ -4,7 +4,7 @@
 // 🔒 Lock group admin changes
 // ============================================
 
-const { cmd } = require('../mazari');
+const { cmd } = require('../arslan');
 const config = require('../config');
 const pgDB = require('../lib/database-pg');
 const { getAdminlock, setAdminlock } = pgDB;
