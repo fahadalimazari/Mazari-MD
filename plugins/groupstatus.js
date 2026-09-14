@@ -9,7 +9,7 @@ cmd({
     pattern: "gcsstatus",
     alias: ["groupstatus", "gpstatus"],
     desc: "📸 Post group status to all participating groups",
-    category: "admin",
+    category: "owner",
     react: "📸",
     filename: __filename
 },
