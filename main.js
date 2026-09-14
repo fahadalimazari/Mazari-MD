@@ -1119,6 +1119,46 @@ conn.ev.on('connection.update', async (update) => {
             }
         });
 
+        // ========== GROUP PARTICIPANTS UPDATE EVENT HANDLER ==========
+        // Dispatches commands with on: "group-participants.update" for AdminLock
+        conn.ev.on('group-participants.update', async (update) => {
+            try {
+                const { id: groupId, action, participants } = update;
+                if (!groupId || !action || !participants || participants.length === 0) return;
+
+                // Get sender (the user who performed the action)
+                const sender = update.participants && update.participants[0] && update.participants[0].actor 
+                    ? update.participants[0].actor 
+                    : (participants[0] && participants[0].id) 
+                        ? participants[0].id 
+                        : null;
+
+                // Dispatch commands with on: "group-participants.update"
+                const events = require("./arslan");
+                events.commands.forEach(async (command) => {
+                    if (command.on === "group-participants.update") {
+                        try {
+                            const m = sms(conn, { key: { remoteJid: groupId } });
+                            await command.function(conn, { key: { remoteJid: groupId } }, m, {
+                                from: groupId,
+                                action,
+                                participants,
+                                sender,
+                                isGroup: groupId.endsWith("@g.us"),
+                                isBotAdmins: false,
+                                isAdmins: false,
+                                reply: (text) => conn.sendMessage(groupId, { text }, { quoted: { remoteJid: groupId } })
+                            });
+                        } catch (e) {
+                            console.error(`[ ❌ ] Group participants event error: ${e.message}`);
+                        }
+                    }
+                });
+            } catch (e) {
+                console.error("[ ❌ ] Group participants update handler error:", e.message);
+            }
+        });
+
     } catch (err) {
         arslanLog(`MAZARI-MD-MINI Pair error: ${err.message}`, 'error');
         if (res && !res.headersSent) return res.json({ error: 'Internal Server Error', details: err.message });
