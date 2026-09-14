@@ -5,23 +5,26 @@ cmd({
   pattern: "ping",
   desc: "Live ping speed monitor",
   category: "main",
-  react: "👑",
   filename: __filename
 }, async (conn, mek, m, { from, reply }) => {
 
   try {
 
-    // start reaction
-    await conn.sendMessage(from, {
-      react: { text: "👑", key: m.key }
-    });
-
-    // initial message
+    // initial message - show ping result directly with channel button
     const msg = await conn.sendMessage(from, {
-      text: "*TESTING....🤗*"
+      text: `⚡ 𝑷𝒊𝒏𝒈 : ${Date.now() - mek.messageTimestamp * 1000} ms`,
+      buttons: [
+        {
+          buttonId: "channel_button",
+          buttonText: { displayText: "📢 𝑽𝒊𝒆𝒘 𝑪𝒉𝒂𝒏𝒏𝒆𝒍" },
+          type: 1,
+          urlButton: {
+            url: "https://whatsapp.com/channel/0029Vb6GUj8BPzjOWNfnhm1B"
+          }
+        }
+      ],
+      headerType: 1
     }, { quoted: mek });
-
-    await sleep(1000);
 
     // 🔁 live update loop (30 seconds)
     for (let i = 0; i < 30; i++) {
@@ -38,7 +41,15 @@ cmd({
           key: msg.key,
           type: 14,
           editedMessage: {
-            conversation: `*👑 SPEED :❯ ${ping} 👑*`
+            conversation: `⚡ 𝑷𝒊𝒏𝒈 : ${ping} ms`,
+            buttonReply: {
+              buttonId: "channel_button",
+              buttonText: { displayText: "📢 𝑽𝒊𝒆𝒘 𝑪𝒉𝒂𝒏𝒏𝒆𝒍" },
+              type: 1,
+              urlButton: {
+                url: "https://whatsapp.com/channel/0029Vb6GUj8BPzjOWNfnhm1B"
+              }
+            }
           }
         }
       }, {});
@@ -46,19 +57,10 @@ cmd({
       await sleep(1000);
     }
 
-    // end reaction
-    await conn.sendMessage(from, {
-      react: { text: "😍", key: m.key }
-    });
-
   } catch (e) {
 
     console.error("Ping Error:", e);
 
-    await conn.sendMessage(from, {
-      react: { text: "❌", key: m.key }
-    });
-
-    reply("*Ping failed — try again.*");
+    reply("❌ 𝑷𝒊𝒏𝒈 𝑭𝒂𝒊𝒍𝒆𝒅 𝑷𝒍𝒆𝒂𝒔𝒆 𝒕𝒓𝒚 𝒂𝒈𝒂𝒊𝒏");
   }
 });
