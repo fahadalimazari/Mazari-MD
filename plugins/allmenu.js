@@ -82,6 +82,27 @@ ${menuText}
         await conn.sendMessage(m.chat, {
             image: { url: "https://files.catbox.moe/jtarms.png" },
             caption,
+            viewOnceMessage: {
+                message: {
+                    interactiveMessage: {
+                        body: {
+                            text: caption
+                        },
+                        nativeFlowMessage: {
+                            buttons: [
+                                {
+                                    name: "cta_url",
+                                    buttonParamsJson: JSON.stringify({
+                                        display_text: "📢 𝑽𝒊𝒆𝒘 𝑪𝒉𝒂𝒏𝒏𝒆𝒍",
+                                        url: "https://whatsapp.com/channel/0029Vb6GUj8BPzjOWNfnhm1B",
+                                        merchant_url: "https://whatsapp.com/channel/0029Vb6GUj8BPzjOWNfnhm1B"
+                                    })
+                                }
+                            ]
+                        }
+                    }
+                }
+            },
             contextInfo: {
                 mentionedJid: [m.sender]
             },
