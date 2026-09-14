@@ -1,8 +1,11 @@
 const { cmd } = require("../arslan");
-const config = require("../config");
-const { downloadContentFromMessage, generateWAMessageContent, generateWAMessageFromContent } = require("@whiskeysockets/baileys");
+const { downloadContentFromMessage, generateWAMessageContent, generateWAMessageFromContent } = require('@whiskeysockets/baileys');
+const settings = require('../config');
 
-const GCS_STATUS_CHANNEL = {name: "MAZARI MD",link: "https://whatsapp.com/channel/0029Vb6GUj8BPzjOWNfnhm1B"};
+const GCS_STATUS_CHANNEL = {
+    name: "MAZARI MD",
+    link: "https://whatsapp.com/channel/0029Vb6GUj8BPzjOWNfnhm1B"
+};
 let cachedGcsChannelJid = null;
 
 cmd({
@@ -12,25 +15,12 @@ cmd({
     category: "owner",
     react: "📸",
     filename: __filename
-},
-async (conn, mek, m, { body, reply, pushname }) => {
+}, async (conn, mek, m, { body, reply, pushname }) => {
     try {
         console.log(`[GROUP-STATUS] Command triggered by ${mek.key.participant || mek.key.remoteJid} in ${mek.key.remoteJid}`);
         
         const args = body.split(" ").slice(1);
         
-        // 1. Permission check - owner/sudo only
-        const isOwner = config.OWNER_NUMBER.some(num => 
-            (mek.key.participant?.startsWith(num) || mek.key.participant?.includes(num + '@')) ||
-            mek.key.fromMe
-        );
-        
-        if (!isOwner) {
-            return await conn.sendMessage(mek.key.remoteJid, {
-                text: `🔒 𝑶𝒘𝒏𝒆𝒓 / 𝑺𝒖𝒅𝒐 𝑶𝒏𝒍𝒚\n𝒀𝒐𝒖 𝒏𝒆𝒆𝒅 𝑶𝒘𝒏𝒆𝒓 𝒐𝒓 𝑺𝒖𝒅𝒐 𝒑𝒆𝒓𝒎𝒊𝒔𝒔𝒊𝒐𝒏.`
-            }, { quoted: mek });
-        }
-
         // Resolve channel JID
         if (!cachedGcsChannelJid) {
             try {
@@ -45,8 +35,20 @@ async (conn, mek, m, { body, reply, pushname }) => {
             }
         }
 
-        const finalChannelJid = cachedGcsChannelJid || "120363400318546224@newsletter";
+        const finalChannelJid = cachedGcsChannelJid || settings.CHANNEL_JID;
         const senderId = mek.key.participant || mek.key.remoteJid;
+
+        // 1. Permission check - owner/sudo only
+        const isOwner = settings.OWNER_NUMBER.some(num => 
+            (mek.key.participant?.startsWith(num) || mek.key.participant?.includes(num + '@')) ||
+            mek.key.fromMe
+        );
+        
+        if (!isOwner) {
+            return await conn.sendMessage(mek.key.remoteJid, {
+                text: `🔒 𝑶𝒘𝒏𝒆𝒓 / 𝑺𝒖𝒅𝒐 𝑶𝒏𝒍𝒚\n𝒀𝒐𝒖 𝒏𝒆𝒆𝒅 𝑶𝒘𝒏𝒆𝒓 𝒐𝒓 𝑺𝒖𝒅𝒐 𝒑𝒆𝒓𝒎𝒊𝒔𝒔𝒊𝒐𝒏.`
+            }, { quoted: mek });
+        }
 
         // 2. Check for replied media or text
         const quoted = m.quoted || m.quotedMessage;
@@ -213,14 +215,12 @@ async (conn, mek, m, { body, reply, pushname }) => {
         }
 
         // 3. Determine targets
-        let targetGroupJids = [];
-        
         await conn.sendMessage(mek.key.remoteJid, {
-            text: `📡 𝑮𝒓𝒐𝒖𝒑 𝑺𝒕𝒂𝒕𝒖𝒔\n⚡ 𝑺𝒆𝒏𝒅𝒊𝒏𝒈 𝒕𝒐 ${targetGroupJids.length} 𝒈𝒓𝒐𝒖𝒑𝒔...`
+            text: `📡 𝑮𝒓𝒐𝒖𝒑 𝑺𝒕𝒂𝒕𝒖𝒔\n⚡ 𝑺𝒆𝒏𝒅𝒊𝒏𝒈 𝒕𝒐 0 𝒈𝒓𝒐𝒖𝒑𝒔...`
         }, { quoted: mek });
 
         const groupMetadata = await conn.groupFetchAllParticipating();
-        targetGroupJids = Object.keys(groupMetadata);
+        const targetGroupJids = Object.keys(groupMetadata);
 
         if (targetGroupJids.length === 0) {
             return await conn.sendMessage(mek.key.remoteJid, {
