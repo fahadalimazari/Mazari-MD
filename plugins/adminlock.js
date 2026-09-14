@@ -94,20 +94,20 @@ cmd({
     // ─── ON ───
     if (action === 'on') {
         await setAdminlock(from, true);
-        return reply(`🛡️ 𝑨��𝒊��𝑳��𝒌 𝑨𝒄𝒕𝒊𝒗𝒂𝒕𝒆𝒅\n🔒 𝑮𝒓𝒐𝒖𝒑 𝒂𝒅𝒎𝒊𝒏 𝒄𝒉𝒂𝒏𝒈𝒆𝒔 𝒂𝒓𝒆 𝒏𝒐𝒘 𝒍𝒐𝒄𝒌𝒆𝒅.`);
+        return reply(`🛡️ 𝑨𝒅𝒎𝒊𝒏𝒐𝒄𝒌 𝑨𝒄𝒕𝒊𝒗𝒂𝒕𝒆𝒅\n🔒 𝑮𝒓𝒐𝒖𝒑 𝒂𝒅𝒎𝒊𝒏 𝒄𝒉𝒂𝒏𝒈𝒆𝒔 𝒂𝒓𝒆 𝒏𝒐𝒘 𝒍𝒐𝒄𝒌𝒆𝒅.`);
     }
 
     // ─── OFF ───
     if (action === 'off') {
         await setAdminlock(from, false);
-        return reply(`🔓 𝑨��𝒊𝒏𝑳��𝒌 𝑫𝒆𝒂𝒄𝒕𝒊𝒗𝒂𝒕𝒆𝒅\n✅ 𝑮𝒓𝒐𝒖𝒑 𝒂𝒅𝒎𝒊𝒏 𝒄𝒉𝒂𝒏𝒈𝒆𝒔 𝒂𝒓𝒆 𝒏𝒐𝒘 𝒂𝒍𝒍𝒐𝒘𝒆𝒅.`);
+        return reply(`🔓 𝑨𝒅𝒎𝒊𝒏𝑳𝒐𝒄𝒌 𝑫𝒆𝒂𝒄𝒕𝒊𝒗𝒂𝒕𝒆𝒅\n✅ 𝑮𝒓𝒐𝒖𝒑 𝒂𝒅𝒎𝒊𝒏 𝒄𝒉𝒂𝒏𝒈𝒆𝒔 𝒂𝒓𝒆 𝒏𝒐𝒘 𝒂𝒍𝒍𝒐𝒘𝒆𝒅.`);
     }
 
     // ─── STATUS ───
     const status = await getAdminlock(from);
     const statusText = status ? '𝑨𝑪𝑻𝑰𝑽𝑬' : '𝑰𝑵𝑨𝑪𝑻𝑰𝑽𝑬';
     
-    return reply(`🛡️ 𝑨��𝒊𝒏𝑳��𝒌
+    return reply(`🛡️ 𝑨𝒅𝒎𝒊𝒏𝑳𝒐𝒄𝒌
 📡 𝑺𝒕𝒂𝒕𝒖𝒔: ${statusText}
 ⚡ 𝑼𝒔𝒆: .adminlock on / .adminlock off`);
 });
@@ -117,7 +117,7 @@ cmd({
 // ============================================
 cmd({
     pattern: "adminlock_promotion",
-    on: "groupParticipantsUpdate",
+    on: "group-participants.update",
     filename: __filename
 }, async (conn, mek, m, { from, participants, sender }) => {
     
@@ -190,7 +190,7 @@ cmd({
 // ============================================
 cmd({
     pattern: "adminlock_demotion",
-    on: "groupParticipantsUpdate",
+    on: "group-participants.update",
     filename: __filename
 }, async (conn, mek, m, { from, participants, sender }) => {
     
