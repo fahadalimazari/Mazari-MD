@@ -1160,9 +1160,16 @@ function setupAutoRestart(socket, number) {
         if (connection === 'close') {
             const statusCode = lastDisconnect && lastDisconnect.error && lastDisconnect.error.output && lastDisconnect.error.output.statusCode;
             const errorMessage = lastDisconnect && lastDisconnect.error && lastDisconnect.error.message;
+            const disconnectReason = lastDisconnect?.error?.output?.statusCode || (lastDisconnect?.error?.message ? lastDisconnect.error.message : null);
             arslanLog(`Connection closed for ${number}: ${statusCode} - ${errorMessage}`, 'warning');
 
-            if (statusCode === 401 || statusCode === 403 || (errorMessage && (errorMessage.includes('401') || errorMessage.includes('403')))) {
+            // Check for actual manual logout (WhatsApp unlink) vs temporary/session issues
+            const isLoggedOut = statusCode === DisconnectReason.loggedOut || 
+                               (lastDisconnect?.error?.message?.includes('logged out') || 
+                                lastDisconnect?.error?.message?.includes('revoked') ||
+                                lastDisconnect?.error?.message?.includes('unregistered'));
+
+            if (isLoggedOut) {
                 arslanLog(`Manual unlink or expired session detected for ${number}, cleaning up...`, 'warning');
                 const sanitizedNumber = number.replace(/[^0-9]/g, '');
                 activeSockets.delete(sanitizedNumber);
