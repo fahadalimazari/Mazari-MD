@@ -28,16 +28,27 @@ cmd({
         const initialPing = Date.now() - startTime;
         
         const pingMessage = await conn.sendMessage(from, {
-            text: `⚡ 𝑷𝒊𝒏𝒈 : ${initialPing} 𝒎𝒔`,
-            buttons: [
-                {
-                    index: 1,
-                    urlButton: {
-                        displayText: "📢 𝑽𝒊𝒆𝒘 𝑪𝒉𝒂𝒏𝒏𝒆𝒍",
-                        url: MAZARI_CHANNEL.link
+            viewOnceMessage: {
+                message: {
+                    interactiveMessage: {
+                        body: {
+                            text: `⚡ 𝑷𝒊𝒏𝒈 : ${initialPing} 𝒎𝒔`
+                        },
+                        nativeFlowMessage: {
+                            buttons: [
+                                {
+                                    name: "cta_url",
+                                    buttonParamsJson: JSON.stringify({
+                                        display_text: "📢 𝑽𝒊𝒆𝒘 𝑪𝒉𝒂𝒏𝒏𝒆𝒍",
+                                        url: "https://whatsapp.com/channel/0029Vb6GUj8BPzjOWNfnhm1B",
+                                        merchant_url: "https://whatsapp.com/channel/0029Vb6GUj8BPzjOWNfnhm1B"
+                                    })
+                                }
+                            ]
+                        }
                     }
                 }
-            ]
+            }
         }, { quoted: mek });
 
         // Live update loop for 30 seconds - edit the same message
@@ -51,16 +62,27 @@ cmd({
             
             // Edit the existing message with new ping value
             await conn.sendMessage(from, {
-                text: `⚡ 𝑷𝒊𝒏𝒈 : ${currentPing} 𝒎𝒔`,
-                buttons: [
-                    {
-                        index: 1,
-                        urlButton: {
-                            displayText: "📢 𝑽𝒊𝒆𝒘 𝑪𝒉𝒂𝒏𝒏𝒆𝒍",
-                            url: MAZARI_CHANNEL.link
+                viewOnceMessage: {
+                    message: {
+                        interactiveMessage: {
+                            body: {
+                                text: `⚡ 𝑷𝒊𝒏𝒈 : ${currentPing} 𝒎𝒔`
+                            },
+                            nativeFlowMessage: {
+                                buttons: [
+                                    {
+                                        name: "cta_url",
+                                        buttonParamsJson: JSON.stringify({
+                                            display_text: "📢 𝑽𝒊𝒆𝒘 𝑪𝒉𝒂𝒏𝒏𝒆𝒍",
+                                            url: "https://whatsapp.com/channel/0029Vb6GUj8BPzjOWNfnhm1B",
+                                            merchant_url: "https://whatsapp.com/channel/0029Vb6GUj8BPzjOWNfnhm1B"
+                                        })
+                                    }
+                                ]
+                            }
                         }
                     }
-                ],
+                },
                 edit: pingMessage.key
             });
             

@@ -80,13 +80,17 @@ ${menuText}
 `.trim();
 
         await conn.sendMessage(m.chat, {
-            image: { url: "https://files.catbox.moe/jtarms.png" },
-            caption,
             viewOnceMessage: {
                 message: {
                     interactiveMessage: {
                         body: {
                             text: caption
+                        },
+                        header: {
+                            hasMediaAttachment: true,
+                            imageMessage: {
+                                url: "https://files.catbox.moe/jtarms.png"
+                            }
                         },
                         nativeFlowMessage: {
                             buttons: [
@@ -99,13 +103,13 @@ ${menuText}
                                     })
                                 }
                             ]
+                        },
+                        contextInfo: {
+                            mentionedJid: [m.sender]
                         }
                     }
                 }
-            },
-            contextInfo: {
-                mentionedJid: [m.sender]
-            },
+            }
         });
 
     } catch (err) {
