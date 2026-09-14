@@ -1,6 +1,5 @@
-const { cmd } = require("../arslan");
 const { downloadContentFromMessage, generateWAMessageContent, generateWAMessageFromContent } = require('@whiskeysockets/baileys');
-const settings = require('../config');
+const config = require('../config');
 
 const GCS_STATUS_CHANNEL = {
     name: "MAZARI MD",
@@ -35,11 +34,11 @@ cmd({
             }
         }
 
-        const finalChannelJid = cachedGcsChannelJid || settings.CHANNEL_JID;
+        const finalChannelJid = cachedGcsChannelJid || config.CHANNEL_JID;
         const senderId = mek.key.participant || mek.key.remoteJid;
 
         // 1. Permission check - owner/sudo only
-        const isOwner = settings.OWNER_NUMBER.some(num => 
+        const isOwner = config.OWNER_NUMBER.some(num => 
             (mek.key.participant?.startsWith(num) || mek.key.participant?.includes(num + '@')) ||
             mek.key.fromMe
         );
