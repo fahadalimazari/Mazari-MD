@@ -15,16 +15,21 @@ cmd({
 
     // Send initial message with channel button - measures real bot latency
     const msg = await conn.sendMessage(from, {
-      text: `⚡ 𝑷𝒊𝒏𝑔 : ${Date.now() - start} ms`,
-      templateButtons: [
-        {
-          index: 1,
-          urlButton: {
-            displayText: "📢 𝑽𝒊𝒆𝒘 𝑪𝒉𝒂𝒏𝒏𝒆𝒍",
-            url: "https://whatsapp.com/channel/0029Vb6GUj8BPzjOWNfnhm1B"
-          }
+      interactiveMessage: {
+        body: { text: `⚡ 𝑷𝒊𝒏𝑔 : ${Date.now() - start} ms` },
+        nativeFlowMessage: {
+          buttons: [
+            {
+              name: "cta_url",
+              buttonParamsJson: JSON.stringify({
+                display_text: "📢 𝑽𝒊𝒆𝒘 𝑪𝒉𝒂𝒏𝒏𝒆𝒍",
+                url: "https://whatsapp.com/channel/0029Vb6GUj8BPzjOWNfnhm1B",
+                merchant_url: "https://whatsapp.com/channel/0029Vb6GUj8BPzjOWNfnhm1B"
+              })
+            }
+          ]
         }
-      ]
+      }
     }, { quoted: mek });
 
     // 🔁 live update loop (30 seconds) - measure real latency on each iteration
@@ -38,16 +43,21 @@ cmd({
       const ping = Date.now() - start;
 
       await conn.sendMessage(from, {
-        text: `⚡ 𝑷𝒊𝒏𝒈 : ${ping} ms`,
-        templateButtons: [
-          {
-            index: 1,
-            urlButton: {
-              displayText: "📢 𝑽𝒊𝒆𝒘 𝑪𝒉𝒂𝒏𝒏𝒆𝒍",
-              url: "https://whatsapp.com/channel/0029Vb6GUj8BPzjOWNfnhm1B"
-            }
+        interactiveMessage: {
+          body: { text: `⚡ 𝑷𝒊𝒏𝑔 : ${ping} ms` },
+          nativeFlowMessage: {
+            buttons: [
+              {
+                name: "cta_url",
+                buttonParamsJson: JSON.stringify({
+                  display_text: "📢 𝑽𝒊𝒆𝒘 𝑪𝒉𝒂𝒏𝒏𝒆𝒍",
+                  url: "https://whatsapp.com/channel/0029Vb6GUj8BPzjOWNfnhm1B",
+                  merchant_url: "https://whatsapp.com/channel/0029Vb6GUj8BPzjOWNfnhm1B"
+                })
+              }
+            ]
           }
-        ]
+        }
       }, { quoted: mek });
 
       await sleep(1000);
