@@ -80,17 +80,20 @@ ${menuText}
 `.trim();
 
         await conn.sendMessage(m.chat, {
+            image: { url: "https://files.catbox.moe/jtarms.png" },
+            caption: caption,
+            contextInfo: {
+                mentionedJid: [m.sender]
+            }
+        });
+
+        // Send channel button as separate message
+        await conn.sendMessage(m.chat, {
             viewOnceMessage: {
                 message: {
                     interactiveMessage: {
                         body: {
-                            text: caption
-                        },
-                        header: {
-                            hasMediaAttachment: true,
-                            imageMessage: {
-                                url: "https://files.catbox.moe/jtarms.png"
-                            }
+                            text: "🔗 Join our official channel for updates:"
                         },
                         nativeFlowMessage: {
                             buttons: [
@@ -103,9 +106,6 @@ ${menuText}
                                     })
                                 }
                             ]
-                        },
-                        contextInfo: {
-                            mentionedJid: [m.sender]
                         }
                     }
                 }
