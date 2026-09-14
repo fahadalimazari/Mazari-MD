@@ -102,8 +102,12 @@ cmd({
 � 𝑺𝒕𝒂𝒕𝒖𝒔: ${status}
 ⚡ ��𝒕�: ${actionMode.toUpperCase()}
 
-${prefix}��𝒕𝒊𝒍𝒊𝒏𝒌 𝒄�𝒐𝒎𝒎𝒂𝒏𝒅𝒔:
-🔗 ${prefix}𝒂𝒏𝒕𝒊𝒍𝒊𝒏𝒌 𝒐𝒏 𝒘𝒂𝒓𝒏 — 𝑾𝒂𝒓𝒏 𝒐𝒏 𝑳𝒊𝒏𝒌𝒔 🗑️ ${prefix}𝒂𝒏𝒕𝒊𝒍𝒊𝒏𝒌 𝒐𝒏 𝒅𝒆𝒍𝒆𝒕𝒆 — 𝑫𝒆𝒍𝒆𝒕𝒆 𝑳𝒊𝒏𝒌𝒔 🚷 ${prefix}𝒂𝒏𝒕𝒊𝒍𝒊𝒏𝒌 𝒐𝒏 𝒌𝒊𝒄𝒌 — 𝑲𝒊𝒄𝒌 𝑼𝒔𝒆𝒓𝒔 𝒇𝒐𝒓 𝑳𝒊𝒏𝒌𝒔 🔕 ${prefix}𝒂𝒏𝒕𝒊𝒍𝒊𝒏𝒌 𝒐𝒇𝒇 — 𝑫𝒊𝒔𝒂𝒃𝒍𝒆 𝑨𝒏𝒕𝒊𝑳𝒊𝒏𝒌`);
+
+AntiLink Commands
+⚠️ ${prefix}antilink on warn — Warn on Links
+🗑️ ${prefix}antilink on delete — Delete Links
+🚷 ${prefix}antilink on kick — Kick Users for Links
+🔕 ${prefix}antilink off — Disable AntiLink`);
     }
 
     // ─── TOGGLE ON ───
