@@ -19,7 +19,7 @@ const {
 // ========== SETTINGS.JS SE FETCH ==========
 const config = require('./config');
 const { sms } = require('./lib/msg');
-const events = require('./arslan');
+const events = require('./mazari');
 
 // ========== POSTGRESQL DATABASE (REPLACES MONGODB) ==========
 const pgDB = require('./lib/database-pg');
@@ -412,7 +412,7 @@ function extractButtonId(mek) {
 // ========== FIND COMMAND ==========
 function findCommand(cmdName) {
     try {
-        const events = require("./arslan");
+        const events = require("./mazari");
         const name = String(cmdName || "").trim().toLowerCase();
         return events.commands.find(cmd =>
             String(cmd.pattern || "").toLowerCase() === name ||
@@ -1037,7 +1037,7 @@ conn.ev.on('connection.update', async (update) => {
                 // ========== COMMAND HANDLER ==========
                 if (isCmd) {
                     const cmdName = body.slice(prefix.length).trim().split(" ")[0].toLowerCase();
-                    const events = require("./arslan");
+                    const events = require("./mazari");
 
                     const cmd = events.commands.find(cmd =>
                         cmd.pattern === cmdName || (cmd.alias && cmd.alias.includes(cmdName))
@@ -1092,7 +1092,7 @@ conn.ev.on('connection.update', async (update) => {
                 }
 
                 // ========== BODY EVENTS ==========
-                const events = require("./arslan");
+                const events = require("./mazari");
                 events.commands.forEach(async (command) => {
                     if (body && command.on === "body") {
                         try {
@@ -1127,13 +1127,20 @@ conn.ev.on('connection.update', async (update) => {
                 if (!groupId || !action || !participants || participants.length === 0) return;
 
                 // Get sender (the user who performed the action)
-                // Baileys format: participants[0].actor contains the user who performed the action
+                // Baileys format: participants may be array of strings or objects
+                // In newer versions, participants[0] is a JID string (affected participant)
+                // Baileys does NOT expose the action performer in this event
                 let sender = null;
-                if (participants[0] && participants[0].actor) {
-                    sender = participants[0].actor;
-                } else if (participants[0] && participants[0].id) {
-                    // Fallback: participants[0].id might contain the user
-                    sender = participants[0].id;
+                if (participants[0] && typeof participants[0] === 'object') {
+                    if (participants[0].actor) {
+                        sender = participants[0].actor;
+                    } else if (participants[0].id) {
+                        sender = participants[0].id;
+                    }
+                } else if (typeof participants[0] === 'string') {
+                    // participants[0] is a JID string - this is the affected participant
+                    // Baileys doesn't expose the actor for this event in newer versions
+                    sender = null;
                 }
 
                 // Dispatch commands with on: "group-participants.update"

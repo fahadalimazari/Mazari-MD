@@ -4,7 +4,7 @@
 // 🔒 Lock group admin changes
 // ============================================
 
-const { cmd } = require('../arslan');
+const { cmd } = require('../mazari');
 const config = require('../config');
 const pgDB = require('../lib/database-pg');
 const { getAdminlock, setAdminlock } = pgDB;
@@ -19,6 +19,7 @@ const FIVE_MINUTES = 5 * 60 * 1000;
 // ─── CHECK IF SUDO (currently same as owner) ───
 async function isOwnerOrSudo(userId, conn, groupId) {
     try {
+        if (!userId || typeof userId !== 'string') return false;
         const isOwner = config.OWNER_NUMBER.some(num => 
             userId.startsWith(num) || userId.includes(num + '@')
         );
@@ -30,8 +31,8 @@ async function isOwnerOrSudo(userId, conn, groupId) {
 
 // ─── NORMALIZE JID ───
 function normalizeJid(jid) {
-    if (!jid) return '';
-    let str = typeof jid === 'string' ? jid : (jid.id || jid.toString() || '');
+    if (!jid || typeof jid !== 'string') return '';
+    let str = jid;
     if (str.includes(':')) str = str.split(':')[0] + '@' + str.split('@')[1];
     if (!str.includes('@')) str += '@s.whatsapp.net';
     return str;
