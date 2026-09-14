@@ -40,34 +40,6 @@ cmd({
             ],
             quoted: mek
         });
-
-        // Live update loop for 30 seconds - edit the same message
-        for (let i = 0; i < 30; i++) {
-            const loopStart = Date.now();
-            
-            // Small delay to measure actual latency
-            await sleep(50);
-            
-            const currentPing = Date.now() - loopStart;
-            
-            // Edit the existing message with new ping value
-            await conn.sendMessage(from, {
-                text: `⚡ 𝑷𝒊𝒏𝒈 : ${currentPing} 𝒎𝒔`,
-                templateButtons: [
-                    {
-                        index: 0,
-                        urlButton: {
-                            displayText: "📢 𝑽𝒊𝒆𝒘 𝑪𝒉𝒂𝒏𝒏𝒆𝒍",
-                            url: "https://whatsapp.com/channel/0029Vb6GUj8BPzjOWNfnhm1B"
-                        }
-                    }
-                ],
-                edit: pingMessage.key
-            });
-            
-            // Wait 1 second before next update
-            await sleep(1000);
-        }
         
     } catch (error) {
         console.error('[PING-COMMAND] Error:', error.message);
