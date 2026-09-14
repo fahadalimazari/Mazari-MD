@@ -695,6 +695,17 @@ async function arslanPair(number, res = null) {
                 }
             } catch (error) {
                 arslanLog(`Failed to request pairing code: ${error.message}`, 'error');
+                // Cleanup: If this was a new pairing attempt and credentials were saved to PostgreSQL,
+                // delete them since they may be invalid (from a failed pairing attempt)
+                if (!existingSession) {
+                    arslanLog(`Cleaning up invalid PostgreSQL session for ${sanitizedNumber}`, 'warning');
+                    try {
+                        await deleteSessionFromPostgres(sanitizedNumber);
+                        await removeNumberFromPostgres(sanitizedNumber);
+                    } catch (cleanupError) {
+                        arslanLog(`Cleanup error for ${sanitizedNumber}: ${cleanupError.message}`, 'error');
+                    }
+                }
                 if (res && !res.headersSent) {
                     res.status(500).send({ error: 'Failed to get pairing code', status: 'error', message: error.message });
                 }
