@@ -618,9 +618,21 @@ async function arslanPair(number, res = null) {
                 arslanLog(`Cleaned leftover local session for ${sanitizedNumber}`, 'info');
             }
         } else {
-            fs.ensureDirSync(sessionPath);
-            fs.writeFileSync(path.join(sessionPath, 'creds.json'), JSON.stringify(existingSession, null, 2));
-            arslanLog(`🔄 Restored existing session from PostgreSQL for ${sanitizedNumber}`, 'success');
+            // Verify existing session credentials are registered (not from a stale failed pairing)
+            if (!existingSession.registered) {
+                arslanLog(`Cleaning up stale unregistered PostgreSQL session for ${sanitizedNumber}`, 'warning');
+                await deleteSessionFromPostgres(sanitizedNumber);
+                await removeNumberFromPostgres(sanitizedNumber);
+                if (fs.existsSync(sessionPath)) {
+                    await fs.remove(sessionPath);
+                    arslanLog(`Cleaned local session for ${sanitizedNumber}`, 'info');
+                }
+                // Continue to new pairing logic (below)
+            } else {
+                fs.ensureDirSync(sessionPath);
+                fs.writeFileSync(path.join(sessionPath, 'creds.json'), JSON.stringify(existingSession, null, 2));
+                arslanLog(`🔄 Restored existing session from PostgreSQL for ${sanitizedNumber}`, 'success');
+            }
         }
 
         const { state, saveCreds } = await useMultiFileAuthState(sessionPath);
