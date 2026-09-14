@@ -1,6 +1,6 @@
 // ============================================
 // 🔗 ANTI-LINK - MAZARI-MD MINI
-// 👑 Developer: ᴀʀꜱʟᴀɴ-ᴍᴅ
+// 👑 Developer: MAZARI HACKER
 // 🔥 Auto delete links + Warn + Kick
 // ============================================
 
@@ -71,16 +71,16 @@ cmd({
 
     // ─── CHECK GROUP ───
     if (!isGroup) {
-        return reply("❌ This command only works in groups.");
+        return reply("❌ 𝑮𝒓𝒐𝒖𝒑 𝑶𝒏𝒍𝒚 — 𝑻𝒉𝒊𝒔 𝒄𝒐𝒎𝒎𝒂𝒏𝒅 𝒐𝒏𝒍𝒚 𝒘𝒐𝒓𝒌𝒔 𝒊𝒏 𝒈𝒓𝒐𝒖𝒑𝒔.");
     }
 
     // ─── CHECK ADMIN PERMISSION ───
     if (!isAdmins && !isOwner) {
-        return reply("❌ You need to be an admin to use this command.");
+        return reply("🔒 𝑨𝒅𝒎𝒊𝒏 𝑶𝒏𝒍𝒚 — 𝒀𝒐𝒖 𝒏𝒆𝒆𝒅 𝒂𝒅𝒎𝒊𝒏 𝒑𝒆𝒓𝒎𝒊𝒔𝒔𝒊𝒐𝒏 𝒕𝒐 𝒖𝒔𝒆 𝒕𝒉𝒊𝒔.");
     }
 
     if (!isBotAdmins) {
-        return reply("❌ I need to be an admin to enable anti-link.");
+        return reply("🛡️ 𝑨𝒅𝒎𝒊𝒏 𝑹𝒆𝒒𝒖𝒊𝒓𝒆𝒅 — 𝑷𝒍𝒆𝒂𝒔𝒆 𝒎𝒂𝒌𝒆 𝒕𝒉𝒆 𝒃𝒐𝒕 𝒂𝒏 𝒂𝒅𝒎𝒊𝒏 𝒇𝒊𝒓𝒔𝒕.");
     }
 
     // ─── INIT GLOBAL ───
@@ -94,21 +94,16 @@ cmd({
 
     // ─── SHOW STATUS ───
     if (!action || (action !== 'on' && action !== 'off')) {
-        const status = global.ANTILINK_STATUS[from] ? '✅ ON' : '❌ OFF';
+        const status = global.ANTILINK_STATUS[from] ? '𝑶𝑵' : '𝑶𝑭𝑭';
         const actionMode = global.ANTILINK_ACTION[from] || 'warn';
         
-        return reply(`🔗 *Anti-Link System*
+        return reply(`🔗 𝑨𝒏𝒕𝒊𝑳𝒊𝒏𝒌 𝑺𝒚𝒔𝒕𝒆𝒎
 
-📌 *Status:* ${status}
-⚡ *Action:* ${actionMode.toUpperCase()}
+� 𝑺𝒕𝒂𝒕𝒖𝒔: ${status}
+⚡ ��𝒕�: ${actionMode.toUpperCase()}
 
-📌 *Commands:*
-• ${prefix}antilink on warn - Warn on links
-• ${prefix}antilink on delete - Delete links
-• ${prefix}antilink on kick - Kick on links
-• ${prefix}antilink off - Disable system
-
-💖 *Powered by MAZARI-MD*`);
+${prefix}��𝒕𝒊𝒍𝒊𝒏𝒌 𝒄�𝒐𝒎𝒎𝒂𝒏𝒅𝒔:
+🔗 ${prefix}𝒂𝒏𝒕𝒊𝒍𝒊𝒏𝒌 𝒐𝒏 𝒘𝒂𝒓𝒏 — 𝑾𝒂𝒓𝒏 𝒐𝒏 𝑳𝒊𝒏𝒌𝒔 🗑️ ${prefix}𝒂𝒏𝒕𝒊𝒍𝒊𝒏𝒌 𝒐𝒏 𝒅𝒆𝒍𝒆𝒕𝒆 — 𝑫𝒆𝒍𝒆𝒕𝒆 𝑳𝒊𝒏𝒌𝒔 🚷 ${prefix}𝒂𝒏𝒕𝒊𝒍𝒊𝒏𝒌 𝒐𝒏 𝒌𝒊𝒄𝒌 — 𝑲𝒊𝒄𝒌 𝑼𝒔𝒆𝒓𝒔 𝒇𝒐𝒓 𝑳𝒊𝒏𝒌𝒔 🔕 ${prefix}𝒂𝒏𝒕𝒊𝒍𝒊𝒏𝒌 𝒐𝒇𝒇 — 𝑫𝒊𝒔𝒂𝒃𝒍𝒆 𝑨𝒏𝒕𝒊𝑳𝒊𝒏𝒌`);
     }
 
     // ─── TOGGLE ON ───
@@ -117,40 +112,21 @@ cmd({
         global.ANTILINK_ACTION[from] = actionType || 'warn';
         
         const actionMsg = {
-            'warn': '⚠️ Warn user',
-            'delete': '🗑️ Delete message + Warn',
-            'kick': '👢 Kick user + Warn'
-        }[actionType] || '⚠️ Warn user';
+            'warn': '𝑾𝒂𝒓𝒏',
+            'delete': '𝑫𝒆𝒍𝒆𝒕𝒆',
+            'kick': '𝑲𝒊𝒄𝒌'
+        }[actionType] || '𝑾𝒂𝒓𝒏';
 
-        await reply(`✅ *Anti-Link Activated!*
-
-📌 *Action:* ${actionMsg}
-🔹 *Links will be filtered (except allowed domains).*
-
-💖 Powered by MAZARI-MD`);
-
-        await conn.sendMessage(from, {
-            text: `╭────────────────────◇
-│✦ *🔗 ANTI-LINK ACTIVATED* 🔥
-│✦ Group: ${mek.pushName || 'Unknown'}
-│✦ Status: ✅ ON
-│✦ Action: ${actionMsg}
-│✦ Admin: @${mek.key.participant?.split('@')[0] || 'Unknown'}
-╰────────────────────○
-*© Powered by MAZARI-MD*`,
-            mentions: [mek.key.participant]
-        });
+        await reply(`🛡️ 𝑨𝒏𝒕𝒊𝑳𝒊𝒏𝒌 𝑨𝒄𝒕𝒊𝒗𝒂𝒕𝒆𝒅
+⚡ 𝑨𝒄𝒕𝒊𝒐𝒏: ${actionMsg}`);
 
     // ─── TOGGLE OFF ───
     } else if (action === 'off') {
         global.ANTILINK_STATUS[from] = false;
         delete global.ANTILINK_ACTION[from];
         
-        await reply(`❌ *Anti-Link Deactivated!*
-
-📌 Links will no longer be filtered.
-
-💖 Powered by MAZARI-MD`);
+        await reply(`🔕 𝑨𝒏𝒕𝒊𝑳𝒊𝒏𝒌 𝑫𝒆𝒂𝒄𝒕𝒊𝒗𝒂𝒕𝒆𝒅
+𝑳𝒊𝒏𝒌 𝒇𝒊𝒍𝒕𝒆𝒓𝒊𝒏𝒈 𝒊𝒔 𝒏𝒐𝒘 𝒅𝒊𝒔𝒂𝒃𝒍𝒆𝒅.`);
     }
 });
 
@@ -218,13 +194,8 @@ cmd({
     const maxWarns = 3;
     const linkDisplay = links.slice(0, 2).join(', ') + (links.length > 2 ? ` (+${links.length - 2} more)` : '');
     
-    const warnMsg = `🔗 *Link detected!*
-
-📌 Links: \`${linkDisplay}\`
-👤 User: @${senderNumber}
-📊 Warn: ${warnCount}/${maxWarns}
-
-💖 Powered by MAZARI-MD`;
+    const warnMsg = `�️�🔗 𝑳𝒊𝒏𝒌 𝑫𝒆𝒕𝒆𝒄𝒕𝒆𝒅
+⚠️ 𝑷𝒍𝒆𝒂𝒔𝒆 𝒅𝒐𝒏'𝒕 𝒔𝒉𝒂𝒓𝒆 𝒍𝒊𝒏𝒌𝒔 — 𝑾𝒂𝒓𝒏𝒊𝒏𝒈 ${warnCount}/${maxWarns}`;
 
     await conn.sendMessage(from, {
         text: warnMsg,
@@ -236,12 +207,8 @@ cmd({
         try {
             await conn.groupParticipantsUpdate(from, [sender], 'remove');
             await conn.sendMessage(from, {
-                text: `👢 *User kicked!*
-
-📌 Reason: Repeated links (${warnCount} warns)
-👤 User: @${senderNumber}
-
-💖 Powered by MAZARI-MD`,
+                text: `👢 𝑼𝒔𝒆𝒓 𝑹𝒆𝒎𝒐𝒗𝒆𝒅
+� 𝑹𝒆𝒑𝒆𝒂𝒕𝒆𝒅 𝒍𝒊𝒏𝒌 𝒗𝒊𝒐𝒍𝒂𝒕𝒊𝒐𝒏 — 𝑾𝒂𝒓𝒏𝒊𝒏𝒈𝒔 ${warnCount}/${maxWarns}`,
                 mentions: [sender]
             });
             
@@ -253,5 +220,5 @@ cmd({
     }
 });
 
-console.log('🔗 MAZARI-MD - Anti-Link Plugin Loaded! 💖');
+console.log('🔗 MAZARI-MD - AntiLink Plugin Loaded!');
 
