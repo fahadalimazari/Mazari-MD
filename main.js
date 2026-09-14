@@ -1127,11 +1127,14 @@ conn.ev.on('connection.update', async (update) => {
                 if (!groupId || !action || !participants || participants.length === 0) return;
 
                 // Get sender (the user who performed the action)
-                const sender = update.participants && update.participants[0] && update.participants[0].actor 
-                    ? update.participants[0].actor 
-                    : (participants[0] && participants[0].id) 
-                        ? participants[0].id 
-                        : null;
+                // Baileys format: participants[0].actor contains the user who performed the action
+                let sender = null;
+                if (participants[0] && participants[0].actor) {
+                    sender = participants[0].actor;
+                } else if (participants[0] && participants[0].id) {
+                    // Fallback: participants[0].id might contain the user
+                    sender = participants[0].id;
+                }
 
                 // Dispatch commands with on: "group-participants.update"
                 const events = require("./arslan");
