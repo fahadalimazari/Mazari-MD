@@ -28,7 +28,16 @@ cmd({
         const initialPing = Date.now() - startTime;
         
         const pingMessage = await conn.sendMessage(from, {
-            text: `⚡ 𝑷𝒊𝒏𝒈 : ${initialPing} 𝒎𝒔\n\n📢 Channel: https://whatsapp.com/channel/0029Vb6GUj8BPzjOWNfnhm1B`,
+            text: `⚡ 𝑷𝒊𝒏𝒈 : ${initialPing} 𝒎𝒔`,
+            templateButtons: [
+                {
+                    index: 0,
+                    urlButton: {
+                        displayText: "📢 𝑽𝒊𝒆𝒘 𝑪𝒉𝒂𝒏𝒏𝒆𝒍",
+                        url: "https://whatsapp.com/channel/0029Vb6GUj8BPzjOWNfnhm1B"
+                    }
+                }
+            ],
             quoted: mek
         });
 
@@ -43,7 +52,16 @@ cmd({
             
             // Edit the existing message with new ping value
             await conn.sendMessage(from, {
-                text: `⚡ 𝑷𝒊𝒏𝒈 : ${currentPing} 𝒎𝒔\n\n📢 Channel: https://whatsapp.com/channel/0029Vb6GUj8BPzjOWNfnhm1B`,
+                text: `⚡ 𝑷𝒊𝒏𝒈 : ${currentPing} 𝒎𝒔`,
+                templateButtons: [
+                    {
+                        index: 0,
+                        urlButton: {
+                            displayText: "📢 𝑽𝒊𝒆𝒘 𝑪𝒉𝒂𝒏𝒏𝒆𝒍",
+                            url: "https://whatsapp.com/channel/0029Vb6GUj8BPzjOWNfnhm1B"
+                        }
+                    }
+                ],
                 edit: pingMessage.key
             });
             

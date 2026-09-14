@@ -79,11 +79,19 @@ ${menuText}
 > ${toSmallUnicode('POWERED BY MAZARI-MD')}
 `.trim();
 
-        // Send menu with channel link in caption
-        const channelLink = `\n\n📢 Channel: https://whatsapp.com/channel/0029Vb6GUj8BPzjOWNfnhm1B`;
+        // Send menu with channel button
         await conn.sendMessage(m.chat, {
             image: { url: "https://files.catbox.moe/jtarms.png" },
-            caption: caption + channelLink,
+            caption: caption,
+            templateButtons: [
+                {
+                    index: 0,
+                    urlButton: {
+                        displayText: "📢 𝑽𝒊𝒆𝒘 𝑪𝒉𝒂𝒏𝒏𝒆𝒍",
+                        url: "https://whatsapp.com/channel/0029Vb6GUj8BPzjOWNfnhm1B"
+                    }
+                }
+            ],
             contextInfo: {
                 mentionedJid: [m.sender]
             }
