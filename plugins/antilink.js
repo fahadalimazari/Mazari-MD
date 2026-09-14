@@ -99,7 +99,10 @@ cmd({
         
         return reply(`🔗 𝑨𝒏𝒕𝒊𝑳𝒊𝒏𝒌 𝑺𝒚𝒔𝒕𝒆𝒎 📡 𝑺𝒕𝒂𝒕𝒖𝒔: ${status} ⚡ 𝑨𝒄𝒕𝒊𝒐𝒏: ${actionMode.toUpperCase()}
 𝑪𝒐𝒎𝒎𝒂𝒏𝒅𝒔:
-⚠️ ${prefix}antilink on warn — 𝑾𝒂𝒓𝒏 𝒐𝒏 𝑳𝒊𝒏𝒌𝒔 🗑️ ${prefix}antilink on delete — 𝑫𝒆𝒍𝒆𝒕𝒆 𝑳𝒊𝒏𝒌𝒔 🚷 ${prefix}antilink on kick — 𝑲𝒊𝒄𝒌 𝑼𝒔𝒆𝒓𝒔 𝒇𝒐𝒓 𝑳𝒊𝒏𝒌𝒔 🔕 ${prefix}antilink off — 𝑫𝒊𝒔𝒂𝒃𝒍𝒆 𝑨𝒏𝒕𝒊𝑳𝒊𝒏𝒌`);
+⚠️ ${prefix}antilink on warn — 𝑾𝒂𝒓𝒏 𝒐𝒏 𝑳𝒊𝒏𝒌𝒔
+🗑️ ${prefix}antilink on delete — 𝑫𝒆𝒍𝒆𝒕𝒆 𝑳𝒊𝒏𝒌𝒔
+🚷 ${prefix}antilink on kick — 𝑲𝒊𝒄𝒌 𝑼𝒔𝒆𝒓𝒔 𝒇𝒐𝒓 𝑳𝒊𝒏𝒌𝒔
+🔕 ${prefix}antilink off — 𝑫𝒊𝒔𝒂𝒃𝒍𝒆 𝑨𝒏𝒕𝒊𝑳𝒊𝒏𝒌`);
     }
 
     // ─── TOGGLE ON ───
