@@ -23,8 +23,8 @@ cmd({
 },
 async (conn, mek, m, { from, args, isGroup, sender, reply }) => {
     try {
-        if (!isGroup) return reply("❌ This command is only for groups.");
-        if (!isOwner(sender)) return reply("⚠️ *Access Denied*\nOnly the Bot Owner or Sudo users can control AdminLock.");
+        if (!isGroup) return reply("⚠️ *Groups Only*\n𝑻𝒉𝒊𝒔 𝒄𝒐𝒎𝒎𝒂𝒏𝒅 𝒘𝒐𝒓𝒌𝒔 𝒊𝒏 𝒈𝒓𝒐𝒖𝒑𝒔 𝒐𝒏𝒍𝒚.");
+        if (!isOwner(sender)) return reply("⚠️ *Access Denied*\n𝑶𝒘𝒏𝒆𝒓 𝒐𝒓 𝑺𝒖𝒅𝒐 𝒐𝒏𝒍𝒚.");
 
         const action = args[0] ? args[0].toLowerCase() : "";
 
@@ -47,7 +47,7 @@ async (conn, mek, m, { from, args, isGroup, sender, reply }) => {
             }
         }
 
-        reply(`⚠️ *Invalid Argument*\nUse: \`.adminlock on\`, \`.adminlock off\`, or \`.adminlock status\``);
+        reply(`⚠️ *Invalid Usage*\n𝑼𝒔𝒆: .adminlock on / off / status`);
     } catch (e) {
         console.error("Error in adminlock command:", e);
         reply("❌ Error processing adminlock command.");
@@ -91,7 +91,7 @@ cmd({
         const isBotAdmin = botParticipant && (botParticipant.admin === "admin" || botParticipant.admin === "superadmin");
 
         if (!isBotAdmin) {
-            return reply(`⚠️ *𝑨𝒅𝒎𝒊𝒏 𝑹𝒆𝒒𝒖𝒊𝒓𝒆𝒅*\n𝑴𝒂𝒌𝒆 𝒕𝒉𝒆 𝒃𝒐𝒕 𝒂𝒏 𝒂𝒅𝒎𝒊𝒏 𝒇𝒊𝒓𝒔𝒕 𝒕𝒐 𝒆𝒏𝒇𝒐𝒓𝒄𝒆 𝑨𝒅𝒎𝒊𝒏𝑳𝒐𝒄𝒌.`);
+            return reply(`⚠️ *Admin Required*\n𝑴𝒂𝒌𝒆 𝒕𝒉𝒆 𝒃𝒐𝒕 𝒂𝒏 𝒂𝒅𝒎𝒊𝒏 𝒇𝒊𝒓𝒔𝒕.`);
         }
 
         if (action === "demote") {
