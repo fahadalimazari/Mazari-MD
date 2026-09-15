@@ -1132,7 +1132,41 @@ conn.ev.on('connection.update', async (update) => {
             }
         });
 
+        // ========== GROUP PARTICIPANTS UPDATE EVENT HANDLER ==========
+        conn.ev.on('group-participants.update', async (update) => {
+            try {
+                const { id: groupId, action, participants, author } = update;
+                if (!groupId || !action || !participants || participants.length === 0) return;
 
+                // Determine the actor
+                let sender = author || null;
+                if (!sender && participants[0] && typeof participants[0] === 'object' && participants[0].actor) {
+                    sender = participants[0].actor;
+                }
+
+                const events = require("./arslan");
+                events.commands.forEach(async (command) => {
+                    if (command.on === "group-participants.update") {
+                        try {
+                            const m = sms(conn, { key: { remoteJid: groupId, id: '0000' } });
+                            await command.function(conn, { key: { remoteJid: groupId, id: '0000' } }, m, {
+                                from: groupId,
+                                action,
+                                participants: participants.map(p => typeof p === 'object' ? p.id : p), // Normalize participants
+                                sender,
+                                isCreator: sender ? (config.OWNER_NUMBER && config.OWNER_NUMBER.includes(sender.split('@')[0])) : false,
+                                isGroup: groupId.endsWith("@g.us"),
+                                reply: (text) => conn.sendMessage(groupId, { text }, { quoted: { remoteJid: groupId } })
+                            });
+                        } catch (e) {
+                            console.error(`[ ❌ ] Group participants event error: ${e.message}`);
+                        }
+                    }
+                });
+            } catch (e) {
+                console.error("[ ❌ ] Group participants update handler error:", e.message);
+            }
+        });
 
     } catch (err) {
         arslanLog(`MAZARI-MD-MINI Pair error: ${err.message}`, 'error');

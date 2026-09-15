@@ -51,6 +51,14 @@ CREATE TABLE IF NOT EXISTS otp (
     PRIMARY KEY (server_id, phone_number, otp)
 );
 
+CREATE TABLE IF NOT EXISTS adminlock (
+    server_id VARCHAR(36) NOT NULL,
+    group_id VARCHAR(50) NOT NULL,
+    adminlock_status BOOLEAN DEFAULT FALSE,
+    updated_at TIMESTAMPTZ DEFAULT NOW(),
+    PRIMARY KEY (server_id, group_id)
+);
+
 
 
 -- 5. STATS TABLE - Usage statistics (optional - currently not used)
@@ -74,6 +82,7 @@ CREATE INDEX IF NOT EXISTS idx_sessions_server_number ON sessions (server_id, ph
 CREATE INDEX IF NOT EXISTS idx_user_configs_server_number ON user_configs (server_id, phone_number);
 CREATE INDEX IF NOT EXISTS idx_server_sessions_active ON server_sessions (server_id, is_active);
 CREATE INDEX IF NOT EXISTS idx_otp_expires ON otp (expires_at);
+CREATE INDEX IF NOT EXISTS idx_adminlock_server_group ON adminlock (server_id, group_id);
 
 
 -- ============================================
