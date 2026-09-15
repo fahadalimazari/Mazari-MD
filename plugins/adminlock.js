@@ -24,7 +24,7 @@ cmd({
 async (conn, mek, m, { from, args, isGroup, sender, reply }) => {
     try {
         if (!isGroup) return reply("❌ This command is only for groups.");
-        if (!isOwner(sender)) return reply("👑 *YEH COMMAND SIRF MAZARI HACKER K LIE HAI 😎*");
+        if (!isOwner(sender)) return reply("⚠️ *Access Denied*\nOnly the Bot Owner or Sudo users can control AdminLock.");
 
         const action = args[0] ? args[0].toLowerCase() : "";
 
@@ -35,7 +35,7 @@ async (conn, mek, m, { from, args, isGroup, sender, reply }) => {
 
         if (action === "off" || action === "disable") {
             await setAdminlock(from, false);
-            return reply(`🔓 *𝑨𝒅𝒎𝒊𝒏𝑳𝒐𝒄𝒌 𝑫𝒊𝒔𝒂𝒃𝒍𝒆𝒅*\n𝑨𝒅𝒎𝒊𝒏 𝒑𝒓𝒐𝒎𝒐𝒕𝒆/𝒅𝒆𝒎𝒐𝒕𝒆 𝒍𝒐𝒄𝒌 𝒊𝒔 𝒐𝒇𝒇.`);
+            return reply(`🔓 *𝑨𝒅𝒎𝒊𝒏𝑳𝒐𝒄𝒌 𝑫𝒊𝒔𝒂𝒃𝒍𝒆𝒅*\n𝑨𝒅𝒎𝒊𝒏 𝒑𝒓𝒐𝒎𝒐𝒕𝒆/𝒅𝒆𝒎𝒐𝒕𝒆 𝒂𝒄𝒕𝒊𝒐𝒏𝒔 𝒂𝒓𝒆 𝒏𝒐𝒘 𝒖𝒏𝒍𝒐𝒄𝒌𝒆𝒅.`);
         }
 
         if (action === "status") {
@@ -47,7 +47,7 @@ async (conn, mek, m, { from, args, isGroup, sender, reply }) => {
             }
         }
 
-        reply(`*⚠️ Invalid argument.*\n⚡ *𝑼𝒔𝒆:* .adminlock on / off / status`);
+        reply(`⚠️ *Invalid Argument*\nUse: \`.adminlock on\`, \`.adminlock off\`, or \`.adminlock status\``);
     } catch (e) {
         console.error("Error in adminlock command:", e);
         reply("❌ Error processing adminlock command.");
@@ -99,7 +99,7 @@ cmd({
             await conn.groupParticipantsUpdate(from, [sender], "demote");
             await conn.groupParticipantsUpdate(from, [targetJid], "promote");
 
-            const msg = `🔒 *𝑨𝒅𝒎𝒊𝒏𝑳𝒐𝒄𝒌*\n\n⚠️ @${sender.split('@')[0]} 𝒅𝒆𝒎𝒐𝒕𝒆𝒅 @${targetJid.split('@')[0]}.\n🔄 @${sender.split('@')[0]} 𝒘𝒂𝒔 𝒅𝒆𝒎𝒐𝒕𝒆𝒅 & @${targetJid.split('@')[0]} 𝒘𝒂𝒔 𝒓𝒆𝒔𝒕𝒐𝒓𝒆𝒅 𝒂𝒔 𝒂𝒅𝒎𝒊𝒏.`;
+            const msg = `🔒 *𝑨𝒅𝒎𝒊𝒏𝑳𝒐𝒄𝒌*\n\n⚠️ @${sender.split('@')[0]} attempted to demote @${targetJid.split('@')[0]}.\n🔄 @${sender.split('@')[0]} was demoted and @${targetJid.split('@')[0]} was restored as admin.`;
             
             await conn.sendMessage(from, { text: msg, mentions: [sender, targetJid] });
         } 
@@ -108,7 +108,7 @@ cmd({
             await conn.groupParticipantsUpdate(from, [sender], "demote");
             await conn.groupParticipantsUpdate(from, [targetJid], "demote");
 
-            const msg = `🔒 *𝑨𝒅𝒎𝒊𝒏𝑳𝒐𝒄𝒌*\n\n⚠️ @${sender.split('@')[0]} 𝒑𝒓𝒐𝒎𝒐𝒕𝒆𝒅 @${targetJid.split('@')[0]}.\n🔒 𝑩𝒐𝒕𝒉 𝒘𝒆𝒓𝒆 𝒅𝒆𝒎𝒐𝒕𝒆𝒅 𝒃𝒚 𝑨𝒅𝒎𝒊𝒏𝑳𝒐𝒄𝒌.`;
+            const msg = `🔒 *𝑨𝒅𝒎𝒊𝒏𝑳𝒐𝒄𝒌*\n\n⚠️ @${sender.split('@')[0]} attempted to promote @${targetJid.split('@')[0]}.\n🔒 Both users were demoted by AdminLock.`;
             
             await conn.sendMessage(from, { text: msg, mentions: [sender, targetJid] });
         }
