@@ -71,7 +71,9 @@ cmd({
 
         // 3. Loop prevention: Ignore if the bot itself performed the action
         const botJid = jidNormalizedUser(conn.user.id);
-        if (jidNormalizedUser(sender) === botJid) return;
+        const botLid = conn.user.lid ? jidNormalizedUser(conn.user.lid) : null;
+        const senderJid = sender ? jidNormalizedUser(sender) : null;
+        if (senderJid === botJid || (botLid && senderJid === botLid)) return;
 
         // 4. Exemption check: Ignore if the actor is Owner / Sudo
         if (isOwner(sender)) return;
@@ -81,23 +83,16 @@ cmd({
         // 5. Verify the bot is an admin so it can actually perform the punishment
         const groupMetadata = await conn.groupMetadata(from);
         
-        console.log(`[ADMINLOCK DEBUG] groupId: ${from}`);
-        console.log(`[ADMINLOCK DEBUG] conn.user.id: ${conn.user ? conn.user.id : 'UNDEFINED'}`);
-        console.log(`[ADMINLOCK DEBUG] normalized botJid: ${botJid}`);
-        console.log(`[ADMINLOCK DEBUG] metadata participant count: ${groupMetadata.participants ? groupMetadata.participants.length : 'UNDEFINED'}`);
-
-        if (groupMetadata.participants) {
-            for (const p of groupMetadata.participants) {
-                console.log(`[ADMINLOCK DEBUG] participant: ${p.id} role: ${p.admin}`);
-            }
-        }
-
-        const botParticipant = groupMetadata.participants.find(p => jidNormalizedUser(p.id) === botJid);
+        const botParticipant = groupMetadata.participants.find(p => {
+            const pId = jidNormalizedUser(p.id);
+            return pId === botJid || (botLid && pId === botLid);
+        });
         
-        console.log(`[ADMINLOCK DEBUG] bot participant found: ${!!botParticipant}`);
+        console.log(`[ADMINLOCK DEBUG] bot phone JID: ${botJid}`);
+        console.log(`[ADMINLOCK DEBUG] resolved bot LID: ${botLid || 'NOT_FOUND'}`);
         if (botParticipant) {
-            console.log(`[ADMINLOCK DEBUG] bot participant jid: ${botParticipant.id}`);
-            console.log(`[ADMINLOCK DEBUG] bot participant admin role: ${botParticipant.admin}`);
+            console.log(`[ADMINLOCK DEBUG] matched bot participant: ${botParticipant.id}`);
+            console.log(`[ADMINLOCK DEBUG] bot participant role: ${botParticipant.admin}`);
         }
 
         const isBotAdmin = botParticipant && (botParticipant.admin === "admin" || botParticipant.admin === "superadmin");
