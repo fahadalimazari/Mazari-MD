@@ -29,6 +29,13 @@ const crypto = require('crypto');
  * Do NOT generate random UUID (changes on every restart)
  */
 const SERVER_ID = process.env.SERVER_ID || 'mazari-md-mini-v2';
+
+/**
+ * SERVER_URL - Central server URL for pairing requests
+ * Set in environment variables or leave empty
+ * Each server instance should have its own SERVER_URL
+ */
+const SERVER_URL = process.env.SERVER_URL || '';
 // ============================================
 
 const fs = require('fs');
@@ -360,6 +367,12 @@ module.exports = {
      * Must be stable across restarts/redeploys
      */
     SERVER_ID: SERVER_ID,
+
+    /**
+     * @description Server URL for pairing requests
+     * Set to your central pairing server URL or leave empty
+     */
+    SERVER_URL: SERVER_URL,
 
     // ═══════════════════════════════════════════
     //  🐛 DEBUG & LOGGING
