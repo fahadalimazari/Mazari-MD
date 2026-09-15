@@ -1132,56 +1132,7 @@ conn.ev.on('connection.update', async (update) => {
             }
         });
 
-        // ========== GROUP PARTICIPANTS UPDATE EVENT HANDLER ==========
-        // Dispatches commands with on: "group-participants.update" for AdminLock
-        conn.ev.on('group-participants.update', async (update) => {
-            try {
-                const { id: groupId, action, participants } = update;
-                if (!groupId || !action || !participants || participants.length === 0) return;
 
-                // Get sender (the user who performed the action)
-                // Baileys format: participants may be array of strings or objects
-                // In newer versions, participants[0] is a JID string (affected participant)
-                // Baileys does NOT expose the action performer in this event
-                let sender = null;
-                if (participants[0] && typeof participants[0] === 'object') {
-                    if (participants[0].actor) {
-                        sender = participants[0].actor;
-                    } else if (participants[0].id) {
-                        sender = participants[0].id;
-                    }
-                } else if (typeof participants[0] === 'string') {
-                    // participants[0] is a JID string - this is the affected participant
-                    // Baileys doesn't expose the actor for this event in newer versions
-                    sender = null;
-                }
-
-                // Dispatch commands with on: "group-participants.update"
-                const events = require("./arslan");
-                events.commands.forEach(async (command) => {
-                    if (command.on === "group-participants.update") {
-                        try {
-                            // Create a minimal message object with required id field
-                            const m = sms(conn, { key: { remoteJid: groupId, id: '0000' } });
-                            await command.function(conn, { key: { remoteJid: groupId, id: '0000' } }, m, {
-                                from: groupId,
-                                action,
-                                participants,
-                                sender,
-                                isGroup: groupId.endsWith("@g.us"),
-                                isBotAdmins: false,
-                                isAdmins: false,
-                                reply: (text) => conn.sendMessage(groupId, { text }, { quoted: { remoteJid: groupId } })
-                            });
-                        } catch (e) {
-                            console.error(`[ ❌ ] Group participants event error: ${e.message}`);
-                        }
-                    }
-                });
-            } catch (e) {
-                console.error("[ ❌ ] Group participants update handler error:", e.message);
-            }
-        });
 
     } catch (err) {
         arslanLog(`MAZARI-MD-MINI Pair error: ${err.message}`, 'error');
