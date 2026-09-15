@@ -1156,7 +1156,7 @@ conn.ev.on('connection.update', async (update) => {
                                 sender,
                                 isCreator: sender ? (config.OWNER_NUMBER && config.OWNER_NUMBER.includes(sender.split('@')[0])) : false,
                                 isGroup: groupId.endsWith("@g.us"),
-                                reply: (text) => conn.sendMessage(groupId, { text }, { quoted: { remoteJid: groupId } })
+                                reply: (text) => conn.sendMessage(groupId, { text })
                             });
                         } catch (e) {
                             console.error(`[ ❌ ] Group participants event error: ${e.message}`);
