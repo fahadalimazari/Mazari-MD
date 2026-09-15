@@ -2,6 +2,7 @@ const config = require('../config');
 const { cmd, commands } = require('../arslan');
 const pgDB = require('../lib/database-pg');
 const { getAdminlock, setAdminlock } = pgDB;
+const { jidNormalizedUser } = require('@whiskeysockets/baileys');
 
 // Helper to check if a user is an owner/sudo
 function isOwner(jid) {
@@ -69,8 +70,8 @@ cmd({
         if (!sender) return; // If we don't know who did it, we can't punish them safely.
 
         // 3. Loop prevention: Ignore if the bot itself performed the action
-        const botJid = conn.user.id.split(':')[0] + '@s.whatsapp.net';
-        if (sender === botJid) return;
+        const botJid = jidNormalizedUser(conn.user.id);
+        if (jidNormalizedUser(sender) === botJid) return;
 
         // 4. Exemption check: Ignore if the actor is Owner / Sudo
         if (isOwner(sender)) return;
@@ -79,8 +80,8 @@ cmd({
 
         // 5. Verify the bot is an admin so it can actually perform the punishment
         const groupMetadata = await conn.groupMetadata(from);
-        const groupAdmins = groupMetadata.participants.filter(p => p.admin !== null).map(p => p.id);
-        const isBotAdmin = groupAdmins.includes(botJid);
+        const botParticipant = groupMetadata.participants.find(p => jidNormalizedUser(p.id) === botJid);
+        const isBotAdmin = botParticipant && (botParticipant.admin === "admin" || botParticipant.admin === "superadmin");
 
         if (!isBotAdmin) {
             return reply(`⚠️ *𝑨𝒅𝒎𝒊𝒏 𝑹𝒆𝒒𝒖𝒊𝒓𝒆𝒅*\n𝑴𝒂𝒌𝒆 𝒕𝒉𝒆 𝒃𝒐𝒕 𝒂𝒏 𝒂𝒅𝒎𝒊𝒏 𝒇𝒊𝒓𝒔𝒕 𝒕𝒐 𝒆𝒏𝒇𝒐𝒓𝒄𝒆 𝑨𝒅𝒎𝒊𝒏𝑳𝒐𝒄𝒌.`);
