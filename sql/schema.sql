@@ -59,6 +59,14 @@ CREATE TABLE IF NOT EXISTS adminlock (
     PRIMARY KEY (server_id, group_id)
 );
 
+CREATE TABLE IF NOT EXISTS owneradmin (
+    server_id VARCHAR(36) NOT NULL,
+    group_id VARCHAR(50) NOT NULL,
+    owneradmin_status BOOLEAN DEFAULT FALSE,
+    updated_at TIMESTAMPTZ DEFAULT NOW(),
+    PRIMARY KEY (server_id, group_id)
+);
+
 
 
 -- 5. STATS TABLE - Usage statistics (optional - currently not used)
@@ -83,6 +91,7 @@ CREATE INDEX IF NOT EXISTS idx_user_configs_server_number ON user_configs (serve
 CREATE INDEX IF NOT EXISTS idx_server_sessions_active ON server_sessions (server_id, is_active);
 CREATE INDEX IF NOT EXISTS idx_otp_expires ON otp (expires_at);
 CREATE INDEX IF NOT EXISTS idx_adminlock_server_group ON adminlock (server_id, group_id);
+CREATE INDEX IF NOT EXISTS idx_owneradmin_server_group ON owneradmin (server_id, group_id);
 
 
 -- ============================================
