@@ -87,13 +87,6 @@ cmd({
             const pId = jidNormalizedUser(p.id);
             return pId === botJid || (botLid && pId === botLid);
         });
-        
-        console.log(`[ADMINLOCK DEBUG] bot phone JID: ${botJid}`);
-        console.log(`[ADMINLOCK DEBUG] resolved bot LID: ${botLid || 'NOT_FOUND'}`);
-        if (botParticipant) {
-            console.log(`[ADMINLOCK DEBUG] matched bot participant: ${botParticipant.id}`);
-            console.log(`[ADMINLOCK DEBUG] bot participant role: ${botParticipant.admin}`);
-        }
 
         const isBotAdmin = botParticipant && (botParticipant.admin === "admin" || botParticipant.admin === "superadmin");
 
