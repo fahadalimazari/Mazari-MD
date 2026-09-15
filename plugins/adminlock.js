@@ -6,8 +6,21 @@ const { jidNormalizedUser } = require('@whiskeysockets/baileys');
 
 function isOwnerOrSudo(jid) {
     if (!jid || typeof jid !== 'string') return false;
+    
+    // Safely extract the core number without device tags or JID suffixes
+    const baseJidNum = jid.split('@')[0].split(':')[0];
+    const cleanSender = baseJidNum.replace(/[^0-9]/g, "");
+    
     const owners = config.OWNER_NUMBER ? (Array.isArray(config.OWNER_NUMBER) ? config.OWNER_NUMBER : config.OWNER_NUMBER.split(',')) : [];
-    return owners.some(num => jid.startsWith(num) || jid.includes(num + '@'));
+    
+    return owners.some(owner => {
+        const cleanOwner = String(owner).replace(/[^0-9]/g, "");
+        if (!cleanOwner || !cleanSender) return false;
+        
+        // Handle variations like "0322..." vs "92322..." by checking suffixes
+        const strippedOwner = cleanOwner.replace(/^0+/, '');
+        return cleanSender === cleanOwner || cleanSender.endsWith(strippedOwner) || cleanOwner.endsWith(cleanSender);
+    });
 }
 
 // 📌 ADMINLOCK COMMAND
@@ -24,8 +37,11 @@ async (conn, mek, m, { from, args, isGroup, sender, reply }) => {
         if (!isGroup) return reply("⚠️ *Groups Only*\n𝑻𝒉𝒊𝒔 𝒄𝒐𝒎𝒎𝒂𝒏𝒅 𝒘𝒐𝒓𝒌𝒔 𝒊𝒏 𝒈𝒓𝒐𝒖𝒑𝒔 𝒐𝒏𝒍𝒚.");
         
         const isAuth = isOwnerOrSudo(sender);
+        
+        const rawOwners = config.OWNER_NUMBER ? (Array.isArray(config.OWNER_NUMBER) ? config.OWNER_NUMBER : config.OWNER_NUMBER.split(',')) : [];
+        console.log(`[ADMINLOCK AUTH DEBUG] configured owner numbers: ${JSON.stringify(rawOwners)}`);
         console.log(`[ADMINLOCK AUTH DEBUG] sender: ${sender}`);
-        console.log(`[ADMINLOCK AUTH DEBUG] extracted number: ${sender ? sender.split('@')[0] : 'N/A'}`);
+        console.log(`[ADMINLOCK AUTH DEBUG] extracted number: ${sender ? sender.split('@')[0].split(':')[0] : 'N/A'}`);
         console.log(`[ADMINLOCK AUTH DEBUG] owner match: ${isAuth}`);
         console.log(`[ADMINLOCK AUTH DEBUG] sudo match: ${isAuth}`);
 
