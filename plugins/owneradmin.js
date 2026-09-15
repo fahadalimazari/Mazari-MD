@@ -2,6 +2,7 @@ const { cmd } = require('../arslan');
 const pgDB = require('../lib/database-pg');
 const { getOwneradmin, setOwneradmin } = pgDB;
 const config = require('../config');
+const { jidNormalizedUser } = require('@whiskeysockets/baileys');
 
 // 📌 OWNERADMIN COMMAND
 cmd({
@@ -63,19 +64,27 @@ cmd({
         if (!isTargetOwner) return; // Only protect the actual owner
 
         // 3. Avoid loops: Do nothing if the bot itself performed the demotion
-        const botJid = conn.user.id.split(':')[0] + '@s.whatsapp.net';
-        const botLid = conn.authState?.creds?.me?.lid || conn.authState?.creds?.account?.lid;
-        const senderJid = sender;
+        const botJid = jidNormalizedUser(conn.user.id);
+        const botLid = conn.user.lid ? jidNormalizedUser(conn.user.lid) : null;
+        
+        const senderJid = sender ? jidNormalizedUser(sender) : null;
         if (senderJid === botJid || (botLid && senderJid === botLid)) return;
 
         // 4. Check if bot is admin
         const groupMetadata = await conn.groupMetadata(from);
+        
         const botParticipant = groupMetadata.participants.find(p => {
-            const pId = p.id;
+            const pId = jidNormalizedUser(p.id);
             return pId === botJid || (botLid && pId === botLid);
         });
 
         const isBotAdmin = botParticipant && (botParticipant.admin === "admin" || botParticipant.admin === "superadmin");
+        
+        console.log(`[OWNERADMIN DEBUG] botJid: ${botJid}`);
+        console.log(`[OWNERADMIN DEBUG] botLid: ${botLid}`);
+        console.log(`[OWNERADMIN DEBUG] bot participant found: ${!!botParticipant}`);
+        console.log(`[OWNERADMIN DEBUG] bot participant role: ${botParticipant ? botParticipant.admin : 'null'}`);
+        console.log(`[OWNERADMIN DEBUG] isBotAdmin: ${isBotAdmin}`);
 
         if (!isBotAdmin) {
             return reply(`⚠️ *Admin Required*\n𝑴𝒂𝒌𝒆 𝒕𝒉𝒆 𝒃𝒐𝒕 𝒂𝒏 𝒂𝒅𝒎𝒊𝒏 𝒇𝒊𝒓𝒔𝒕.`);
