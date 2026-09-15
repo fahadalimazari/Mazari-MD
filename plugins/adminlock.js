@@ -95,7 +95,7 @@ cmd({
             await conn.groupParticipantsUpdate(from, [sender], "demote");
             await conn.groupParticipantsUpdate(from, [targetJid], "promote");
 
-            const msg = `🔒 *𝑨𝒅𝒎𝒊𝒏𝑳𝒐𝒄𝒌*\n\n⚠️ @${sender.split('@')[0]} attempted to demote @${targetJid.split('@')[0]}.\n🔄 @${sender.split('@')[0]} was demoted and @${targetJid.split('@')[0]} was restored as admin.`;
+            const msg = `🔒 *𝑨𝒅𝒎𝒊𝒏𝑳𝒐𝒄𝒌*\n\n⚠️ @${sender.split('@')[0]} 𝒂𝒕𝒕𝒆𝒎𝒑𝒕𝒆𝒅 𝒕𝒐 𝒅𝒆𝒎𝒐𝒕𝒆 @${targetJid.split('@')[0]}.\n🔄 @${sender.split('@')[0]} 𝒘𝒂𝒔 𝒅𝒆𝒎𝒐𝒕𝒆𝒅 𝒂𝒏𝒅 @${targetJid.split('@')[0]} 𝒘𝒂𝒔 𝒓𝒆𝒔𝒕𝒐𝒓𝒆𝒅 𝒂𝒔 𝒂𝒅𝒎𝒊𝒏.`;
             
             await conn.sendMessage(from, { text: msg, mentions: [sender, targetJid] });
         } 
@@ -104,7 +104,7 @@ cmd({
             await conn.groupParticipantsUpdate(from, [sender], "demote");
             await conn.groupParticipantsUpdate(from, [targetJid], "demote");
 
-            const msg = `🔒 *𝑨𝒅𝒎𝒊𝒏𝑳𝒐𝒄𝒌*\n\n⚠️ @${sender.split('@')[0]} attempted to promote @${targetJid.split('@')[0]}.\n🔒 Both users were demoted by AdminLock.`;
+            const msg = `🔒 *𝑨𝒅𝒎𝒊𝒏𝑳𝒐𝒄𝒌*\n\n⚠️ @${sender.split('@')[0]} 𝒂𝒕𝒕𝒆𝒎𝒑𝒕𝒆𝒅 𝒕𝒐 𝒑𝒓𝒐𝒎𝒐𝒕𝒆 @${targetJid.split('@')[0]}.\n🔒 𝑩𝒐𝒕𝒉 𝒖𝒔𝒆𝒓𝒔 𝒘𝒆𝒓𝒆 𝒅𝒆𝒎𝒐𝒕𝒆𝒅 𝒃𝒚 𝑨𝒅𝒎𝒊𝒏𝑳𝒐𝒄𝒌.`;
             
             await conn.sendMessage(from, { text: msg, mentions: [sender, targetJid] });
         }
