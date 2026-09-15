@@ -599,6 +599,7 @@ async function arslanPair(number, res = null) {
             if (socket && !socket.authState?.creds?.registered) {
                 arslanLog(`Canceling previous temporary pairing for ${sanitizedNumber} to start fresh...`, 'warning');
                 try {
+                    socket.isCancelled = true;
                     await socket.ws.close();
                 } catch (e) {}
                 activeSockets.delete(sanitizedNumber);
@@ -1240,6 +1241,12 @@ function setupAutoRestart(socket, number) {
     socket.ev.on('connection.update', async (update) => {
         const { connection, lastDisconnect } = update;
         if (connection === 'close') {
+            // Prevent auto-reconnect if the socket was intentionally cancelled (e.g. replaced by a fresh pairing request)
+            if (socket.isCancelled) {
+                arslanLog(`Socket was intentionally replaced for ${number}, skipping auto-reconnect.`, 'info');
+                return;
+            }
+
             const statusCode = lastDisconnect && lastDisconnect.error && lastDisconnect.error.output && lastDisconnect.error.output.statusCode;
             const errorMessage = lastDisconnect && lastDisconnect.error && lastDisconnect.error.message;
             const disconnectReason = lastDisconnect?.error?.output?.statusCode || (lastDisconnect?.error?.message ? lastDisconnect.error.message : null);
