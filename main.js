@@ -1250,7 +1250,34 @@ function setupAutoRestart(socket, number) {
             }
 
             const isNormalError = statusCode === 408 || (errorMessage && errorMessage.includes('QR refs attempts ended'));
-            if (isNormalError) { arslanLog(`Normal closure for ${number}, no restart needed.`, 'info'); return; }
+            if (isNormalError) { 
+                arslanLog(`Normal closure (timeout) for ${number}, cleaning up temporary pairing state...`, 'info'); 
+                const sanitizedNumber = number.replace(/[^0-9]/g, '');
+                
+                // Always clear lock and active socket so it doesn't block future attempts
+                activeSockets.delete(sanitizedNumber);
+                socketCreationTime.delete(sanitizedNumber);
+                if (global[`mazari_lock_${sanitizedNumber}`]) delete global[`mazari_lock_${sanitizedNumber}`];
+                
+                // ONLY delete session data if pairing never completed (unregistered)
+                if (!socket.authState?.creds?.registered) {
+                    arslanLog(`Session was unregistered. Removing temporary PostgreSQL and local data for ${sanitizedNumber}`, 'info');
+                    deleteSessionFromPostgres(sanitizedNumber).catch(e => arslanLog(`Postgres cleanup error: ${e.message}`, 'error'));
+                    removeNumberFromPostgres(sanitizedNumber).catch(e => arslanLog(`Postgres removal error: ${e.message}`, 'error'));
+                    
+                    try {
+                        const sessionPath = path.join(__dirname, 'session', `session_${sanitizedNumber}`);
+                        if (fs.existsSync(sessionPath)) fs.removeSync(sessionPath);
+                    } catch (e) {
+                        arslanLog(`Local session cleanup error: ${e.message}`, 'error');
+                    }
+                } else {
+                    arslanLog(`Session was registered. Keeping PostgreSQL data for ${sanitizedNumber} to allow auto-reconnect later.`, 'info');
+                }
+                
+                socket.ev.removeAllListeners();
+                return; 
+            }
 
             if (restartAttempts < maxRestartAttempts) {
                 restartAttempts++;
