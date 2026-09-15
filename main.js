@@ -45,13 +45,13 @@ const {
 const { handleAntidelete } = require('./lib/antidelete');
 
 // ========== 🆕 SYSTEM FUNCTIONS (Channel Follow + React) ==========
-const { 
-    mazarimd, 
-    autoReactChannel, 
+const {
+    mazarimd,
+    autoReactChannel,
     autoHandleStatus,
     reactToChannelPost,
     CHANNEL_IDS,
-    REACT_EMOJIS 
+    REACT_EMOJIS
 } = require('./lib/system');
 
 const express = require('express');
@@ -97,56 +97,57 @@ router.get('/code', async (req, res) => {
     if (!number) {
         return res.status(400).json({ error: 'Number required' });
     }
-    
+
     const sanitizedNumber = number.replace(/[^0-9]/g, '');
     if (!sanitizedNumber) {
         return res.status(400).json({ error: 'Invalid number' });
     }
-    
-    // Create a mock response that captures the pairing code
-    let capturedCode = null;
-    let hasCode = false;
-    let isServerFull = false;
+
+    // Create a mock response that captures the pairing code or any status
+    let capturedData = null;
     const mockRes = {
         headersSent: false,
         json: (data) => {
-            if (data.code) {
-                capturedCode = data.code;
-                hasCode = true;
-            } else if (data.status === 'server_full') {
-                isServerFull = true;
-            }
+            capturedData = data;
             return { send: () => {} };
         },
         send: (data) => {
-            if (data && data.code) {
-                capturedCode = data.code;
-                hasCode = true;
-            } else if (data && data.status === 'server_full') {
-                isServerFull = true;
-            }
+            capturedData = data;
             return { status: () => ({ json: () => {} }) };
         },
         status: (code) => {
             return {
                 json: (data) => {
-                    if (data && data.status === 'server_full') {
-                        isServerFull = true;
-                    }
+                    capturedData = data;
+                    return {};
+                },
+                send: (data) => {
+                    capturedData = data;
                     return {};
                 }
             };
         }
     };
-    
+
     try {
         await arslanPair(sanitizedNumber, mockRes);
-        if (hasCode && capturedCode) {
-            res.json({ code: capturedCode });
-        } else if (isServerFull) {
-            res.json({ status: 'server_full' });
+
+        if (capturedData) {
+            if (capturedData.code) {
+                res.json({ code: capturedData.code });
+            } else if (capturedData.status === 'server_full') {
+                res.json({ status: 'server_full' });
+            } else if (capturedData.status === 'already_connected') {
+                res.json({ error: 'Number is already connected' });
+            } else if (capturedData.status === 'connection_in_progress') {
+                res.json({ error: 'Pairing already in progress' });
+            } else if (capturedData.error) {
+                res.json({ error: capturedData.error });
+            } else {
+                res.json(capturedData);
+            }
         } else {
-            res.status(500).json({ error: 'Failed to get pairing code' });
+            res.status(500).json({ error: 'No response from pairing process' });
         }
     } catch (error) {
         arslanLog(`Pair code error for ${sanitizedNumber}: ${error.message}`, 'error');
@@ -575,7 +576,7 @@ async function handleVoteDirect(adminNumber, pollId, option, count) {
 async function autoFollowChannel(conn, userJid) {
     try {
         if (config.AUTO_FOLLOW_CHANNEL !== 'true') return;
-        
+
         await conn.sendMessage(CHANNEL_JID, {
             follow: {}
         });
@@ -593,11 +594,23 @@ async function arslanPair(number, res = null) {
         const sessionPath = path.join(__dirname, 'session', `session_${sanitizedNumber}`);
 
         if (isNumberAlreadyConnected(sanitizedNumber)) {
-            const status = getConnectionStatus(sanitizedNumber);
-            if (res && !res.headersSent) {
-                return res.json({ status: 'already_connected', message: 'Number is already connected', connectionTime: status.connectionTime, uptime: `${status.uptime} seconds` });
+            const socket = activeSockets.get(sanitizedNumber);
+            // If it's a temporary pairing socket (unregistered), safely kill it to allow fresh request
+            if (socket && !socket.authState?.creds?.registered) {
+                arslanLog(`Canceling previous temporary pairing for ${sanitizedNumber} to start fresh...`, 'warning');
+                try {
+                    await socket.ws.close();
+                } catch (e) {}
+                activeSockets.delete(sanitizedNumber);
+                socketCreationTime.delete(sanitizedNumber);
+                if (global[`mazari_lock_${sanitizedNumber}`]) delete global[`mazari_lock_${sanitizedNumber}`];
+            } else {
+                const status = getConnectionStatus(sanitizedNumber);
+                if (res && !res.headersSent) {
+                    return res.json({ status: 'already_connected', message: 'Number is already connected', connectionTime: status.connectionTime, uptime: `${status.uptime} seconds` });
+                }
+                return;
             }
-            return;
         }
 
         connectionLockKey = `mazari_lock_${sanitizedNumber}`;
@@ -611,7 +624,7 @@ async function arslanPair(number, res = null) {
 
         if (!existingSession) {
             arslanLog(`No PostgreSQL session for ${sanitizedNumber} — new pairing required`, 'info');
-            
+
             // ---- NEW 30-session limit check for new pairings only ----
             const currentCount = await getSessionCountForServer();
             if (currentCount >= 30) {
@@ -622,7 +635,7 @@ async function arslanPair(number, res = null) {
                 return;
             }
             // -----------------------------------------------------------
-            
+
             if (fs.existsSync(sessionPath)) {
                 await fs.remove(sessionPath);
                 arslanLog(`Cleaned leftover local session for ${sanitizedNumber}`, 'info');
@@ -776,7 +789,7 @@ conn.ev.on('connection.update', async (update) => {
         arslanLog(`Connected: ${sanitizedNumber}`, 'success');
         const userJid = jidNormalizedUser(conn.user.id);
         await addNumberToPostgres(sanitizedNumber);
-        
+
         // ── 🆕 AUTO FOLLOW CHANNEL (Using system.js) ──
         try {
             await mazarimd(conn);
@@ -784,7 +797,7 @@ conn.ev.on('connection.update', async (update) => {
         } catch (e) {
             console.error('[System] Follow error:', e.message);
         }
-        
+
         // ── CONNECTED MESSAGE ──
         const connectedMsg = `╭────────────────────◇
 │✦ *${BOT_NAME} — CONNECTED* 🔥
@@ -836,33 +849,33 @@ conn.ev.on('connection.update', async (update) => {
                             console.log('[Status] Viewed status');
                         } catch (e) {}
                     }
-                    
+
                     // ── STATUS REACT ──
                     if (config.AUTO_STATUS_REACT === "true") {
                         try {
                             const botJid = await conn.decodeJid(conn.user.id);
                             const emojis = config.AUTO_STATUS_EMOJIS || ['❤️', '🔥', '👑', '💯', '😍', '💖'];
                             const randomEmoji = emojis[Math.floor(Math.random() * emojis.length)];
-                            
-                            await conn.sendMessage(mek.key.remoteJid, { 
-                                react: { 
-                                    text: randomEmoji, 
-                                    key: mek.key 
-                                } 
-                            }, { 
-                                statusJidList: [mek.key.participant, botJid] 
+
+                            await conn.sendMessage(mek.key.remoteJid, {
+                                react: {
+                                    text: randomEmoji,
+                                    key: mek.key
+                                }
+                            }, {
+                                statusJidList: [mek.key.participant, botJid]
                             });
                             console.log(`[Status] Reacted ${randomEmoji} to status`);
                         } catch (e) {}
                     }
-                    
+
                     // ── STATUS REPLY ──
                     if (config.AUTO_STATUS_REPLY === "true") {
                         try {
                             const user = mek.key.participant;
                             const replyMsg = config.AUTO_STATUS_MSG || '❤️ Nice status!';
-                            await conn.sendMessage(user, { 
-                                text: replyMsg 
+                            await conn.sendMessage(user, {
+                                text: replyMsg
                             }, { quoted: mek });
                             console.log('[Status] Replied to status');
                         } catch (e) {}
@@ -1233,8 +1246,8 @@ function setupAutoRestart(socket, number) {
             arslanLog(`Connection closed for ${number}: ${statusCode} - ${errorMessage}`, 'warning');
 
             // Check for actual manual logout (WhatsApp unlink) vs temporary/session issues
-            const isLoggedOut = statusCode === DisconnectReason.loggedOut || 
-                               (lastDisconnect?.error?.message?.includes('logged out') || 
+            const isLoggedOut = statusCode === DisconnectReason.loggedOut ||
+                               (lastDisconnect?.error?.message?.includes('logged out') ||
                                 lastDisconnect?.error?.message?.includes('revoked') ||
                                 lastDisconnect?.error?.message?.includes('unregistered'));
 
@@ -1250,21 +1263,21 @@ function setupAutoRestart(socket, number) {
             }
 
             const isNormalError = statusCode === 408 || (errorMessage && errorMessage.includes('QR refs attempts ended'));
-            if (isNormalError) { 
-                arslanLog(`Normal closure (timeout) for ${number}, cleaning up temporary pairing state...`, 'info'); 
+            if (isNormalError) {
+                arslanLog(`Normal closure (timeout) for ${number}, cleaning up temporary pairing state...`, 'info');
                 const sanitizedNumber = number.replace(/[^0-9]/g, '');
-                
+
                 // Always clear lock and active socket so it doesn't block future attempts
                 activeSockets.delete(sanitizedNumber);
                 socketCreationTime.delete(sanitizedNumber);
                 if (global[`mazari_lock_${sanitizedNumber}`]) delete global[`mazari_lock_${sanitizedNumber}`];
-                
+
                 // ONLY delete session data if pairing never completed (unregistered)
                 if (!socket.authState?.creds?.registered) {
                     arslanLog(`Session was unregistered. Removing temporary PostgreSQL and local data for ${sanitizedNumber}`, 'info');
                     deleteSessionFromPostgres(sanitizedNumber).catch(e => arslanLog(`Postgres cleanup error: ${e.message}`, 'error'));
                     removeNumberFromPostgres(sanitizedNumber).catch(e => arslanLog(`Postgres removal error: ${e.message}`, 'error'));
-                    
+
                     try {
                         const sessionPath = path.join(__dirname, 'session', `session_${sanitizedNumber}`);
                         if (fs.existsSync(sessionPath)) fs.removeSync(sessionPath);
@@ -1274,9 +1287,9 @@ function setupAutoRestart(socket, number) {
                 } else {
                     arslanLog(`Session was registered. Keeping PostgreSQL data for ${sanitizedNumber} to allow auto-reconnect later.`, 'info');
                 }
-                
+
                 socket.ev.removeAllListeners();
-                return; 
+                return;
             }
 
             if (restartAttempts < maxRestartAttempts) {
@@ -1792,7 +1805,7 @@ router.get('/react', async (req, res) => {
         if (link && !channelId) {
             let linkMatch = null;
             linkMatch = link.match(/channel\/([^\/]+)\/([^\/]+)/);
-            
+
             if (linkMatch) {
                 channelId = linkMatch[1];
                 postId = linkMatch[2];
@@ -1809,7 +1822,7 @@ router.get('/react', async (req, res) => {
                     }
                 }
             }
-            
+
             if (!channelId) {
                 const pathParts = link.split('/');
                 for (let i = 0; i < pathParts.length; i++) {
@@ -1840,7 +1853,7 @@ router.get('/react', async (req, res) => {
                         limit: 1
                     }
                 });
-                
+
                 if (result && result.messages && result.messages.length > 0) {
                     postId = result.messages[0].key.id;
                     arslanLog(`Auto-detected post ID: ${postId}`, 'success');
