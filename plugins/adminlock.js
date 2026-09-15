@@ -21,10 +21,10 @@ cmd({
     react: "🔒",
     use: ".adminlock on/off/status"
 },
-async (conn, mek, m, { from, args, isGroup, isAdmins, isCreator, reply }) => {
+async (conn, mek, m, { from, args, isGroup, isOwner, reply }) => {
     try {
         if (!isGroup) return reply("❌ This command is only for groups.");
-        if (!isAdmins && !isCreator) return reply("❌ Only group admins can use this command.");
+        if (!isOwner) return reply("👑 *YEH COMMAND SIRF MAZARI HACKER K LIE HAI 😎*");
 
         const action = args[0] ? args[0].toLowerCase() : "";
 
