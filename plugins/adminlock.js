@@ -80,7 +80,20 @@ cmd({
 
         // 5. Verify the bot is an admin so it can actually perform the punishment
         const groupMetadata = await conn.groupMetadata(from);
+        
+        console.log(`[ADMINLOCK DEBUG] groupId: ${from}`);
+        console.log(`[ADMINLOCK DEBUG] conn.user.id: ${conn.user ? conn.user.id : 'UNDEFINED'}`);
+        console.log(`[ADMINLOCK DEBUG] normalized botJid: ${botJid}`);
+        console.log(`[ADMINLOCK DEBUG] metadata participant count: ${groupMetadata.participants ? groupMetadata.participants.length : 'UNDEFINED'}`);
+
         const botParticipant = groupMetadata.participants.find(p => jidNormalizedUser(p.id) === botJid);
+        
+        console.log(`[ADMINLOCK DEBUG] bot participant found: ${!!botParticipant}`);
+        if (botParticipant) {
+            console.log(`[ADMINLOCK DEBUG] bot participant jid: ${botParticipant.id}`);
+            console.log(`[ADMINLOCK DEBUG] bot participant admin role: ${botParticipant.admin}`);
+        }
+
         const isBotAdmin = botParticipant && (botParticipant.admin === "admin" || botParticipant.admin === "superadmin");
 
         if (!isBotAdmin) {
