@@ -86,6 +86,12 @@ cmd({
         console.log(`[ADMINLOCK DEBUG] normalized botJid: ${botJid}`);
         console.log(`[ADMINLOCK DEBUG] metadata participant count: ${groupMetadata.participants ? groupMetadata.participants.length : 'UNDEFINED'}`);
 
+        if (groupMetadata.participants) {
+            for (const p of groupMetadata.participants) {
+                console.log(`[ADMINLOCK DEBUG] participant: ${p.id} role: ${p.admin}`);
+            }
+        }
+
         const botParticipant = groupMetadata.participants.find(p => jidNormalizedUser(p.id) === botJid);
         
         console.log(`[ADMINLOCK DEBUG] bot participant found: ${!!botParticipant}`);
