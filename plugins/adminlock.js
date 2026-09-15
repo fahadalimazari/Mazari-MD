@@ -4,12 +4,10 @@ const pgDB = require('../lib/database-pg');
 const { getAdminlock, setAdminlock } = pgDB;
 const { jidNormalizedUser } = require('@whiskeysockets/baileys');
 
-// Helper to check if a user is an owner/sudo
-function isOwner(jid) {
-    if (!jid) return false;
-    const num = jid.split('@')[0];
+function isOwnerOrSudo(jid) {
+    if (!jid || typeof jid !== 'string') return false;
     const owners = config.OWNER_NUMBER ? (Array.isArray(config.OWNER_NUMBER) ? config.OWNER_NUMBER : config.OWNER_NUMBER.split(',')) : [];
-    return owners.includes(num);
+    return owners.some(num => jid.startsWith(num) || jid.includes(num + '@'));
 }
 
 // 📌 ADMINLOCK COMMAND
@@ -24,7 +22,14 @@ cmd({
 async (conn, mek, m, { from, args, isGroup, sender, reply }) => {
     try {
         if (!isGroup) return reply("⚠️ *Groups Only*\n𝑻𝒉𝒊𝒔 𝒄𝒐𝒎𝒎𝒂𝒏𝒅 𝒘𝒐𝒓𝒌𝒔 𝒊𝒏 𝒈𝒓𝒐𝒖𝒑𝒔 𝒐𝒏𝒍𝒚.");
-        if (!isOwner(sender)) return reply("⚠️ *Access Denied*\n𝑶𝒘𝒏𝒆𝒓 𝒐𝒓 𝑺𝒖𝒅𝒐 𝒐𝒏𝒍𝒚.");
+        
+        const isAuth = isOwnerOrSudo(sender);
+        console.log(`[ADMINLOCK AUTH DEBUG] sender: ${sender}`);
+        console.log(`[ADMINLOCK AUTH DEBUG] extracted number: ${sender ? sender.split('@')[0] : 'N/A'}`);
+        console.log(`[ADMINLOCK AUTH DEBUG] owner match: ${isAuth}`);
+        console.log(`[ADMINLOCK AUTH DEBUG] sudo match: ${isAuth}`);
+
+        if (!isAuth) return reply("⚠️ *Access Denied*\n𝑶𝒘𝒏𝒆𝒓 𝒐𝒓 𝑺𝒖𝒅𝒐 𝒐𝒏𝒍𝒚.");
 
         const action = args[0] ? args[0].toLowerCase() : "";
 
@@ -76,7 +81,7 @@ cmd({
         if (senderJid === botJid || (botLid && senderJid === botLid)) return;
 
         // 4. Exemption check: Ignore if the actor is Owner / Sudo
-        if (isOwner(sender)) return;
+        if (isOwnerOrSudo(sender)) return;
 
         const targetJid = participants[0];
 
