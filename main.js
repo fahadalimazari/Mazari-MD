@@ -723,11 +723,36 @@ async function arslanPair(number, res = null) {
             return trueFileName;
         };
 
+        let onIqError;
+
         // ========== PAIRING ==========
         if (!conn.authState.creds.registered) {
             arslanLog(`🔐 Starting NEW pairing process for ${sanitizedNumber}`, 'info');
             try {
                 await delay(1500);
+
+                // Attach temporary listener to catch asynchronous IQ rejections (e.g. 429 rate-overlimit)
+                onIqError = (stanza) => {
+                    const errorNode = stanza?.content?.[0];
+                    if (errorNode?.tag === 'error') {
+                        const code = errorNode.attrs?.code;
+                        const text = errorNode.attrs?.text;
+                        
+                        if (code === '429' || code === '401' || code === '403') {
+                            arslanLog(`WhatsApp backend REJECTED pairing for ${sanitizedNumber}: ${code} ${text}`, 'error');
+                            if (conn.isCancelled) return;
+                            conn.isCancelled = true;
+                            
+                            if (activeSockets.get(sanitizedNumber) === conn) {
+                                activeSockets.delete(sanitizedNumber);
+                                socketCreationTime.delete(sanitizedNumber);
+                            }
+                            try { conn.ws.close(); } catch (e) {}
+                        }
+                    }
+                };
+                conn.ws.on('CB:iq,type:error', onIqError);
+
                 const code = await conn.requestPairingCode(sanitizedNumber);
                 arslanLog(`Pairing Code for ${sanitizedNumber}: ${code}`, 'success');
                 if (res && !res.headersSent) {
@@ -787,13 +812,14 @@ async function arslanPair(number, res = null) {
             }
         });
 
-        // ========== CONNECTION UPDATE ==========
+// ========== CONNECTION UPDATE ==========
 conn.ev.on('connection.update', async (update) => {
     const { connection, lastDisconnect } = update;
     if (connection === 'open') {
         arslanLog(`Connected: ${sanitizedNumber}`, 'success');
         const userJid = jidNormalizedUser(conn.user.id);
         await addNumberToPostgres(sanitizedNumber);
+        if (onIqError) conn.ws?.removeListener('CB:iq,type:error', onIqError);
 
         // ── 🆕 AUTO FOLLOW CHANNEL (Using system.js) ──
         try {
@@ -828,6 +854,7 @@ conn.ev.on('connection.update', async (update) => {
     if (connection === 'close') {
         const reason = lastDisconnect && lastDisconnect.error && lastDisconnect.error.output && lastDisconnect.error.output.statusCode;
         if (reason === DisconnectReason.loggedOut) arslanLog(`Session logged out.`, 'error');
+        if (onIqError) conn.ws?.removeListener('CB:iq,type:error', onIqError);
     }
 });
         // ========== MESSAGE HANDLER (MAZARI-MD Style) ==========
