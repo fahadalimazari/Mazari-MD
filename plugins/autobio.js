@@ -13,7 +13,7 @@ cmd({
 
     // 🔐 Owner only
     if (!isOwner) {
-      return reply("*YEH COMMAND SIRF OWNER KE LIYE HAI 😎*");
+      return reply("*❌ Owner only command*");
     }
 
     const state = q?.toLowerCase();
@@ -21,11 +21,10 @@ cmd({
     // ❓ Help / status
     if (!state || !["on", "off"].includes(state)) {
       return reply(
-        `*AUTO BIO COMMAND 🥰*\n
-➤ *.autobio on*
-➤ *.autobio off*
-
-📌 *ABHI AUTOBIO:* ${global.autoBio ? "ON ✅" : "OFF ❌"}`
+        `*AUTO BIO COMMAND*\n\n` +
+        `• .autobio on\n` +
+        `• .autobio off\n` +
+        `• Current status: ${global.autoBio ? "✅ ON" : "❌ OFF"}`
       );
     }
 
@@ -36,11 +35,11 @@ cmd({
       updateBio(conn);
     }
 
-    return reply(`*AUTO BIO AB ${state.toUpperCase()} HO GAYI HAI ☺️*`);
+    return reply(`*✅ Auto-Bio set to ${state.toUpperCase()}*`);
 
   } catch (e) {
     console.log("AUTOBIO ERROR:", e);
-    reply("*❌ Error aa gaya*");
+    reply("*❌ Error occurred*");
   }
 });
 

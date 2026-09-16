@@ -14,8 +14,8 @@ async (conn, mek, m, { from, q, reply }) => {
     try {
         if (!q) {
             return reply(
-                "*🔍 AP NE YOUTUBE KI VIDEOS SEARCH KARNI HAI 🥺*\n\n" +
-                "*Use:*\n.yts Video name\n\n" +
+                "*🔍 Search YouTube videos?*\n\n" +
+                "*Usage:*\n.yts <video name>\n\n" +
                 "*Example:*\n.yts Tajdar e Haram"
             )
         }
@@ -24,7 +24,7 @@ async (conn, mek, m, { from, q, reply }) => {
         const videos = search.videos.slice(0, 10) // top 10 results
 
         if (videos.length === 0) {
-            return reply("*❌ KOI VIDEO NAHI MILI 🥺*")
+            return reply("*❌ No videos found*")
         }
 
         let text = "*📺 YOUTUBE SEARCH RESULTS 📺*\n\n"
@@ -50,6 +50,6 @@ async (conn, mek, m, { from, q, reply }) => {
 
     } catch (e) {
         console.log("YTS ERROR:", e)
-        reply("*❌ YOUTUBE SEARCH ME ERROR AYA 🥺*")
+        reply("*❌ YouTube search error*")
     }
 })

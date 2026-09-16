@@ -15,28 +15,21 @@ async (conn, mek, m, { from, reply, text }) => {
 try {
 
 if (!text) {
-return reply("❌ Example:\n.video pasoori")
+return reply(`⚠️ *𝑽𝒊𝒅𝒆𝒐 𝑹𝒆𝒒𝒖𝒆𝒔𝒕* 𝑬𝒏𝒕𝒆𝒓 𝒂 𝒀𝒐𝒖𝑻𝒖𝒃𝒆 𝒗𝒊𝒅𝒆𝒐 𝒕𝒊𝒕𝒍𝒆 𝒐𝒓 𝒍𝒊𝒏𝒌.  💡 𝑬𝒙𝒂𝒎𝒑𝒍𝒆: .video pasoori`)
 }
 
 /* 🔍 Search */
 const search = await yts(text)
 
 if (!search.videos.length) {
-return reply("❌ No video found")
+return reply(`❌ *𝑽𝒊𝒅𝒆𝒐 𝑵𝒐𝒕 𝑭𝒐𝒖𝒏𝒅* 𝑵𝒐 𝒎𝒂𝒕𝒄𝒉𝒊𝒏𝒈 𝒗𝒊𝒅𝒆𝒐 𝒘𝒂𝒔 𝒇𝒐𝒖𝒏𝒅.`)
 }
 
 const vid = search.videos[0]
 
 /* 🎨 Preview */
 
-const caption = `
-╔ஜ۩▒█ ᴍᴀᴢᴀʀɪ X ᴍᴅ █▒۩ஜ╗
-┃🎬 VIDEO FOUND
-┃📌 Title: ${vid.title}
-┃⏱️ Duration: ${vid.timestamp}
-┃⚡ Sending video...
-╰━━━━━━━━━━━━━━⊷
-`
+const caption = `🎬 *𝑽𝒊𝒅𝒆𝒐 *𝑭𝒐𝒖𝒏𝒅*  📌 *𝑻𝒊𝒕𝒍𝒆:* ${vid.title} ⏱️ *𝑫𝒖𝒓𝒂𝒕𝒊𝒐𝒏:* ${vid.timestamp}  ⚡ *𝑺𝒆𝒏𝒅𝒊𝒏𝒈 𝒗𝒊𝒅𝒆𝒐...*`
 
 await conn.sendMessage(from,{
 image:{url:vid.thumbnail},
@@ -56,7 +49,7 @@ if(
 !res.data.result.download ||
 !res.data.result.download.url
 ){
-return reply("❌ Video API failed")
+return reply(`❌ *𝑽𝒊𝒅𝒆𝒐 𝑫𝒐𝒘𝒏𝒍𝒐𝒂𝒅 𝑭𝒂𝒊𝒍𝒆𝒅* 𝑻𝒉𝒆 𝒗𝒊𝒅𝒆𝒐 𝒄𝒐𝒖𝒍𝒅 𝒏𝒐𝒕 𝒃𝒆 𝒅𝒐𝒘𝒏𝒍𝒐𝒂𝒅𝒆𝒅.`)
 }
 
 const videoUrl = res.data.result.download.url
@@ -67,13 +60,13 @@ const title = res.data.result.metadata.title || vid.title
 await conn.sendMessage(from,{
 video:{url:videoUrl},
 mimetype:"video/mp4",
-caption:`🎬 *${title}*\n\n> © ᴍᴀᴢᴀʀɪ-ᴍᴅ`
+caption:`🎬 *${title}*  > ⚡ ᴍᴀᴢᴀʀɪ-ᴍᴅ`
 })
 
 }catch(err){
 
 console.log(err)
-reply("❌ Video error")
+reply(`❌ *𝑽𝒊𝒅𝒆𝒐 𝑬𝒓𝒓𝒐𝒓* 𝑺𝒐𝒎𝒆𝒕𝒉𝒊𝒏𝒈 𝒘𝒆𝒏𝒕 𝒘𝒓𝒐𝒏𝒈. 𝑷𝒍𝒆𝒂𝒔𝒆 𝒕𝒓𝒚 𝒂𝒈𝒂𝒊𝒏.`)
 
 }
 

@@ -446,10 +446,10 @@ try {
     
     try {  
         await conn.groupParticipantsUpdate(from, [conn.user.id], "promote");  
-        reply("✅ *Bot ko admin banaya gaya!*\n\nAb aap use kar sakte hain:\n• .promote @user\n• .demote @admin\n• .kick @user");  
+        reply("*✅ Bot is now admin!*\n\n*You can now use:*\n• .promote @user\n• .demote @admin\n• .kick @user");  
     } catch (err) {  
         if (err.message.includes("not authorized")) {  
-            reply(`❌ Bot ko admin nahi bana paaye.\n\n✳️ *Karan:* Aapke paas permission nahi hai bot ko admin banane ka.\n\n✳️ *Manual tarika:*\n1. Group settings mein jao\n2. "Group permissions" par click karo\n3. "Add members" mein jao\n4. Bot ko dhundo aur manually admin banao`);  
+            reply(`*❌ Failed to make bot admin.*\n\n*Reason:* You don't have permission to make bot admin.\n\n*Manual method:*\n1. Go to group settings\n2. Click on "Group permissions"\n3. Go to "Add members"\n4. Find bot and manually make admin`);  
         } else {  
             reply("❌ Failed to make bot admin: " + err.message);  
         }  

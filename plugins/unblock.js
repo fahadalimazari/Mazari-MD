@@ -12,7 +12,7 @@ cmd({
 
     // 🔒 Owner only
     if (!isOwner) {
-      return reply("*YEH COMMAND SIRF OWNER KE LIYE HAI 😎*");
+      return reply("*❌ Owner only command*");
     }
 
     let jid;
@@ -26,7 +26,7 @@ cmd({
       jid = from;
     } 
     else {
-      return reply("*UNBLOCK KARNE KE LIYE KISI MESSAGE PAR REPLY KARO YA INBOX ME LIKHO ☺️*");
+      return reply("*Reply to a message or use in inbox to unblock*");
     }
 
     await conn.updateBlockStatus(jid, "unblock");
@@ -35,10 +35,10 @@ cmd({
       react: { text: "🥰", key: mek.key }
     });
 
-    reply(`*MENE APKO UNBLOCK KAR DIYA HAI ☺️*`, { mentions: [jid] });
+    reply(`*✅ You have been unblocked*`, { mentions: [jid] });
 
   } catch (e) {
     console.log("UNBLOCK ERROR:", e);
-    reply("*❌ UNBLOCK NAHI HO PAYA 😔*");
+    reply("*❌ Unblock failed*");
   }
 });

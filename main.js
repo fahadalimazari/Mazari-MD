@@ -1081,12 +1081,26 @@ conn.ev.on('connection.update', async (update) => {
                     return;
                 }
 
-                // ========== MODE PERMISSION ==========
+                // ========== MODE PERMISSION (PRE-CHECK) ==========
+                if (!conn.userConfig) {
+                    conn.userConfig = await getUserConfigFromPostgres(botNumber) || {};
+                }
+
+                let rawMode =
+                    conn.userConfig.WORK_TYPE ||
+                    conn.userConfig.MODE ||
+                    config.WORK_TYPE ||
+                    config.MODE ||
+                    "public";
+
+                let mode = rawMode.toLowerCase().trim();
+                if (mode === "private inbox") mode = "inbox"; // normalize alias
+                
                 if (from !== "status@broadcast") {
-                    const mode = config.MODE || "public";
+                    // PRIVATE: Block normal users everywhere
                     if (mode === "private" && !isOwner) return;
-                    if (mode === "inbox" && !isGroup && !isOwner) return;
-                    if (mode === "groups" && !isGroup && !isOwner) return;
+                    // PUBLIC / PRIVATE INBOX: Block normal users in Inbox
+                    if ((mode === "public" || mode === "inbox") && !isGroup && !isOwner) return;
                 }
 
                 // ========== COMMAND HANDLER ==========
@@ -1099,6 +1113,15 @@ conn.ev.on('connection.update', async (update) => {
                     );
 
                     if (cmd) {
+                        // ========== PUBLIC WHITELIST CHECK ==========
+                        if (!isOwner) {
+                            const publicCmds = ["tts", "pair", "menu", "ping", "alive"];
+                            const isPublicCmd = publicCmds.includes(cmd.pattern) || 
+                                                cmd.category === "download" || 
+                                                cmd.category === "downloader";
+                            if (!isPublicCmd) return; // Silent block for unlisted commands
+                        }
+
                         if (cmd.react) {
                             conn.sendMessage(from, { react: { text: cmd.react, key: mek.key } });
                         }
@@ -1180,12 +1203,13 @@ conn.ev.on('connection.update', async (update) => {
                 const { id: groupId, action, participants, author } = update;
                 if (!groupId || !action || !participants || participants.length === 0) return;
 
-                // Determine the actor
+                // Extract the real actor/sender who performed the action
+                // In Baileys, 'author' is the JID of who performed the action
                 let sender = author || null;
-                if (!sender && participants[0] && typeof participants[0] === 'object' && participants[0].actor) {
-                    sender = participants[0].actor;
-                }
 
+                // If no author is available, this means the event doesn't expose who performed the action
+                // In this case, we cannot safely punish someone, so AdminLock should handle this gracefully
+                
                 const events = require("./arslan");
                 events.commands.forEach(async (command) => {
                     if (command.on === "group-participants.update") {
@@ -1195,7 +1219,7 @@ conn.ev.on('connection.update', async (update) => {
                                 from: groupId,
                                 action,
                                 participants: participants.map(p => typeof p === 'object' ? p.id : p), // Normalize participants
-                                sender,
+                                sender,  // This will be null if no author is available
                                 isCreator: sender ? (config.OWNER_NUMBER && config.OWNER_NUMBER.includes(sender.split('@')[0])) : false,
                                 isGroup: groupId.endsWith("@g.us"),
                                 reply: (text) => conn.sendMessage(groupId, { text })

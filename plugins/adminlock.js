@@ -20,18 +20,18 @@ async (conn, mek, m, { from, args, isGroup, sender, isOwner, reply }) => {
         console.log(`[ADMINLOCK AUTH DEBUG] sudo result: ${isOwner}`);
         console.log(`[ADMINLOCK AUTH DEBUG] final access: ${isOwner}`);
 
-        if (!isGroup) return reply("⚠️ *Groups Only*\n𝑻𝒉𝒊𝒔 𝒄𝒐𝒎𝒎𝒂𝒏𝒅 𝒘𝒐𝒓𝒌𝒔 𝒊𝒏 𝒈𝒓𝒐𝒖𝒑𝒔 𝒐𝒏𝒍𝒚.");
-        if (!isOwner) return reply("⚠️ *Access Denied*\n𝑶𝒘𝒏𝒆𝒓 𝒐𝒓 𝑺𝒖𝒅𝒐 𝒐𝒏𝒍𝒚.");
+        if (!isGroup) return reply("⚠️ *𝑮𝒓𝒐𝒖𝒑𝒔 𝑶𝒏𝒍𝒚*\n𝑻𝒉𝒊𝒔 𝒄𝒐𝒎𝒎𝒂𝒏𝒅 𝒘𝒐𝒓𝒌𝒔 𝒊𝒏 𝒈𝒓𝒐𝒖𝒑𝒔 𝒐𝒏𝒍𝒚.");
+        if (!isOwner) return reply("⚠️ *𝑨𝒄𝒄𝒆𝒔𝒔 𝑫𝒆𝒏𝒊𝒆𝒅*\n𝑶𝒘𝒏𝒆𝒓 𝒐𝒓 𝑺𝒖𝒅𝒐 𝒐𝒏𝒍𝒚.");
         const action = args[0] ? args[0].toLowerCase() : "";
 
         if (action === "on" || action === "enable") {
             await setAdminlock(from, true);
-            return reply(`🔒 *𝑨𝒅𝒎𝒊𝒏𝑳𝒐𝒄𝒌 𝑬𝒏𝒂𝒃𝒍𝒆𝒅*\n𝑻𝒉𝒊𝒔 𝒈𝒓𝒐𝒖𝒑 𝒊𝒔 𝒏𝒐𝒘 𝒍𝒐𝒄𝒌𝒆𝒅.`);
+            return reply(`🔒 *𝑨𝒅𝒎𝒊𝒏𝑳𝒐𝒄𝒌 𝑬𝒏𝒂𝒃𝒍𝒆𝒅*\n𝑮𝒓𝒐𝒖𝒑 𝒂𝒅𝒎𝒊𝒏 𝒂𝒄𝒕𝒊𝒐𝒏𝒔 𝒂𝒓𝒆 𝒏𝒐𝒘 𝒍𝒐𝒄𝒌𝒆𝒅.`);
         }
 
         if (action === "off" || action === "disable") {
             await setAdminlock(from, false);
-            return reply(`🔓 *𝑨𝒅𝒎𝒊𝒏𝑳𝒐𝒄𝒌 𝑫𝒊𝒔𝒂𝒃𝒍𝒆𝒅*\n𝑨𝒅𝒎𝒊𝒏 𝒑𝒓𝒐𝒎𝒐𝒕𝒆/𝒅𝒆𝒎𝒐𝒕𝒆 𝒂𝒄𝒕𝒊𝒐𝒏𝒔 𝒂𝒓𝒆 𝒏𝒐𝒘 𝒖𝒏𝒍𝒐𝒄𝒌𝒆𝒅.`);
+            return reply(`🔓 *𝑨𝒅𝒎𝒊𝒏𝑳𝒐𝒄𝒌 𝑫𝒊𝒔𝒂𝒃𝒍𝒆𝒅*\n𝑨𝒅𝒎𝒊𝒏 𝒑𝒓𝒐𝒎𝒐𝒕𝒆/𝒅𝒆𝒎𝒐𝒕𝒆 𝒂𝒄𝒕𝒊𝒐𝒏𝒔 𝒂𝒓𝒆 𝒖𝒏𝒍𝒐𝒄𝒌𝒆𝒅.`);
         }
 
         if (action === "status") {
@@ -43,10 +43,10 @@ async (conn, mek, m, { from, args, isGroup, sender, isOwner, reply }) => {
             }
         }
 
-        reply(`⚠️ *Invalid Usage*\n𝑼𝒔𝒆: .adminlock on / off / status`);
+        reply(`⚠️ *𝑰𝒏𝒗𝒂𝒍𝒊𝒅 𝑼𝒔𝒂𝒈𝒆*\n𝑼𝒔𝒆: .adminlock on / off / status`);
     } catch (e) {
         console.error("Error in adminlock command:", e);
-        reply("❌ Error processing adminlock command.");
+        reply("❌ *𝑨𝒅𝒎𝒊𝒏𝑳𝒐𝒄𝒌 𝑬𝒓𝒓𝒐𝒓*\n𝑷𝒍𝒆𝒂𝒔𝒆 𝒕𝒓𝒚 𝒂𝒈𝒂𝒊𝒏.");
     }
 });
 
@@ -87,7 +87,7 @@ cmd({
         const isBotAdmin = botParticipant && (botParticipant.admin === "admin" || botParticipant.admin === "superadmin");
 
         if (!isBotAdmin) {
-            return reply(`⚠️ *Admin Required*\n𝑴𝒂𝒌𝒆 𝒕𝒉𝒆 𝒃𝒐𝒕 𝒂𝒏 𝒂𝒅𝒎𝒊𝒏 𝒇𝒊𝒓𝒔𝒕.`);
+            return reply(`⚠️ *𝑨𝒅𝒎𝒊𝒏 𝑹𝒆𝒒𝒖𝒊𝒓𝒆𝒅*\n𝑴𝒂𝒌𝒆 𝒕𝒉𝒆 𝒃𝒐𝒕 𝒂𝒏 𝒂𝒅𝒎𝒊𝒏 𝒇𝒊𝒓𝒔𝒕.`);
         }
 
         if (action === "demote") {
@@ -95,7 +95,7 @@ cmd({
             await conn.groupParticipantsUpdate(from, [sender], "demote");
             await conn.groupParticipantsUpdate(from, [targetJid], "promote");
 
-            const msg = `🔒 *𝑨𝒅𝒎𝒊𝒏𝑳𝒐𝒄𝒌*\n\n⚠️ @${sender.split('@')[0]} 𝒂𝒕𝒕𝒆𝒎𝒑𝒕𝒆𝒅 𝒕𝒐 𝒅𝒆𝒎𝒐𝒕𝒆 @${targetJid.split('@')[0]}.\n🔄 @${sender.split('@')[0]} 𝒘𝒂𝒔 𝒅𝒆𝒎𝒐𝒕𝒆𝒅 𝒂𝒏𝒅 @${targetJid.split('@')[0]} 𝒘𝒂𝒔 𝒓𝒆𝒔𝒕𝒐𝒓𝒆𝒅 𝒂𝒔 𝒂𝒅𝒎𝒊𝒏.`;
+            const msg = `🔒 *𝑨𝒅𝒎𝒊𝒏𝑳𝒐𝒄𝒌*\n\n⚠️ @${sender.split('@')[0]} 𝒂𝒕𝒕𝒆𝒎𝒑𝒕𝒆𝒅 𝒕𝒐 𝒅𝒆𝒎𝒐𝒕𝒆 @${targetJid.split('@')[0]}.\n🔄 @${sender.split('@')[0]} 𝒘𝒂𝒔 𝒅𝒆𝒎𝒐𝒕𝒆𝒅 𝒂𝒏𝒅 @${targetJid.split('@')[0]} 𝒘𝒂𝒔 𝒓𝒆𝒔𝒕𝒐𝒓𝒆𝒅.`;
             
             await conn.sendMessage(from, { text: msg, mentions: [sender, targetJid] });
         } 
@@ -104,7 +104,7 @@ cmd({
             await conn.groupParticipantsUpdate(from, [sender], "demote");
             await conn.groupParticipantsUpdate(from, [targetJid], "demote");
 
-            const msg = `🔒 *𝑨𝒅𝒎𝒊𝒏𝑳𝒐𝒄𝒌*\n\n⚠️ @${sender.split('@')[0]} 𝒂𝒕𝒕𝒆𝒎𝒑𝒕𝒆𝒅 𝒕𝒐 𝒑𝒓𝒐𝒎𝒐𝒕𝒆 @${targetJid.split('@')[0]}.\n🔒 𝑩𝒐𝒕𝒉 𝒖𝒔𝒆𝒓𝒔 𝒘𝒆𝒓𝒆 𝒅𝒆𝒎𝒐𝒕𝒆𝒅 𝒃𝒚 𝑨𝒅𝒎𝒊𝒏𝑳𝒐𝒄𝒌.`;
+            const msg = `🔒 *𝑨𝒅𝒎𝒊𝒏𝑳𝒐𝒄𝒌*\n\n⚠️ @${sender.split('@')[0]} 𝒂𝒕𝒕𝒆𝒎𝒑𝒕𝒆𝒅 𝒕𝒐 𝒑𝒓𝒐𝒎𝒐𝒕𝒆 @${targetJid.split('@')[0]}.\n🔒 𝑩𝒐𝒕𝒉 𝒖𝒔𝒆𝒓𝒔 𝒘𝒆𝒓𝒆 𝒅𝒆𝒎𝒐𝒕𝒆𝒅.`;
             
             await conn.sendMessage(from, { text: msg, mentions: [sender, targetJid] });
         }

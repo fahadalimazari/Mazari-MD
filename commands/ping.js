@@ -38,9 +38,8 @@ cmd({
                         merchant_url: "https://whatsapp.com/channel/0029Vb6GUj8BPzjOWNfnhm1B"
                     })
                 }
-            ],
-            quoted: mek
-        });
+            ]
+        }, { quoted: mek });
         
     } catch (error) {
         console.error('[PING-COMMAND] Error:', error.message);

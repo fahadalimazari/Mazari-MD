@@ -71,16 +71,16 @@ cmd({
 
     // ─── CHECK GROUP ───
     if (!isGroup) {
-        return reply("❌ 𝑮𝒓𝒐𝒖𝒑 𝑶𝒏𝒍𝒚 — 𝑻𝒉𝒊𝒔 𝒄𝒐𝒎𝒎𝒂𝒏𝒅 𝒐𝒏𝒍𝒚 𝒘𝒐𝒓𝒌𝒔 𝒊𝒏 𝒈𝒓𝒐𝒖𝒑𝒔.");
+        return reply("⚠️ *𝑮𝒓𝒐𝒖𝒑𝒔 𝑶𝒏𝒍𝒚*\n𝑻𝒉𝒊𝒔 𝒄𝒐𝒎𝒎𝒂𝒏𝒅 𝒘𝒐𝒓𝒌𝒔 𝒊𝒏 𝒈𝒓𝒐𝒖𝒑𝒔 𝒐𝒏𝒍𝒚.");
     }
 
     // ─── CHECK ADMIN PERMISSION ───
     if (!isAdmins && !isOwner) {
-        return reply("🔒 𝑨𝒅𝒎𝒊𝒏 𝑶𝒏𝒍𝒚 — 𝒀𝒐𝒖 𝒏𝒆𝒆𝒅 𝒂𝒅𝒎𝒊𝒏 𝒑𝒆𝒓𝒎𝒊𝒔𝒔𝒊𝒐𝒏 𝒕𝒐 𝒖𝒔𝒆 𝒕𝒉𝒊𝒔.");
+        return reply("🔒 *𝑨𝒅𝒎𝒊𝒏 𝑶𝒏𝒍𝒚*\n𝑨𝒅𝒎𝒊𝒏 𝒑𝒆𝒓𝒎𝒊𝒔𝒔𝒊𝒐𝒏 𝒊𝒔 𝒓𝒆𝒒𝒖𝒊𝒓𝒆𝒅.");
     }
 
     if (!isBotAdmins) {
-        return reply("🛡️ 𝑨𝒅𝒎𝒊𝒏 𝑹𝒆𝒒𝒖𝒊𝒓𝒆𝒅 — 𝑷𝒍𝒆𝒂𝒔𝒆 𝒎𝒂𝒌𝒆 𝒕𝒉𝒆 𝒃𝒐𝒕 𝒂𝒏 𝒂𝒅𝒎𝒊𝒏 𝒇𝒊𝒓𝒔𝒕.");
+        return reply("🛡️ *𝑨𝒅𝒎𝒊𝒏 𝑹𝒆𝒒𝒖𝒊𝒓𝒆𝒅*\n𝑴𝒂𝒌𝒆 𝒕𝒉𝒆 𝒃𝒐𝒕 𝒂𝒏 𝒂𝒅𝒎𝒊𝒏 𝒇𝒊𝒓𝒔𝒕.");
     }
 
     // ─── INIT GLOBAL ───
@@ -98,11 +98,10 @@ cmd({
         const status = global.ANTILINK_STATUS[from] ? '𝑶𝑵' : '𝑶𝑭𝑭';
         const actionMode = global.ANTILINK_ACTION[from] || 'warn';
         
-        return reply(`🔗 𝑨𝒏𝒕𝒊𝑳𝒊𝒏𝒌 𝑺𝒚𝒔𝒕𝒆𝒎 📡 𝑺𝒕𝒂𝒕𝒖𝒔: ${status} ⚡ 𝑨𝒄𝒕𝒊𝒐𝒏: ${actionMode.toUpperCase()}
-𝑪𝒐𝒎𝒎𝒂𝒏𝒅𝒔:
-⚠️ ${prefix}antilink on warn — 𝑾𝒂𝒓𝒏 𝒐𝒏 𝑳𝒊𝒏𝒌𝒔
-🗑️ ${prefix}antilink on delete — 𝑫𝒆𝒍𝒆𝒕𝒆 𝑳𝒊𝒏𝒌𝒔
-🚷 ${prefix}antilink on kick — 𝑲𝒊𝒄𝒌 𝑼𝒔𝒆𝒓𝒔 𝒇𝒐𝒓 𝑳𝒊𝒏𝒌𝒔
+        return reply(`🔗 *𝑨𝒏𝒕𝒊𝑳𝒊𝒏𝒌 𝑺𝒕𝒂𝒕𝒖𝒔:* ${status} ⚡ *𝑨𝒄𝒕𝒊𝒐𝒏:* ${actionMode.toUpperCase()}
+⚠️ ${prefix}antilink on warn — 𝑾𝒂𝒓𝒏 𝒐𝒏 𝒍𝒊𝒏𝒌𝒔
+🗑️ ${prefix}antilink on delete — 𝑫𝒆𝒍𝒆𝒕𝒆 𝒍𝒊𝒏𝒌𝒔
+🚷 ${prefix}antilink on kick — 𝑲𝒊𝒄𝒌 𝒖𝒔𝒆𝒓𝒔 𝒇𝒐𝒓 𝒍𝒊𝒏𝒌𝒔
 🔕 ${prefix}antilink off — 𝑫𝒊𝒔𝒂𝒃𝒍𝒆 𝑨𝒏𝒕𝒊𝑳𝒊𝒏𝒌`);
     }
 
@@ -211,13 +210,12 @@ cmd({
     const linkDisplay = links.slice(0, 2).join(', ') + (links.length > 2 ? ` (+${links.length - 2} more)` : '');
     
     const warnMsg = `🔗 𝑳𝒊𝒏𝒌 𝑫𝒆𝒕𝒆𝒄𝒕𝒆𝒅
-⚠️ 𝑷𝒍𝒆𝒂𝒔𝒆 𝒅𝒐𝒏'𝒕 𝒔𝒉𝒂𝒓𝒆 𝒍𝒊𝒏𝒌𝒔 — 𝑾𝒂𝒓𝒏𝒊𝒏𝒈 ${warnCount}/${maxWarns}`;
+⚠️ 𝑷𝒍𝒆𝒂𝒔𝒆 𝒅𝒐𝒏'𝒕 𝒔𝒉𝒂𝒓𝒆 𝒍𝒊𝒏𝒌𝒔. 𝑾𝒂𝒓𝒏𝒊𝒏𝒈: ${warnCount}/${maxWarns}`;
 
     await conn.sendMessage(from, {
         text: warnMsg,
-        mentions: [sender],
-        quoted: mek.key
-    });
+        mentions: [sender]
+    }, { quoted: mek });
 
     // ─── ACTION: KICK ───
     if (action === 'kick' && warnCount >= maxWarns) {
@@ -225,10 +223,9 @@ cmd({
             await conn.groupParticipantsUpdate(from, [sender], 'remove');
             await conn.sendMessage(from, {
                 text: `🚷 𝑼𝒔𝒆𝒓 𝑹𝒆𝒎𝒐𝒗𝒆𝒅
-🚫 𝑹𝒆𝒑𝒆𝒂𝒕𝒆𝒅 𝒍𝒊𝒏𝒌 𝒗𝒊𝒐𝒍𝒂𝒕𝒊𝒐𝒏 — 𝑾𝒂𝒓𝒏𝒊𝒏𝒈𝒔 ${warnCount}/${maxWarns}`,
-                mentions: [sender],
-                quoted: mek.key
-            });
+🚫 𝑹𝒆𝒑𝒆𝒂𝒕𝒆𝒅 𝒍𝒊𝒏𝒌 𝒗𝒊𝒐𝒍𝒂𝒕𝒊𝒐𝒏. 𝑾𝒂𝒓𝒏𝒊𝒏𝒈𝒔: ${warnCount}/${maxWarns}`,
+                mentions: [sender]
+            }, { quoted: mek });
             
             delete global.ANTILINK_WARN[from][senderNumber];
             if (global.ANTILINK_WARN_TIMER[timerKey]) {

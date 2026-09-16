@@ -35,7 +35,7 @@ async (conn, mek, m, { from, args, isGroup, sender, isOwner, reply }) => {
             return reply(`ℹ️ *𝑶𝒘𝒏𝒆𝒓𝑨𝒅𝒎𝒊𝒏 𝑺𝒕𝒂𝒕𝒖𝒔*: ${status ? "🟢 𝑶𝑵" : "🔴 𝑶𝑭𝑭"}`);
         }
 
-        return reply("⚠️ *Invalid Usage*\n𝑼𝒔𝒆: .owneradmin on / off / status");
+        return reply("⚠️ *Invalid Usage*\n*Use: .owneradmin on / off / status*");
     } catch (e) {
         console.error("OwnerAdmin command error:", e);
         reply(`❌ Error: ${e.message}`);

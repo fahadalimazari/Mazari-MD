@@ -57,16 +57,16 @@ cmd({
 
     // ─── CHECK GROUP ───
     if (!isGroup) {
-        return reply("❌ This command only works in groups.");
+        return reply("⚠️ *𝑮𝒓𝒐𝒖𝒑𝒔 𝑶𝒏𝒍𝒚*\n𝑻𝒉𝒊𝒔 𝒄𝒐𝒎𝒎𝒂𝒏𝒅 𝒘𝒐𝒓𝒌𝒔 𝒊𝒏 𝒈𝒓𝒐𝒖𝒑𝒔 𝒐𝒏𝒍𝒚.");
     }
 
     // ─── CHECK ADMIN PERMISSION ───
     if (!isAdmins && !isOwner) {
-        return reply("❌ You need to be an admin to use this command.");
+        return reply("🔒 *𝑨𝒅𝒎𝒊𝒏 𝑶𝒏𝒍𝒚*\n𝑨𝒅𝒎𝒊𝒏 𝒑𝒆𝒓𝒎𝒊𝒔𝒔𝒊𝒐𝒏 𝒊𝒔 𝒓𝒆𝒒𝒖𝒊𝒓𝒆𝒅.");
     }
 
     if (!isBotAdmins) {
-        return reply("❌ I need to be an admin to enable anti-bad words.");
+        return reply("🛡️ *𝑨𝒅𝒎𝒊𝒏 𝑹𝒆𝒒𝒖𝒊𝒓𝒆𝒅*\n𝑴𝒂𝒌𝒆 𝒕𝒉𝒆 𝒃𝒐𝒕 𝒂𝒏 𝒂𝒅𝒎𝒊𝒏 𝒇𝒊𝒓𝒔𝒕.");
     }
 
     // ─── INIT GLOBAL ───
@@ -83,16 +83,16 @@ cmd({
         const status = global.ANTIBAD_STATUS[from] ? '✅ ON' : '❌ OFF';
         const actionMode = global.ANTIBAD_ACTION[from] || 'warn';
         
-        return reply(`🚫 *Anti-Bad Words System*
+        return reply(`🚫 *𝑨𝒏𝒕𝒊-𝑩𝒂𝒅 𝑾𝒐𝒓𝒅𝒔*
 
-📌 *Status:* ${status}
-⚡ *Action:* ${actionMode.toUpperCase()}
+📌 *𝑺𝒕𝒂𝒕𝒖𝒔:* ${status}
+⚡ *𝑨𝒄𝒕𝒊𝒐𝒏:* ${actionMode.toUpperCase()}
 
-📌 *Commands:*
-• ${prefix}antibad on warn - Warn on bad words
-• ${prefix}antibad on delete - Delete bad words
-• ${prefix}antibad on kick - Kick on bad words
-• ${prefix}antibad off - Disable system
+📌 *𝑪𝒐𝒎𝒎𝒂𝒏𝒅𝒔:*
+• ${prefix}antibad on warn — 𝑾𝒂𝒓𝒏 𝒐𝒏 𝒃𝒂𝒅 𝒘𝒐𝒓𝒅𝒔
+• ${prefix}antibad on delete — 𝑫𝒆𝒍𝒆𝒕𝒆 𝒃𝒂𝒅 𝒘𝒐𝒓𝒅𝒔
+• ${prefix}antibad on kick — 𝑲𝒊𝒄𝒌 𝒐𝒏 𝒃𝒂𝒅 𝒘𝒐𝒓𝒅𝒔
+• ${prefix}antibad off — 𝑫𝒊𝒔𝒂𝒃𝒍𝒆 𝒔𝒚𝒔𝒕𝒆𝒎
 
 💖 *Powered by MAZARI-MD*`);
     }
@@ -108,10 +108,10 @@ cmd({
             'kick': '👢 Kick user + Warn'
         }[actionType] || '⚠️ Warn user';
 
-        await reply(`✅ *Anti-Bad Words Activated!*
+        await reply(`✅ *𝑨𝒏𝒕𝒊-𝑩𝒂𝒅 𝑾𝒐𝒓𝒅𝒔 𝑨𝒄𝒕𝒊𝒗𝒂𝒕𝒆𝒅!*
 
-📌 *Action:* ${actionMsg}
-🔹 *Bad words will be filtered.*
+📌 *𝑨𝒄𝒕𝒊𝒐𝒏:* ${actionMsg}
+🛡️ *𝑩𝒂𝒅 𝒘𝒐𝒓𝒅𝒔 𝒘𝒊𝒍𝒍 𝒏𝒐𝒘 𝒃𝒆 𝒇𝒊𝒍𝒕𝒆𝒓𝒆𝒅.*
 
 💖 Powered by MAZARI-MD`);
 
@@ -132,9 +132,9 @@ cmd({
         global.ANTIBAD_STATUS[from] = false;
         delete global.ANTIBAD_ACTION[from];
         
-        await reply(`❌ *Anti-Bad Words Deactivated!*
+        await reply(`❌ *𝑨𝒏𝒕𝒊-𝑩𝒂𝒅 𝑫𝒆𝒂𝒄𝒕𝒊𝒗𝒂𝒕𝒆𝒅!*
 
-📌 Bad words will no longer be filtered.
+📌 *𝑩𝒂𝒅 𝒘𝒐𝒓𝒅 𝒇𝒊𝒍𝒕𝒆𝒓𝒊𝒏𝒈 𝒊𝒔 𝒏𝒐𝒘 𝒅𝒊𝒔𝒂𝒃𝒍𝒆𝒅.*
 
 💖 Powered by MAZARI-MD`);
     }
@@ -220,11 +220,11 @@ cmd({
     // ─── WARN USER ───
     const warnCount = global.ANTIBAD_WARN[from][senderNumber];
     const maxWarns = 3;
-    const warnMsg = `⚠️ *Bad word detected!*
+    const warnMsg = `⚠️ *𝑩𝒂𝒅 𝑾𝒐𝒓𝒅 𝑫𝒆𝒕𝒆𝒄𝒕𝒆𝒅*
 
-📌 Word: \`${badWord}\`
-👤 User: @${senderNumber}
-📊 Warn: ${warnCount}/${maxWarns}
+📌 *𝑾𝒐𝒓𝒅:* \`${badWord}\`
+👤 *𝑼𝒔𝒆𝒓:* @${senderNumber}
+📊 *𝑾𝒂𝒓𝒏𝒊𝒏𝒈:* ${warnCount}/${maxWarns}
 
 💖 Powered by MAZARI-MD`;
 
@@ -238,10 +238,10 @@ cmd({
         try {
             await conn.groupParticipantsUpdate(from, [sender], 'remove');
             await conn.sendMessage(from, {
-                text: `👢 *User kicked!*
+                text: `� *𝑼𝒔𝒆𝒓 𝑹𝒆𝒎𝒐𝒗𝒆𝒅*
 
-📌 Reason: Repeated bad words (${warnCount} warns)
-👤 User: @${senderNumber}
+📌 *𝑹𝒆𝒂𝒔𝒐𝒏:* 𝑹𝒆𝒑𝒆𝒂𝒕𝒆𝒅 𝒃𝒂𝒅 𝒘𝒐𝒓𝒅𝒔 (${warnCount} 𝒘𝒂𝒓𝒏𝒔)
+👤 *𝑼𝒔𝒆𝒓:* @${senderNumber}
 
 💖 Powered by MAZARI-MD`,
                 mentions: [sender]

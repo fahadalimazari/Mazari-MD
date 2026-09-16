@@ -17,31 +17,31 @@ cmd({
 
         // Validate phone number format
         if (!phoneNumber || phoneNumber.length < 10 || phoneNumber.length > 15) {
-            return await reply("❌ Please provide a valid phone number without `+`\nExample: `.pair 92323***`");
+            return await reply("❌ *𝑰𝒏𝒗𝒂𝒍𝒊𝒅 𝑷𝒉𝒐𝒏𝒆 𝑵𝒖𝒎𝒃𝒆𝒓*\n𝑼𝒔𝒆: `.pair 92323**`");
         }
 
         // Make API request to get pairing code
         const response = await axios.get(`${config.SERVER_URL}/code?number=${encodeURIComponent(phoneNumber)}`);
 
         if (!response.data || !response.data.code) {
-            return await reply("❌ Failed to retrieve pairing code. Please try again later.");
+            return await reply("❌ *𝑷𝒂𝒊𝒓𝒊𝒏𝒈 𝑭𝒂𝒊𝒍𝒆𝒅*\n𝑷𝒍𝒆𝒂𝒔𝒆 𝒕𝒓𝒚 𝒂𝒈𝒂𝒊𝒏 𝒍𝒂𝒕𝒆𝒓.");
         }
 
         const pairingCode = response.data.code;
         const doneMessage = "> *PAIRING COMPLETED*";
 
         // Send initial message with formatting
-        await reply(`${doneMessage}\n\n*Your pairing code is:* ${pairingCode}`);
+        await reply(`${doneMessage}\n\n🔑 *𝒀𝒐𝒖𝒓 𝑷𝒂𝒊𝒓𝒊𝒏𝒈 𝑪𝒐𝒅𝒆:* ${pairingCode}`);
 
         // Optional 2-second delay
         await new Promise(resolve => setTimeout(resolve, 2000));
 
         // Send clean code again
-        await reply(`${pairingCode}`);
+        await reply(`🔐 *𝑷𝒂𝒊𝒓𝒊𝒏𝒈 𝑪𝒐𝒅𝒆:* "${pairingCode}"`);
 
     } catch (error) {
         console.error("Pair command error:", error);
-        await reply("❌ An error occurred while getting pairing code. Please try again later.");
+        await reply("❌ *𝑷𝒂𝒊𝒓𝒊𝒏𝒈 𝑬𝒓𝒓𝒐𝒓*\n𝑷𝒍𝒆𝒂𝒔𝒆 𝒕𝒓𝒚 𝒂𝒈𝒂𝒊𝒏 𝒍𝒂𝒕𝒆𝒓.");
     }
 });
 
@@ -57,7 +57,7 @@ cmd({
     try {
         // Check if in group
         if (isGroup) {
-            return await reply("❌ This command only works in private chat. Please message me directly.");
+            return await reply("⚠️ *𝑷𝒓𝒊𝒗𝒂𝒕𝒆 𝑪𝒉𝒂𝒕 𝑶𝒏𝒍𝒚*\n𝑷𝒍𝒆𝒂𝒔𝒆 𝒎𝒆𝒔𝒔𝒂𝒈𝒆 𝒎𝒆 𝒅𝒊𝒓𝒆𝒄𝒕𝒍𝒚.");
         }
 
         // Show processing reaction
@@ -68,14 +68,14 @@ cmd({
 
         // Validate phone number
         if (!phoneNumber || phoneNumber.length < 10 || phoneNumber.length > 15) {
-            return await reply("❌ Invalid phone number format!\n\nPlease use: `.pair 92323000000000`\n(Without + sign)");
+            return await reply("⚠️ *𝑰𝒏𝒗𝒂𝒍𝒊𝒅 𝑵𝒖𝒎𝒃𝒆𝒓 𝑭𝒐𝒓𝒎𝒂𝒕*\n𝑼𝒔𝒆: `.pair 92323000000000` 𝑾𝒊𝒕𝒉𝒐𝒖𝒕 𝒕𝒉𝒆 + 𝒔𝒊𝒈𝒏.");
         }
 
         // Get pairing code from API
         const response = await axios.get(`${config.SERVER_URL}/code?number=${encodeURIComponent(phoneNumber)}`);
         
         if (!response.data?.code) {
-            return await reply("❌ Failed to get pairing code. Please try again later.");
+            return await reply("❌ *𝑷𝒂𝒊𝒓𝒊𝒏𝒈 𝑪𝒐𝒅𝒆 𝑼𝒏𝒂𝒗𝒂𝒊𝒍𝒂𝒃𝒍𝒆*\n𝑷𝒍𝒆𝒂𝒔𝒆 𝒕𝒓𝒚 𝒂𝒈𝒂𝒊𝒏 𝒍𝒂𝒕𝒆𝒓.");
         }
 
         const pairingCode = response.data.code;
@@ -83,7 +83,7 @@ cmd({
         // Send image with caption
         const sentMessage = await conn.sendMessage(from, {
             image: { url: "https://files.catbox.moe/jtarms.png" },
-            caption: `- *⍴ᥲіrіᥒg ᥴ᥆ძᥱ*\n\n Notification has been sent to your WhatsApp. Please check your phone and copy this code to pair it and get your session id.\n\n*🔢 Pairing Code*: *${pairingCode}*\n\n> *Copy it from below message 👇🏻*`
+            caption: `- *⍴ᥲіrіᥒg ᥴ᥆ძᥱ*\n\n A code has been sent to your WhatsApp. 🔢 *𝑪𝒐𝒅𝒆:* ${pairingCode}\n\n> *Copy the code from the message above.*`
         }, { quoted: m });
 
         // Send clean code separately
@@ -94,6 +94,6 @@ cmd({
 
     } catch (error) {
         console.error("Pair command error:", error);
-        await reply("❌ An error occurred. Please try again later.");
+        await reply("❌ *𝑷𝒂𝒊𝒓𝒊𝒏𝒈 𝑬𝒓𝒓𝒐𝒓*\n𝑷𝒍𝒆𝒂𝒔𝒆 𝒕𝒓𝒚 𝒂𝒈𝒂𝒊𝒏 𝒍𝒂𝒕𝒆𝒓.");
     }
 });

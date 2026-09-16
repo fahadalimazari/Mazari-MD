@@ -1,8 +1,5 @@
 const { cmd } = require("../arslan");
-const moment = require("moment");
-
-let botStartTime = Date.now(); // Recording the start time of the bot
-const ALIVE_IMG = "https://files.catbox.moe/jtarms.png"; // Make sure this URL is valid
+const config = require("../config");
 
 cmd({
     pattern: "alive",
@@ -12,7 +9,7 @@ cmd({
     filename: __filename
 }, async (conn, mek, m, { reply, from }) => {
     try {
-        const pushname = m.pushName || "User"; // Username or default value
+        const pushname = m.pushName || "User";
         const currentTime = moment().format("HH:mm:ss");
         const currentDate = moment().format("dddd, MMMM Do YYYY");
 
@@ -43,7 +40,7 @@ cmd({
 
         // Send the message with image and caption
         await conn.sendMessage(from, {
-            image: { url: ALIVE_IMG }, // Check that the URL is valid
+            image: { url: ALIVE_IMG },
             caption: formattedInfo,
             contextInfo: {
                 mentionedJid: [m.sender]
@@ -55,11 +52,11 @@ cmd({
         
         // Respond with error details 
         const errorMessage = `
-❌ An error occurred while processing the alive command.
-🛠 *Error Details*:
+❌ *𝑨𝒍𝒊𝒗𝒆 𝑪𝒉𝒆𝒄𝒌 𝑭𝒂𝒊𝒍𝒆𝒅*
+🛠️ *𝑬𝒓𝒓𝒐𝒓:*
 ${error.message}
 
-Please report this issue or try again later.
+𝑷𝒍𝒆𝒂𝒔𝒆 𝒕𝒓𝒚 𝒂𝒈𝒂𝒊𝒏 𝒍𝒂𝒕𝒆𝒓.
         `.trim();
         return reply(errorMessage);
     }

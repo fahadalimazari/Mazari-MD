@@ -11,10 +11,10 @@ const config = require('../config');
 // ─── MAZARI MD CHANNEL CONFIGURATION ───
 const GCS_STATUS_CHANNEL = {
     name: "MAZARI MD",
-    link: "https://whatsapp.com/channel/0029Vb6GUj8BPzjOWNfnhm1B"
+    link: "https://whatsapp.com/channel/0029Vb6GUj8BPzjOWNfnhm1B",
+    jid: "120363400318546224@newsletter"
 };
 
-// ─── IN-MEMORY CACHE FOR CHANNEL JID ───
 let cachedGcsChannelJid = null;
 
 // ─── RESOLVE CHANNEL JID ───
@@ -28,12 +28,11 @@ async function resolveChannelJid(sock) {
             console.log(`[GCS-STATUS] Resolved channel JID to ${cachedGcsChannelJid}`);
             return cachedGcsChannelJid;
         }
-        const fallback = config.CHANNEL_JID || '120363400318546224@newsletter';
-        console.log(`[GCS-STATUS] Channel resolution failed, using fallback: ${fallback}`);
-        return fallback;
+        console.log(`[GCS-STATUS] Channel resolution failed, using fallback: ${GCS_STATUS_CHANNEL.jid}`);
+        return GCS_STATUS_CHANNEL.jid;
     } catch (e) {
         console.error('[GCS-STATUS] Resolve error:', e.message);
-        return config.CHANNEL_JID || '120363400318546224@newsletter';
+        return GCS_STATUS_CHANNEL.jid;
     }
 }
 
@@ -41,22 +40,6 @@ async function resolveChannelJid(sock) {
 async function isOwnerOrSudo(userId) {
     if (!userId) return false;
     return config.OWNER_NUMBER.some(num => userId.startsWith(num) || userId.includes(num + '@'));
-}
-
-// ─── CONTEXT INFO GENERATOR ───
-function generateContextInfo(channelJid, senderJid, sourceType) {
-    return {
-        isGroupStatus: true,
-        statusSourceType: sourceType,
-        statusAttributions: [{ groupStatus: { authorJid: senderJid } }],
-        forwardingScore: 999,
-        isForwarded: true,
-        forwardedNewsletterMessageInfo: {
-            newsletterJid: channelJid,
-            newsletterName: `${GCS_STATUS_CHANNEL.name} | Admin`,
-            serverMessageId: -1
-        }
-    };
 }
 
 cmd({
@@ -70,9 +53,9 @@ cmd({
     try {
         // 1️⃣ Permission check
         const owner = await isOwnerOrSudo(sender);
-        if (!owner && !mek.key.fromMe) return await reply('❌ Only the bot owner or sudo can use this command');
+        if (!owner && !mek.key.fromMe) return await reply('❌ 𝙂𝘾𝙎 𝙎𝙏𝘼𝙏𝙐𝙎 — 𝙊𝙒𝙉𝙀𝙍/𝙎𝙐𝘿𝙊 𝙊𝙉𝙇𝙔');
 
-        // 2️⃣ Resolve channel JID
+        // 2️⃣ Resolve channel JID (for the CTA attribution)
         const channelJid = await resolveChannelJid(sock);
 
         // 3️⃣ Content extraction
@@ -90,25 +73,24 @@ cmd({
             else if (unpacked.audioMessage) { mediaKey = unpacked.audioMessage; mediaType = 'audio'; }
 
             if (mediaKey) {
-                await reply('⏳ Downloading and uploading media to group status...');
+                await reply('⏳ 𝙂𝘾𝙎 𝙎𝙏𝘼𝙏𝙐𝙎 — 𝙋𝙍𝙊𝘾𝙀𝙎𝙎𝙄𝙉 𝙈𝙀𝘿𝙄𝘼...');
                 const stream = await downloadContentFromMessage(mediaKey, mediaType);
                 let buffer = Buffer.from([]);
                 for await (const chunk of stream) buffer = Buffer.concat([buffer, chunk]);
                 if (!buffer.length) throw new Error('Empty media buffer');
+                
                 const gen = {};
                 if (mediaType === 'image') { gen.image = buffer; if (textArg) gen.caption = textArg; sourceType = 0; }
                 else if (mediaType === 'video') { gen.video = buffer; if (textArg) gen.caption = textArg; sourceType = 1; }
                 else if (mediaType === 'audio') { gen.audio = buffer; gen.mimetype = mediaKey.mimetype || 'audio/mp4'; gen.ptt = true; sourceType = 3; }
+                
                 content = await generateWAMessageContent(gen, { upload: sock.waUploadToServer });
-                const innerType = Object.keys(content)[0];
-                if (innerType && content[innerType]) {
-                    content[innerType].contextInfo = { ...(content[innerType].contextInfo || {}), ...generateContextInfo(channelJid, sender, sourceType) };
-                }
             } else {
                 // Quoted text handling
                 const quotedText = unpacked.conversation || unpacked.extendedTextMessage?.text || unpacked.imageMessage?.caption || unpacked.videoMessage?.caption || unpacked.documentMessage?.caption || unpacked.documentMessage?.fileName || unpacked.documentMessage?.title || unpacked.caption || unpacked.text || unpacked.contentText || unpacked.selectedDisplayText || unpacked.title || '';
                 const finalText = textArg || quotedText;
-                if (!finalText) return await reply('❌ Provide text or reply to a message with text/media.');
+                if (!finalText) return await reply('⚠️ 𝙋𝙍𝙊𝙑𝙄𝘿𝙀 𝙏𝙀𝙓𝙏 𝙊𝙍 𝙍𝙀𝙋𝙇𝙔 𝙏𝙊 𝙈𝙀𝘿𝙄𝘼');
+                
                 const ext = unpacked.extendedTextMessage || {};
                 content = {
                     extendedTextMessage: {
@@ -120,20 +102,18 @@ cmd({
                         description: ext.description,
                         title: ext.title,
                         jpegThumbnail: ext.jpegThumbnail,
-                        previewType: ext.previewType,
-                        contextInfo: generateContextInfo(channelJid, sender, 4)
+                        previewType: ext.previewType
                     }
                 };
             }
         } else {
             // Direct text command
-            if (!textArg) return await reply('❌ Provide text. Example: `.gcsstatus Hello`');
+            if (!textArg) return await reply('⚠️ 𝙋𝙍𝙊𝙑𝙄𝘿𝙀 𝙏𝙀𝙓𝙏 𝙊𝙍 𝙍𝙀𝙋𝙇𝙔 𝙏𝙊 𝙈𝙀𝘿𝙄𝘼');
             content = {
                 extendedTextMessage: {
                     text: textArg,
                     backgroundArgb: 4278241280,
-                    font: 1,
-                    contextInfo: generateContextInfo(channelJid, sender, 4)
+                    font: 1
                 }
             };
         }
@@ -141,16 +121,49 @@ cmd({
         // 4️⃣ Fetch groups
         const groupsMeta = await sock.groupFetchAllParticipating();
         const groupJids = Object.keys(groupsMeta);
-        if (!groupJids.length) return await reply('❌ The bot is not in any groups.');
+        if (!groupJids.length) return await reply('⚠️ 𝙂𝘾𝙎 𝙎𝙏𝘼𝙏𝙐𝙎 — 𝙉𝙊 𝙂𝙍𝙊𝙐𝙋𝙎 𝙁𝙊𝙐𝙉𝘿');
 
         // 5️⃣ Progress UI
-        const startMsg = await reply(`𝘎𝘊𝘚 𝘚𝘛𝘈𝘛𝘜𝘚 — Total: ${groupJids.length} Groups`);
+        const startMsg = await reply(`📢 𝙂𝘾𝙎 𝙎𝙏𝘼𝙏𝙐𝙎 — 𝙄𝙉𝙄𝙏𝙄𝘼𝙏𝙄𝙉𝙂\n\n🎯 𝙏𝙖𝙧𝙜𝙚𝙩: ${groupJids.length} Groups`);
         let success = 0, failed = 0;
         const batchSize = 10;
 
         const send = async (jid) => {
             try {
-                const msg = generateWAMessageFromContent(jid, { groupStatusMessage: { message: content }, groupStatusMessageV2: { message: content } }, { userJid: sock.user.id });
+                const groupMeta = groupsMeta[jid];
+                const groupName = groupMeta ? groupMeta.subject : 'Group';
+                
+                // Shallow clone the message type object to prevent metadata leakage across groups
+                const innerType = Object.keys(content)[0];
+                const messageOverride = { ...content };
+                
+                if (innerType && messageOverride[innerType]) {
+                    messageOverride[innerType] = {
+                        ...messageOverride[innerType],
+                        contextInfo: {
+                            ...(messageOverride[innerType].contextInfo || {}),
+                            // Real Group Status Target Identity
+                            isGroupStatus: true,
+                            statusSourceType: sourceType,
+                            groupSubject: groupName, 
+                            statusAttributions: [{ groupStatus: { authorJid: jid } }],
+                            // MAZARI MD Channel Attribution (View Channel CTA)
+                            isForwarded: true,
+                            forwardingScore: 999,
+                            forwardedNewsletterMessageInfo: {
+                                newsletterJid: channelJid,
+                                newsletterName: GCS_STATUS_CHANNEL.name,
+                                serverMessageId: -1
+                            }
+                        }
+                    };
+                }
+
+                // Wrap in actual WhatsApp Group Status protocol structure
+                const msg = generateWAMessageFromContent(jid, { 
+                    groupStatusMessageV2: { message: messageOverride }
+                }, { userJid: sock.user.id });
+                
                 await sock.relayMessage(jid, msg.message, { messageId: msg.key.id });
                 success++;
             } catch (e) {
@@ -161,7 +174,8 @@ cmd({
 
         for (let i = 0; i < groupJids.length; i += batchSize) {
             const batch = groupJids.slice(i, i + batchSize);
-            await reply({ text: `𝘎𝘊𝘚 𝘚𝘛𝘈𝘛𝘜𝘚 — Processing ${i + 1}-${Math.min(i + batchSize, groupJids.length)} of ${groupJids.length}`, edit: startMsg.key });
+            await reply({ text: `⏳ 𝙂𝘾𝙎 𝙎𝙏𝘼𝙏𝙐𝙎 — 𝙋𝙍𝙊𝘾𝙀𝙎𝙎𝙄𝙉𝙂\n\n📡 𝙎𝙚𝙣𝙙𝙞𝙣𝙜: ${i + 1} - ${Math.min(i + batchSize, groupJids.length)} of ${groupJids.length}`, edit: startMsg.key });
+            
             let idx = 0;
             if (idx < batch.length) { await send(batch[idx]); idx++; }
             while (idx < batch.length) {
@@ -171,10 +185,10 @@ cmd({
             if (i + batchSize < groupJids.length) await new Promise(r => setTimeout(r, 10000));
         }
 
-        await reply({ text: `𝘎𝘊𝘚 𝘚𝘛𝘈𝘛𝘜𝘚 — Complete\nSuccess: ${success}\nFailed: ${failed}`, edit: startMsg.key });
+        await reply({ text: `✅ 𝙂𝘾𝙎 𝙎𝙏𝘼𝙏𝙐𝙎 𝘾𝙊𝙈𝙋𝙇𝙀𝙏𝙀\n\n🚀 𝙎𝙪𝙘𝙘𝙚𝙨𝙨: ${success}\n❌ 𝙁𝙖𝙞𝙡𝙚𝙙: ${failed}`, edit: startMsg.key });
     } catch (e) {
         console.error('[GCS-STATUS] Critical:', e);
-        await reply(`❌ Failed to set group status.\nError: ${e.message}`);
+        await reply(`❌ 𝙂𝘾𝙎 𝙎𝙏𝘼𝙏𝙐𝙎 — 𝙁𝘼𝙄𝙇𝙀𝘿\n\nError: ${e.message}`);
     }
 });
 
