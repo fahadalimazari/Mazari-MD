@@ -207,16 +207,6 @@ cmd({
     // ─── INCREMENT WARN ───
     global.ANTIBAD_WARN[from][senderNumber]++;
 
-    // ─── DELETE BAD MESSAGE ───
-    try {
-        await conn.sendMessage(from, {
-            delete: mek.key
-        });
-        console.log(`[AntiBad] 🗑️ Deleted bad message from ${senderNumber}`);
-    } catch (e) {
-        console.log('[AntiBad] Delete error:', e.message);
-    }
-
     // ─── WARN USER ───
     const warnCount = global.ANTIBAD_WARN[from][senderNumber];
     const maxWarns = 3;
@@ -231,21 +221,31 @@ cmd({
     await conn.sendMessage(from, {
         text: warnMsg,
         mentions: [sender]
-    });
+    }, { quoted: mek });
+
+    // ─── DELETE BAD MESSAGE ───
+    try {
+        await conn.sendMessage(from, {
+            delete: mek.key
+        });
+        console.log(`[AntiBad] 🗑️ Deleted bad message from ${senderNumber}`);
+    } catch (e) {
+        console.log('[AntiBad] Delete error:', e.message);
+    }
 
     // ─── ACTION: KICK ───
     if (action === 'kick' && warnCount >= maxWarns) {
         try {
             await conn.groupParticipantsUpdate(from, [sender], 'remove');
             await conn.sendMessage(from, {
-                text: `� *𝑼𝒔𝒆𝒓 𝑹𝒆𝒎𝒐𝒗𝒆𝒅*
+                text: ` *𝑼𝒔𝒆𝒓 𝑹𝒆𝒎𝒐𝒗𝒆𝒅*
 
-📌 *𝑹𝒆𝒂𝒔𝒐𝒏:* 𝑹𝒆𝒑𝒆𝒂𝒕𝒆𝒅 𝒃𝒂𝒅 𝒘𝒐𝒓𝒅𝒔 (${warnCount} 𝒘𝒂𝒓𝒏𝒔)
+📌 *𝑹𝒆𝒂𝒔𝒐𝒏:* 𝑹𝒆𝒑𝒆𝒂𝒕𝒆𝒅 𝒃𝒂𝒅 𝒘𝒐𝒓𝒅𝒔 (${warnCount} 𝒘𝒂𝒓𝒏s)
 👤 *𝑼𝒔𝒆𝒓:* @${senderNumber}
 
 💖 Powered by MAZARI-MD`,
                 mentions: [sender]
-            });
+            }, { quoted: mek });
             
             delete global.ANTIBAD_WARN[from][senderNumber];
             console.log(`[AntiBad] 👢 Kicked ${senderNumber} for bad words`);

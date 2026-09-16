@@ -194,16 +194,6 @@ cmd({
         console.log(`[AntiLink] Timer expired for ${senderNumber} in group ${from}`);
     }, fiveMinutes);
 
-    // ─── DELETE MESSAGE ───
-    try {
-        await conn.sendMessage(from, {
-            delete: mek.key
-        });
-        console.log(`[AntiLink] 🗑️ Deleted link message from ${senderNumber}`);
-    } catch (e) {
-        console.log('[AntiLink] Delete error:', e.message);
-    }
-
     // ─── WARN USER ───
     const warnCount = global.ANTILINK_WARN[from][senderNumber];
     const maxWarns = 3;
@@ -216,6 +206,16 @@ cmd({
         text: warnMsg,
         mentions: [sender]
     }, { quoted: mek });
+
+    // ─── DELETE MESSAGE ───
+    try {
+        await conn.sendMessage(from, {
+            delete: mek.key
+        });
+        console.log(`[AntiLink] 🗑️ Deleted link message from ${senderNumber}`);
+    } catch (e) {
+        console.log('[AntiLink] Delete error:', e.message);
+    }
 
     // ─── ACTION: KICK ───
     if (action === 'kick' && warnCount >= maxWarns) {

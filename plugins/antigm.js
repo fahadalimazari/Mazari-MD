@@ -190,16 +190,6 @@ cmd({
     // ─── GET ACTION ───
     const action = global.ANTIGC_STATUS[sessionId][from];
 
-    // ─── DELETE MESSAGE ───
-    try {
-        await conn.sendMessage(from, {
-            delete: mek.key
-        });
-        console.log(`[AntiGCStatus] 🗑️ Deleted group status from ${sender}`);
-    } catch (e) {
-        console.log('[AntiGCStatus] Delete error:', e.message);
-    }
-
     // ─── DELETE MODE: Only delete ───
     if (action === 'delete' || action === 'del') {
         try {
@@ -209,11 +199,10 @@ cmd({
         } catch (e) {
             console.log('[AntiGCStatus] Delete notify error:', e.message);
         }
-        return;
     }
 
     // ─── KICK MODE: Instant kick ───
-    if (action === 'kick') {
+    else if (action === 'kick') {
         try {
             await conn.groupParticipantsUpdate(from, [sender], 'remove');
             await conn.sendMessage(from, {
@@ -223,11 +212,10 @@ cmd({
         } catch (e) {
             console.log('[AntiGCStatus] Kick error:', e.message);
         }
-        return;
     }
 
     // ─── WARN MODE: Warning logic ───
-    if (action === 'warn') {
+    else if (action === 'warn') {
         // Increment warning count
         const warnCount = incrementWarnCount(sessionId, from, sender);
         
@@ -246,13 +234,26 @@ cmd({
             } catch (e) {
                 console.log('[AntiGCStatus] Kick error:', e.message);
             }
-            return;
+        } else {
+            // Send warning
+            try {
+                await conn.sendMessage(from, {
+                    text: `⚠️ 𝑨𝒏𝒕𝒊𝑮𝑴 — 𝑾𝒂𝒓𝒏𝒊𝒏𝒈 ${warnCount}/3\n𝑮𝒓𝒐𝒖𝒑 𝑺𝒕𝒂𝒕𝒖𝒔 𝑫𝒆𝒍𝒆𝒕𝒆𝒅`
+                }, { quoted: mek });
+            } catch (e) {
+                console.log('[AntiGCStatus] Warn notify error:', e.message);
+            }
         }
+    }
 
-        // Send warning
+    // ─── DELETE MESSAGE ───
+    try {
         await conn.sendMessage(from, {
-            text: `⚠️ 𝑨𝒏𝒕𝒊𝑮𝑴 — 𝑾𝒂𝒓𝒏𝒊𝒏𝒈 ${warnCount}/3\n𝑮𝒓𝒐𝒖𝒑 𝑺𝒕𝒂𝒕𝒖𝒔 𝑫𝒆𝒍𝒆𝒕𝒆𝒅`
-        }, { quoted: mek });
+            delete: mek.key
+        });
+        console.log(`[AntiGCStatus] 🗑️ Deleted group status from ${sender}`);
+    } catch (e) {
+        console.log('[AntiGCStatus] Delete error:', e.message);
     }
 });
 
