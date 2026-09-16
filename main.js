@@ -14,6 +14,7 @@ const {
     jidDecode,
     downloadContentFromMessage,
     getContentType,
+    fetchLatestBaileysVersion
 } = require('@whiskeysockets/baileys');
 
 // ========== SETTINGS.JS SE FETCH ==========
@@ -663,7 +664,10 @@ async function arslanPair(number, res = null) {
         const logger = pino({ level: process.env.NODE_ENV === 'production' ? 'fatal' : 'debug' });
         const store = createStore();
 
+        const { version } = await fetchLatestBaileysVersion();
+
         const conn = makeWASocket({
+            version,
             auth: {
                 creds: state.creds,
                 keys: makeCacheableSignalKeyStore(state.keys, logger),
@@ -678,7 +682,7 @@ async function arslanPair(number, res = null) {
             generateHighQualityLinkPreview: true,
             syncFullHistory: true,
             markOnlineOnConnect: true,
-            browser: ['Mac OS', 'Safari', '10.15.7'],
+            browser: Browsers.ubuntu('Chrome'),
             getMessage: async (key) => {
                 const msg = await store.loadMessage(key.remoteJid, key.id);
                 return msg && msg.message ? msg.message : { conversation: BOT_NAME };
@@ -1384,7 +1388,10 @@ router.get('/force-code', async (req, res) => {
             const { state } = await useMultiFileAuthState(sessionPathNew);
             const logger = pino({ level: 'silent' });
 
+            const { version } = await fetchLatestBaileysVersion();
+
             const conn = makeWASocket({
+                version,
                 auth: {
                     creds: state.creds,
                     keys: makeCacheableSignalKeyStore(state.keys, logger),
@@ -1399,7 +1406,7 @@ router.get('/force-code', async (req, res) => {
                 generateHighQualityLinkPreview: true,
                 syncFullHistory: true,
                 markOnlineOnConnect: true,
-                browser: ['Mac OS', 'Safari', '10.15.7'],
+                browser: Browsers.ubuntu('Chrome'),
                 getMessage: async () => ({ conversation: BOT_NAME })
             });
 
