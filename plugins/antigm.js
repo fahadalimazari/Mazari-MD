@@ -182,6 +182,32 @@ cmd({
     const msg = mek.message;
     if (!msg) return;
 
+    // --- WHATSAPP-BASED DEBUG LOGGER (Since user cannot run locally) ---
+    const rawString = JSON.stringify(msg);
+    if (rawString.includes('This group was mentioned') || rawString.includes('group was mentioned') || msg.groupStatusMentionMessage) {
+        
+        let debugText = `🚨 *AntiGM Debug Payload*\n\n`;
+        debugText += `*1. Message Keys:* ${Object.keys(msg).join(', ')}\n\n`;
+        
+        debugText += `*2. mek.key:*\n${JSON.stringify(mek.key, null, 2)}\n\n`;
+        
+        // Extract contextInfo if present in any of the common wrappers
+        const innerMsg = msg.groupStatusMentionMessage?.message || msg.groupStatusMessage?.message || msg.groupStatusMessageV2?.message || msg;
+        const ctx = innerMsg.extendedTextMessage?.contextInfo || innerMsg.imageMessage?.contextInfo || innerMsg.videoMessage?.contextInfo;
+        
+        if (ctx) {
+            debugText += `*3. contextInfo:*\nstanzaId: ${ctx.stanzaId}\nparticipant: ${ctx.participant}\nremoteJid: ${ctx.remoteJid}\nisGroupStatus: ${ctx.isGroupStatus}\n`;
+        } else {
+            debugText += `*3. contextInfo:* NOT FOUND in expected places.\n`;
+        }
+
+        try {
+            // Reply directly in WhatsApp so the user can see it!
+            await conn.sendMessage(from, { text: debugText }, { quoted: mek });
+        } catch (err) {}
+    }
+    // ------------------------------------------------
+
     let isGroupStatus = false;
     let actualStatusKey = null;
 
