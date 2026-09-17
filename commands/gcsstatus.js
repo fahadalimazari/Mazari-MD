@@ -109,26 +109,35 @@ cmd({
                 
                 // Handle IMAGE/VIDEO media re-upload for Group Status
                 // The quoted message contains encrypted media URLs that need to be re-uploaded
+                // IMPORTANT: downloadContentFromMessage() returns a stream/async iterable in Baileys 7.x
+                // We must consume the complete stream and convert it to a Buffer
                 if (messageOverride.imageMessage) {
                     try {
                         console.log(`[GCS-STATUS][${reqId}] [IMAGE] Processing image message for ${jid}...`);
                         
                         const imageMsg = messageOverride.imageMessage;
-                        const mediaBuffer = await downloadContentFromMessage({ imageMessage: imageMsg }, 'image');
-                        console.log(`[GCS-STATUS][${reqId}] [IMAGE] Downloaded ${mediaBuffer.length} bytes`);
+                        const stream = await downloadContentFromMessage({ imageMessage: imageMsg }, 'image');
+                        console.log(`[GCS-STATUS][${reqId}] [IMAGE] Download stream received`);
+                        
+                        // Convert async iterable stream to Buffer
+                        const chunks = [];
+                        for await (const chunk of stream) {
+                            chunks.push(chunk);
+                        }
+                        const mediaBuffer = Buffer.concat(chunks);
+                        console.log(`[GCS-STATUS][${reqId}] [IMAGE] Buffer size: ${mediaBuffer.length} bytes, valid: ${Buffer.isBuffer(mediaBuffer)}`);
                         
                         // Prepare image with re-uploaded media using prepareWAMessageMedia
-                        // Note: config.mediaCache may not exist, so we'll let prepareWAMessageMedia handle caching internally
                         const reuploadedImage = await prepareWAMessageMedia({ 
                             image: mediaBuffer,
                             mimetype: imageMsg.mimetype,
                             caption: imageMsg.caption
                         }, {
                             upload: sock.waUploadToServer,
-                            mediaCache: null,  // Disable caching if not available
+                            mediaCache: null,
                             logger: { debug: () => {}, info: () => {}, warn: console.warn },
                             mediaTypeOverride: 'image',
-                            jid: jid  // Pass target JID for proper handling
+                            jid: jid
                         });
                         
                         messageOverride.imageMessage = reuploadedImage.imageMessage;
@@ -142,8 +151,16 @@ cmd({
                         console.log(`[GCS-STATUS][${reqId}] [VIDEO] Processing video message for ${jid}...`);
                         
                         const videoMsg = messageOverride.videoMessage;
-                        const mediaBuffer = await downloadContentFromMessage({ videoMessage: videoMsg }, 'video');
-                        console.log(`[GCS-STATUS][${reqId}] [VIDEO] Downloaded ${mediaBuffer.length} bytes`);
+                        const stream = await downloadContentFromMessage({ videoMessage: videoMsg }, 'video');
+                        console.log(`[GCS-STATUS][${reqId}] [VIDEO] Download stream received`);
+                        
+                        // Convert async iterable stream to Buffer
+                        const chunks = [];
+                        for await (const chunk of stream) {
+                            chunks.push(chunk);
+                        }
+                        const mediaBuffer = Buffer.concat(chunks);
+                        console.log(`[GCS-STATUS][${reqId}] [VIDEO] Buffer size: ${mediaBuffer.length} bytes, valid: ${Buffer.isBuffer(mediaBuffer)}`);
                         
                         const reuploadedVideo = await prepareWAMessageMedia({ 
                             video: mediaBuffer,
