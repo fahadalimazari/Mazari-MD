@@ -146,6 +146,16 @@ cmd({
                         
                         messageOverride.imageMessage = reuploadedImage.imageMessage;
                         console.log(`[GCS-STATUS][${reqId}] [IMAGE] Re-uploaded successfully: ${messageOverride.imageMessage.url}`);
+                        console.log(`[GCS-STATUS][${reqId}] [IMAGE] Generated imageMessage metadata:`, {
+                            url: !!messageOverride.imageMessage.url,
+                            directPath: !!messageOverride.imageMessage.directPath,
+                            mimetype: messageOverride.imageMessage.mimetype,
+                            fileLength: messageOverride.imageMessage.fileLength,
+                            width: messageOverride.imageMessage.width,
+                            height: messageOverride.imageMessage.height,
+                            jpegThumbnailLength: messageOverride.imageMessage.jpegThumbnail?.length,
+                            caption: !!messageOverride.imageMessage.caption
+                        });
                     } catch (e) {
                         console.log(`[GCS-STATUS][${reqId}] [IMAGE] Failed to re-upload: ${e.message}`);
                     }
@@ -185,6 +195,17 @@ cmd({
                         
                         messageOverride.videoMessage = reuploadedVideo.videoMessage;
                         console.log(`[GCS-STATUS][${reqId}] [VIDEO] Re-uploaded successfully: ${messageOverride.videoMessage.url}`);
+                        console.log(`[GCS-STATUS][${reqId}] [VIDEO] Generated videoMessage metadata:`, {
+                            url: !!messageOverride.videoMessage.url,
+                            directPath: !!messageOverride.videoMessage.directPath,
+                            mimetype: messageOverride.videoMessage.mimetype,
+                            fileLength: messageOverride.videoMessage.fileLength,
+                            width: messageOverride.videoMessage.width,
+                            height: messageOverride.videoMessage.height,
+                            seconds: messageOverride.videoMessage.seconds,
+                            jpegThumbnailLength: messageOverride.videoMessage.jpegThumbnail?.length,
+                            caption: !!messageOverride.videoMessage.caption
+                        });
                     } catch (e) {
                         console.log(`[GCS-STATUS][${reqId}] [VIDEO] Failed to re-upload: ${e.message}`);
                     }
@@ -214,6 +235,20 @@ cmd({
 
                 // Generate message for direct group send (OLD WORKING PATTERN)
                 const msg = generateWAMessageFromContent(jid, finalPayload, { userJid: sock.user.id });
+                
+                // 🔍 DIAGNOSTIC: Verify final payload structure
+                console.log(`[GCS-STATUS][${reqId}] FINAL PAYLOAD STRUCTURE:`);
+                const msgObj = msg.message;
+                console.log(`  Keys in msg.message: ${Object.keys(msgObj).join(', ')}`);
+                console.log(`  Has groupStatusMessage: ${!!msgObj.groupStatusMessage}`);
+                console.log(`  Has groupStatusMessageV2: ${!!msgObj.groupStatusMessageV2}`);
+                
+                if (msgObj.groupStatusMessage?.message) {
+                    const innerMsg = msgObj.groupStatusMessage.message;
+                    console.log(`  groupStatusMessage.message keys: ${Object.keys(innerMsg).join(', ')}`);
+                    const mediaType = Object.keys(innerMsg).find(k => k.includes('Message') && k !== 'messageContextInfo');
+                    console.log(`  Inner media type: ${mediaType}`);
+                }
                 
                 // Send directly to the group (OLD WORKING PATTERN - no statusJidList)
                 await sock.relayMessage(jid, msg.message, { 
