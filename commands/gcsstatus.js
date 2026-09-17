@@ -5,6 +5,7 @@
 // ============================================
 
 const { cmd } = require('../arslan');
+const { proto } = require('@whiskeysockets/baileys/WAProto');
 const { downloadContentFromMessage, generateWAMessageContent, generateWAMessageFromContent } = require('@whiskeysockets/baileys');
 const config = require('../config');
 
@@ -110,63 +111,32 @@ cmd({
                 // Clone the exact quoted message content to preserve ALL metadata (links, thumbnails, etc.)
                 const messageOverride = JSON.parse(JSON.stringify(content));
                 
-                // If it's a raw conversation string, convert it to extendedTextMessage so we can attach contextInfo securely
+                // If it's a raw conversation string, convert it to extendedTextMessage
                 if (messageOverride.conversation) {
                     messageOverride.extendedTextMessage = { text: messageOverride.conversation };
                     delete messageOverride.conversation;
                 }
 
-                const innerType = Object.keys(messageOverride)[0];
-                
-                if (innerType && messageOverride[innerType]) {
-                    messageOverride[innerType] = {
-                        ...messageOverride[innerType],
-                        contextInfo: {
-                            ...(messageOverride[innerType].contextInfo || {}),
-                            isGroupStatus: true, // Native WAProto flag for Group Status
-                            groupMentions: [
-                                {
-                                    groupJid: jid,
-                                    groupSubject: groupName
-                                }
-                            ]
-                        }
-                    };
-                }
-
-                // Log safe structural representation of the payload
-                if (targetIndex === 1) { // Only log payload structure for the first target to avoid spam
-                    const ext = messageOverride[innerType];
-                    console.log(`[GCS-STATUS][${reqId}] DEBUG PAYLOAD:`, {
-                        messageType: innerType,
-                        isGroupStatusFlag: ext?.contextInfo?.isGroupStatus,
-                        groupMentionsCount: ext?.contextInfo?.groupMentions?.length,
-                        groupJid: jid,
-                        statusJidListCount: participants.length,
-                        statusTarget: 'status@broadcast',
-                        wrappedInGroupStatusMessage: true
-                    });
-                }
-
-                console.log(`[GCS-STATUS][${reqId}] Building and relaying status for ${jid}...`);
-
-                // 🌟 CRITICAL FIX: WhatsApp strictly requires Group Statuses to be wrapped in a FutureProofMessage
+                // 🌟 CORRECT GROUP STATUS STRUCTURE
+                // According to WhatsApp protocol:
+                // Group Status uses groupStatusMessage (FutureProofMessage type)
+                // Sent to status@broadcast with statusJidList containing group members
                 const finalPayload = {
                     groupStatusMessage: {
                         message: messageOverride
                     }
                 };
 
-                // Generate actual WhatsApp Status message targeting status@broadcast
+                // Generate message for status broadcast
                 const msg = generateWAMessageFromContent('status@broadcast', finalPayload, { userJid: sock.user.id });
                 
-                // Relay to status@broadcast with the group members in statusJidList
+                // Send to status@broadcast with group members in statusJidList
                 await sock.relayMessage('status@broadcast', msg.message, { 
                     messageId: msg.key.id,
-                    statusJidList: participants 
+                    statusJidList: participants
                 });
                 
-                console.log(`[GCS-STATUS][${reqId}] Relay result: SUCCESS for ${jid}`);
+                console.log(`[GCS-STATUS][${reqId}] Group Status relay: SUCCESS for ${jid}`);
                 success++;
             } catch (e) {
                 console.error(`[GCS-STATUS][${reqId}] ❌ Target failed: ${jid} | Error:`, e.stack || e.message);
@@ -188,10 +158,10 @@ cmd({
         }
 
         console.log(`[GCS-STATUS][${reqId}] Execution complete. Success: ${success}, Failed: ${failed}`);
-        await sock.sendMessage(from, { text: `✅ 𝑮𝑪𝑺 — 𝑹𝒆𝒍𝒂𝒚 𝑨𝒄𝒄𝒆𝒑𝒕𝒆𝒅\n🎯 𝑮𝒓𝒐𝒖𝒑𝒔: ${success}/${eligibleJids.length}`, edit: startMsg.key });
+        await sock.sendMessage(from, { text: `✅ 𝑮𝑪𝑺 — 𝑹𝒆𝒍𝒂𝒚 𝑨𝒄𝒄𝒆𝒑𝒕𝒆𝒅\n🎯 𝑮𝒓𝒐𝒖𝒑𝒔: ${success}/${eligibleJids.length}\n\n⚠️ 𝑾𝒉𝒂𝒕𝒔𝑨𝒑𝒑 𝑼𝑰 𝒗𝒆𝒓𝒊𝒇𝒊𝒄𝒂𝒕𝒊𝒐𝒏: 𝑵𝑶𝑻 𝑷𝑬𝑹𝑭𝑶𝑹𝑴𝑬𝑫`, edit: startMsg.key });
     } catch (e) {
         console.error('[GCS-STATUS] Critical Execution Error:', e.stack || e);
-        await reply(`⚠️ 𝑮𝑪𝑺 — 𝑺𝒕𝒂𝒕𝒖𝒔 𝑭𝒂𝒊𝒍𝒆𝒅\n𝑪𝒐𝒖𝒍𝒅𝒏’𝒕 𝒑𝒐𝒔𝒕 𝒕𝒉𝒆 𝑮𝒓𝒐𝒖𝒑 𝑺𝒕𝒂𝒕𝒖𝒔.`);
+        await reply(`⚠️ 𝑮𝑪𝑺 — 𝑺𝒕𝒂𝒕𝒖𝒔 𝑭𝒂𝒊𝒍𝒆𝒅\n𝑪𝒐𝒖𝒍𝒅𝒏'𝒕 𝒑𝒐𝒔𝒕 𝒕𝒉𝒆 𝑮𝒓𝒐𝒖𝒑 𝑺𝒕𝒂𝒕𝒖𝒔.`);
     }
 });
 
