@@ -3,7 +3,7 @@ const pgDB = require('../lib/database-pg');
 const { updateUserConfigInPostgres } = pgDB;
 
 // Helper function to update config in memory and database
-const updateConfig = async (key, value, botNumber, config, reply, conn) => {
+const updateConfig = async (key, value, botNumber, config, customReply, conn) => {
     try {
         // 1. Ensure conn.userConfig is initialized safely if missing
         if (conn && !conn.userConfig) {
@@ -22,10 +22,17 @@ const updateConfig = async (key, value, botNumber, config, reply, conn) => {
         
         await updateUserConfigInPostgres(botNumber, newConfig);
         
-        return reply(`✅ *${key}* has been updated to: *${value}*`);
+        // 4. Call custom reply function if provided, otherwise default message
+        if (typeof customReply === 'function') {
+            return customReply();
+        } else {
+            return customReply(`✅ *${key}* has been updated to: *${value}*`);
+        }
     } catch (e) {
         console.error(e);
-        return reply("❌ Error while saving to database.");
+        return (typeof customReply === 'function' ? 
+                () => customReply("❌ Error while saving to database.") :
+                customReply("❌ Error while saving to database."));
     }
 };
 
@@ -208,19 +215,47 @@ async(conn, mek, m, { args, isOwner, reply, botNumber, config }) => {
 
 cmd({
     pattern: "mode",
-    desc: "Change bot mode (public/private/groups/inbox)",
+    desc: "Change bot mode (public/private/inbox)",
     category: "settings",
     react: "⚙️"
 },
 async(conn, mek, m, { args, isOwner, reply, botNumber, config }) => {
-    if (!isOwner) return reply("*❌ Owner only command*");
+    if (!isOwner) return reply("⚠️ 𝑨𝒅𝒎𝒊𝒏 𝑹𝒆𝒒𝒖𝒊𝒓𝒆𝒅");
+    
     const mode = args[0]?.toLowerCase();
-    const validModes = ['public', 'private', 'groups', 'inbox'];
+    const validModes = ['public', 'private', 'inbox'];
+    
+    // If no argument provided, show current mode status
+    if (!mode) {
+        const currentMode = conn.userConfig?.WORK_TYPE || config.WORK_TYPE || config.MODE || "public";
+        const modeDisplay = currentMode === "inbox" ? "𝑷𝑹𝑰𝑽𝑨𝑻𝑬 𝑰𝑵𝑩𝑶𝑿" : currentMode.toUpperCase();
+        return reply(`⚙️ 𝑪𝒖𝒓𝒓𝒆𝒏𝒕 𝑴𝒐𝒅𝒆 : ${modeDisplay}`);
+    }
 
     if (validModes.includes(mode)) {
-        await updateConfig('WORK_TYPE', mode, botNumber, config, reply, conn);
+        // Custom reply messages for each mode
+        let modeIcon = "";
+        let modeText = "";
+        
+        switch(mode) {
+            case "private":
+                modeIcon = "🔒";
+                modeText = "𝑷𝑹𝑰𝑽𝑨𝑻𝑬";
+                break;
+            case "public":
+                modeIcon = "🌐";
+                modeText = "𝑷𝑼𝑩𝑳𝑰𝑪";
+                break;
+            case "inbox":
+                modeIcon = "📥";
+                modeText = "𝑷𝑹𝑰𝑽𝑨𝑻𝑬 𝑰𝑵𝑩𝑶𝑿";
+                break;
+        }
+        
+        await updateConfig('WORK_TYPE', mode, botNumber, config, 
+            () => reply(`${modeIcon} 𝑴𝒐𝒅𝒆 𝑼𝒑𝒅𝒂𝒕𝒆𝒅 — ${modeText}`), conn);
     } else {
-        reply(`*❌ Invalid mode*\n*Usage:*\n.mode <${validModes.join('|')}>`);
+        reply(`❌ 𝑰𝒏𝒗𝒂𝒍𝒊𝒅 𝑴𝒐𝒅𝒆\n*Usage:* .mode <${validModes.join('|')}>`);
     }
 });
 

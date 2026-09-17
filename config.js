@@ -108,7 +108,7 @@ module.exports = {
 
     /**
      * @description Bot work mode
-     * @type {('public'|'private'|'group'|'inbox')}
+     * @type {('public'|'private'|'inbox')}
      */
     MODE: process.env.MODE || process.env.WORK_TYPE || 'public',
 

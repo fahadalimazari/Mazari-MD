@@ -1101,9 +1101,7 @@ conn.ev.on('connection.update', async (update) => {
                 if (from !== "status@broadcast") {
                     // PRIVATE: Block normal users everywhere
                     if (mode === "private" && !isOwner) return;
-                    // GROUPS: Block normal users in private chats (inbox)
-                    if (mode === "groups" && !isGroup && !isOwner) return;
-                    // PUBLIC / PRIVATE INBOX: Block normal users in Inbox
+                    // PUBLIC / PRIVATE INBOX: Block normal users in Inbox/DM
                     if ((mode === "public" || mode === "inbox") && !isGroup && !isOwner) return;
                 }
 
@@ -1117,8 +1115,15 @@ conn.ev.on('connection.update', async (update) => {
                     );
 
                     if (cmd) {
-                        // No additional whitelist check needed here
-                        // Mode restrictions are already handled in the MODE PERMISSION (PRE-CHECK) section above
+                        // ========== WHITELIST CHECK FOR PUBLIC/PRIVATE INBOX MODES ==========
+                        // In PUBLIC/PRIVATE INBOX: Normal users in groups can only use whitelisted commands
+                        if (!isOwner && (mode === "public" || mode === "inbox") && isGroup) {
+                            const publicCmds = ["tts", "pair", "menu", "ping", "alive"];
+                            const isPublicCmd = publicCmds.includes(cmd.pattern) || 
+                                                cmd.category === "download" || 
+                                                cmd.category === "downloader";
+                            if (!isPublicCmd) return; // Silent block for non-whitelisted commands
+                        }
 
                         if (cmd.react) {
                             conn.sendMessage(from, { react: { text: cmd.react, key: mek.key } });
@@ -1170,7 +1175,7 @@ conn.ev.on('connection.update', async (update) => {
                 // ========== BODY EVENTS ==========
                 const events = require("./arslan");
                 events.commands.forEach(async (command) => {
-                    if (body && command.on === "body") {
+                    if (command.on === "body") {
                         try {
                             await command.function(conn, mek, m, {
                                 from,

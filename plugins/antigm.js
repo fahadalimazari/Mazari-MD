@@ -118,35 +118,41 @@ cmd({
     const action = args[0]?.toLowerCase() || '';
 
     // ─── SHOW STATUS ───
-    if (!action || (action !== 'del' && action !== 'delete' && action !== 'warn' && action !== 'kick' && action !== 'off')) {
+    if (!action || (action !== 'on' && action !== 'del' && action !== 'delete' && action !== 'warn' && action !== 'kick' && action !== 'off')) {
         const status = global.ANTIGC_STATUS[sessionId][from] || false;
         const actionMode = status ? status.toUpperCase() : '𝑶𝑭𝑭';
         
-        return reply(`🛡️ 𝑨𝒏𝒕𝒊𝑮𝑴 𝑺𝒕𝒂𝒕𝒖𝒔\n⚡ 𝑺𝒕𝒂𝒕𝒖𝒔: ${actionMode !== '𝑶𝑭𝑭' ? '𝑶𝑵' : '𝑶𝑭𝑭'} • 𝑴𝒐𝒅𝒆: ${actionMode}`);
+        return reply(`🛡️ 𝑨𝒏𝒕𝒊𝑮𝑴 𝑺𝒕𝒂𝒕𝒖𝒔\n⚡ 𝑺𝒕𝒂𝒕𝒖𝒔: ${actionMode !== '𝑶𝑭𝑭' ? '𝑶𝑵' : '𝑶𝑭𝑭'}\n⚙️ 𝑴𝒐𝒅𝒆: ${actionMode}`);
+    }
+
+    // ─── ON MODE (Default to Warn) ───
+    if (action === 'on') {
+        global.ANTIGC_STATUS[sessionId][from] = 'warn';
+        return reply(`🛡️ 𝑨𝒏𝒕𝒊𝑮𝑴 — 𝑬𝒏𝒂𝒃𝒍𝒆𝒅\n⚙️ 𝑨𝒏𝒕𝒊𝑮𝑴 — 𝑴𝒐𝒅𝒆 : 𝑾𝒂𝒓𝒏`);
     }
 
     // ─── DEL MODE ───
     if (action === 'del' || action === 'delete') {
         global.ANTIGC_STATUS[sessionId][from] = 'delete';
-        return reply(`✅ 𝑨𝒏𝒕𝒊𝑮𝑴 𝑬𝒏𝒂𝒃𝒍𝒆𝒅\n⚡ 𝑴𝒐𝒅𝒆: 𝑫𝒆𝒍𝒆𝒕𝒆`);
+        return reply(`🛡️ 𝑨𝒏𝒕𝒊𝑮𝑴 — 𝑬𝒏𝒂𝒃𝒍𝒆𝒅\n⚙️ 𝑨𝒏𝒕𝒊𝑮𝑴 — 𝑴𝒐𝒅𝒆 : 𝑫𝒆𝒍𝒆𝒕𝒆`);
     }
 
     // ─── WARN MODE ───
     if (action === 'warn') {
         global.ANTIGC_STATUS[sessionId][from] = 'warn';
-        return reply(`✅ 𝑨𝒏𝒕𝒊𝑮𝑴 𝑬𝒏𝒂𝒃𝒍𝒆𝒅\n⚡ 𝑴𝒐𝒅𝒆: 𝑾𝒂𝒓𝒏`);
+        return reply(`🛡️ 𝑨𝒏𝒕𝒊𝑮𝑴 — 𝑬𝒏𝒂𝒃𝒍𝒆𝒅\n⚙️ 𝑨𝒏𝒕𝒊𝑮𝑴 — 𝑴𝒐𝒅𝒆 : 𝑾𝒂𝒓𝒏`);
     }
 
     // ─── KICK MODE ───
     if (action === 'kick') {
         global.ANTIGC_STATUS[sessionId][from] = 'kick';
-        return reply(`✅ 𝑨𝒏𝒕𝒊𝑮𝑴 𝑬𝒏𝒂𝒃𝒍𝒆𝒅\n⚡ 𝑴𝒐𝒅𝒆: 𝑲𝒊𝒄𝒌`);
+        return reply(`🛡️ 𝑨𝒏𝒕𝒊𝑮𝑴 — 𝑬𝒏𝒂𝒃𝒍𝒆𝒅\n⚙️ 𝑨𝒏𝒕𝒊𝑮𝑴 — 𝑴𝒐𝒅𝒆 : 𝑲𝒊𝒄𝒌`);
     }
 
     // ─── OFF MODE ───
     if (action === 'off') {
         global.ANTIGC_STATUS[sessionId][from] = false;
-        return reply(`❌ 𝑨𝒏𝒕𝒊𝑮𝑴 𝑫𝒊𝒔𝒂𝒃𝒍𝒆𝒅`);
+        return reply(`❌ 𝑨𝒏𝒕𝒊𝑮𝑴 — 𝑫𝒊𝒔𝒂𝒃𝒍𝒆𝒅`);
     }
 });
 
@@ -187,15 +193,25 @@ cmd({
     if (!isGroupStatus) return;
 
 
-    // ─── GET ACTION ───
+    // ─── ACTION EXECUTION ───
     const action = global.ANTIGC_STATUS[sessionId][from];
+    
+    // Construct robust delete key (ensuring participant is present for group deletes)
+    const deleteKey = {
+        remoteJid: mek.key.remoteJid,
+        fromMe: mek.key.fromMe,
+        id: mek.key.id,
+        participant: mek.key.participant || sender
+    };
 
     // ─── DELETE MODE: Only delete ───
     if (action === 'delete' || action === 'del') {
         try {
+            await conn.sendMessage(from, { delete: deleteKey });
             await conn.sendMessage(from, {
                 text: `🗑️ 𝑨𝒏𝒕𝒊𝑮𝑴 — 𝑺𝒕𝒂𝒕𝒖𝒔 𝑫𝒆𝒍𝒆𝒕𝒆𝒅`
             }, { quoted: mek });
+            console.log(`[AntiGCStatus] 🗑️ Deleted group status from ${sender}`);
         } catch (e) {
             console.log('[AntiGCStatus] Delete notify error:', e.message);
         }
@@ -204,9 +220,10 @@ cmd({
     // ─── KICK MODE: Instant kick ───
     else if (action === 'kick') {
         try {
+            await conn.sendMessage(from, { delete: deleteKey });
             await conn.groupParticipantsUpdate(from, [sender], 'remove');
             await conn.sendMessage(from, {
-                text: `🚫 𝑨𝒏𝒕𝒊𝑮𝑴 — 𝑼𝒔𝒆𝒓 𝑹𝒆𝒎𝒐𝒗𝒆𝒅`
+                text: `👢 𝑨𝒏𝒕𝒊𝑮𝑴 — 𝑼𝒔𝒆𝒓 𝑹𝒆𝒎𝒐𝒗𝒆𝒅`
             }, { quoted: mek });
             console.log(`[AntiGCStatus] 👢 Kicked ${sender}`);
         } catch (e) {
@@ -225,9 +242,10 @@ cmd({
         // 3 warnings -> kick
         if (warnCount >= 3) {
             try {
+                await conn.sendMessage(from, { delete: deleteKey });
                 await conn.groupParticipantsUpdate(from, [sender], 'remove');
                 await conn.sendMessage(from, {
-                    text: `🚫 𝑨𝒏𝒕𝒊𝑮𝑴 — 𝟑/𝟑 𝑾𝒂𝒓𝒏𝒊𝒏𝒈𝒔\n𝑼𝒔𝒆𝒓 𝑹𝒆𝒎𝒐𝒗𝒆𝒅`
+                    text: `🚫 𝑨𝒏𝒕𝒊𝑮𝑴 — 𝟑/𝟑 𝑾𝒂𝒓𝒏𝒊𝒏𝒈𝒔\n👢 𝑨𝒏𝒕𝒊𝑮𝑴 — 𝑼𝒔𝒆𝒓 𝑹𝒆𝒎𝒐𝒗𝒆𝒅`
                 }, { quoted: mek });
                 resetWarnCount(sessionId, from, sender);
                 console.log(`[AntiGCStatus] 👢 Kicked ${sender} after 3 warnings`);
@@ -237,23 +255,15 @@ cmd({
         } else {
             // Send warning
             try {
+                await conn.sendMessage(from, { delete: deleteKey });
                 await conn.sendMessage(from, {
-                    text: `⚠️ 𝑨𝒏𝒕𝒊𝑮𝑴 — 𝑾𝒂𝒓𝒏𝒊𝒏𝒈 ${warnCount}/3\n𝑮𝒓𝒐𝒖𝒑 𝑺𝒕𝒂𝒕𝒖𝒔 𝑫𝒆𝒍𝒆𝒕𝒆𝒅`
+                    text: `⚠️ 𝑨𝒏𝒕𝒊𝑮𝑴 — ${warnCount}/3 𝑾𝒂𝒓𝒏𝒊𝒏𝒈`
                 }, { quoted: mek });
+                console.log(`[AntiGCStatus] ⚠️ Warned ${sender} (${warnCount}/3)`);
             } catch (e) {
                 console.log('[AntiGCStatus] Warn notify error:', e.message);
             }
         }
-    }
-
-    // ─── DELETE MESSAGE ───
-    try {
-        await conn.sendMessage(from, {
-            delete: mek.key
-        });
-        console.log(`[AntiGCStatus] 🗑️ Deleted group status from ${sender}`);
-    } catch (e) {
-        console.log('[AntiGCStatus] Delete error:', e.message);
     }
 });
 
