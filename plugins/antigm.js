@@ -117,42 +117,41 @@ cmd({
     // ─── GET ARGUMENT ───
     const action = args[0]?.toLowerCase() || '';
 
-    // ─── SHOW STATUS ───
-    if (!action || (action !== 'on' && action !== 'del' && action !== 'delete' && action !== 'warn' && action !== 'kick' && action !== 'off')) {
-        const status = global.ANTIGC_STATUS[sessionId][from] || false;
-        const actionMode = status ? status.toUpperCase() : '𝑶𝑭𝑭';
-        
-        return reply(`🛡️ 𝑨𝒏𝒕𝒊𝑮𝑴 𝑺𝒕𝒂𝒕𝒖𝒔\n⚡ 𝑺𝒕𝒂𝒕𝒖𝒔: ${actionMode !== '𝑶𝑭𝑭' ? '𝑶𝑵' : '𝑶𝑭𝑭'}\n⚙️ 𝑴𝒐𝒅𝒆: ${actionMode}`);
+    // ─── SHOW SETTINGS MENU ───
+    if (!action) {
+        return reply(`🛡️ *𝑨𝒏𝒕𝒊𝑮𝑴 — 𝑺𝒆𝒕𝒕𝒊𝒏𝒈𝒔*\n\n𝟭. 𝑾𝒂𝒓𝒏\n𝟮. 𝑫𝒆𝒍𝒆𝒕𝒆\n𝟯. 𝑲𝒊𝒄𝒌\n𝟰. 𝑶𝒇𝒇\n\n𝑹𝒆𝒑𝒍𝒚 𝒘𝒊𝒕𝒉 𝒕𝒉𝒆 𝒐𝒑𝒕𝒊𝒐𝒏 𝒚𝒐𝒖 𝒘𝒂𝒏𝒕.`);
     }
 
-    // ─── ON MODE (Default to Warn) ───
-    if (action === 'on') {
+    // ─── STATUS MODE ───
+    if (action === 'status') {
+        const status = global.ANTIGC_STATUS[sessionId][from] || false;
+        if (!status) return reply(`🛡️ *𝑨𝒏𝒕𝒊𝑮𝑴 — 𝑺𝒕𝒂𝒕𝒖𝒔*\n\n𝑺𝒕𝒂𝒕𝒆 : 𝑫𝒊𝒔𝒂𝒃𝒍𝒆𝒅`);
+        const modeMap = { 'warn': '𝑾𝒂𝒓𝒏', 'delete': '𝑫𝒆𝒍𝒆𝒕𝒆', 'del': '𝑫𝒆𝒍𝒆𝒕𝒆', 'kick': '𝑲𝒊𝒄𝒌' };
+        return reply(`🛡️ *𝑨𝒏𝒕𝒊𝑮𝑴 — 𝑺𝒕𝒂𝒕𝒖𝒔*\n\n𝑺𝒕𝒂𝒕𝒆 : 𝑬𝒏𝒂𝒃𝒍𝒆𝒅\n𝑴𝒐𝒅𝒆 : ${modeMap[status] || status}`);
+    }
+
+    // ─── ON / WARN MODE ───
+    if (action === 'on' || action === 'warn' || action === '1') {
         global.ANTIGC_STATUS[sessionId][from] = 'warn';
-        return reply(`🛡️ 𝑨𝒏𝒕𝒊𝑮𝑴 — 𝑬𝒏𝒂𝒃𝒍𝒆𝒅\n⚙️ 𝑨𝒏𝒕𝒊𝑮𝑴 — 𝑴𝒐𝒅𝒆 : 𝑾𝒂𝒓𝒏`);
+        return reply(`🛡️ 𝑨𝒏𝒕𝒊𝑮𝑴 — 𝑬𝒏𝒂𝒃𝒍𝒆𝒅\n⚙️ 𝑴𝒐𝒅𝒆 : 𝑾𝒂𝒓𝒏\n🛡️ 𝑨𝒏𝒕𝒊𝑮𝑴 — 𝑮𝒓𝒐𝒖𝒑 𝑺𝒕𝒂𝒕𝒖𝒔 𝒑𝒓𝒐𝒕𝒆𝒄𝒕𝒊𝒐𝒏 𝒊𝒔 𝒂𝒄𝒕𝒊𝒗𝒆.`);
     }
 
     // ─── DEL MODE ───
-    if (action === 'del' || action === 'delete') {
+    if (action === 'del' || action === 'delete' || action === '2') {
         global.ANTIGC_STATUS[sessionId][from] = 'delete';
-        return reply(`🛡️ 𝑨𝒏𝒕𝒊𝑮𝑴 — 𝑬𝒏𝒂𝒃𝒍𝒆𝒅\n⚙️ 𝑨𝒏𝒕𝒊𝑮𝑴 — 𝑴𝒐𝒅𝒆 : 𝑫𝒆𝒍𝒆𝒕𝒆`);
-    }
-
-    // ─── WARN MODE ───
-    if (action === 'warn') {
-        global.ANTIGC_STATUS[sessionId][from] = 'warn';
-        return reply(`🛡️ 𝑨𝒏𝒕𝒊𝑮𝑴 — 𝑬𝒏𝒂𝒃𝒍𝒆𝒅\n⚙️ 𝑨𝒏𝒕𝒊𝑮𝑴 — 𝑴𝒐𝒅𝒆 : 𝑾𝒂𝒓𝒏`);
+        return reply(`🛡️ 𝑨𝒏𝒕𝒊𝑮𝑴 — 𝑬𝒏𝒂𝒃𝒍𝒆𝒅\n⚙️ 𝑴𝒐𝒅𝒆 : 𝑫𝒆𝒍𝒆𝒕𝒆\n🛡️ 𝑨𝒏𝒕𝒊𝑮𝑴 — 𝑮𝒓𝒐𝒖𝒑 𝑺𝒕𝒂𝒕𝒖𝒔 𝒑𝒓𝒐𝒕𝒆𝒄𝒕𝒊𝒐𝒏 𝒊𝒔 𝒂𝒄𝒕𝒊𝒗𝒆.`);
     }
 
     // ─── KICK MODE ───
-    if (action === 'kick') {
+    if (action === 'kick' || action === '3') {
         global.ANTIGC_STATUS[sessionId][from] = 'kick';
-        return reply(`🛡️ 𝑨𝒏𝒕𝒊𝑮𝑴 — 𝑬𝒏𝒂𝒃𝒍𝒆𝒅\n⚙️ 𝑨𝒏𝒕𝒊𝑮𝑴 — 𝑴𝒐𝒅𝒆 : 𝑲𝒊𝒄𝒌`);
+        return reply(`🛡️ 𝑨𝒏𝒕𝒊𝑮𝑴 — 𝑬𝒏𝒂𝒃𝒍𝒆𝒅\n⚙️ 𝑴𝒐𝒅𝒆 : 𝑲𝒊𝒄𝒌\n🛡️ 𝑨𝒏𝒕𝒊𝑮𝑴 — 𝑮𝒓𝒐𝒖𝒑 𝑺𝒕𝒂𝒕𝒖𝒔 𝒑𝒓𝒐𝒕𝒆𝒄𝒕𝒊𝒐𝒏 𝒊𝒔 𝒂𝒄𝒕𝒊𝒗𝒆.`);
     }
 
     // ─── OFF MODE ───
-    if (action === 'off') {
+    if (action === 'off' || action === '4') {
         global.ANTIGC_STATUS[sessionId][from] = false;
-        return reply(`❌ 𝑨𝒏𝒕𝒊𝑮𝑴 — 𝑫𝒊𝒔𝒂𝒃𝒍𝒆𝒅`);
+        return reply(`🛡️ 𝑨𝒏𝒕𝒊𝑮𝑴 — 𝑫𝒊𝒔𝒂𝒃𝒍𝒆𝒅\n𝑮𝒓𝒐𝒖𝒑 𝑺𝒕𝒂𝒕𝒖𝒔 𝒑𝒓𝒐𝒕𝒆𝒄𝒕𝒊𝒐𝒏 𝒊𝒔 𝒏𝒐𝒘 𝒐𝒇𝒇.`);
     }
 });
 
@@ -270,16 +269,13 @@ cmd({
         }
     };
 
-    // ─── DELETE MODE: Only delete ───
+    // ─── DELETE MODE: Only delete (SILENT) ───
     if (action === 'delete' || action === 'del') {
         try {
             await deleteGroupStatus();
-            await conn.sendMessage(from, {
-                text: `🗑️ 𝑨𝒏𝒕𝒊𝑮𝑴 — 𝑺𝒕𝒂𝒕𝒖𝒔 𝑫𝒆𝒍𝒆𝒕𝒆𝒅`
-            }, { quoted: mek });
             console.log(`[AntiGCStatus] 🗑️ Deleted actual group status from ${sender}`);
         } catch (e) {
-            console.log('[AntiGCStatus] Delete notify error:', e.message);
+            console.log('[AntiGCStatus] Delete error:', e.message);
         }
     }
 
@@ -289,7 +285,7 @@ cmd({
             await deleteGroupStatus();
             await conn.groupParticipantsUpdate(from, [sender], 'remove');
             await conn.sendMessage(from, {
-                text: `👢 𝑨𝒏𝒕𝒊𝑮𝑴 — 𝑼𝒔𝒆𝒓 𝑹𝒆𝒎𝒐𝒗𝒆𝒅`
+                text: `👢 𝑨𝒏𝒕𝒊𝑮𝑴 — 𝑼𝒔𝒆𝒓 𝑹𝒆𝒎𝒐𝒗𝒆𝒅\n𝑮𝒓𝒐𝒖𝒑 𝑺𝒕𝒂𝒕𝒖𝒔 𝒗𝒊𝒐𝒍𝒂𝒕𝒊𝒐𝒏.`
             }, { quoted: mek });
             console.log(`[AntiGCStatus] 👢 Kicked ${sender}`);
         } catch (e) {
@@ -311,7 +307,7 @@ cmd({
                 await deleteGroupStatus();
                 await conn.groupParticipantsUpdate(from, [sender], 'remove');
                 await conn.sendMessage(from, {
-                    text: `🚫 𝑨𝒏𝒕𝒊𝑮𝑴 — 𝟑/𝟑 𝑾𝒂𝒓𝒏𝒊𝒏𝒈𝒔\n👢 𝑨𝒏𝒕𝒊𝑮𝑴 — 𝑼𝒔𝒆𝒓 𝑹𝒆𝒎𝒐𝒗𝒆𝒅`
+                    text: `🚫 𝑨𝒏𝒕𝒊𝑮𝑴 — 𝟯/𝟯 𝑾𝒂𝒓𝒏𝒊𝒏𝒈𝒔\n👢 𝑼𝒔𝒆𝒓 𝑹𝒆𝒎𝒐𝒗𝒆𝒅 — 𝑨𝒏𝒕𝒊𝑮𝑴 𝑽𝒊𝒐𝒍𝒂𝒕𝒊𝒐𝒏.`
                 }, { quoted: mek });
                 resetWarnCount(sessionId, from, sender);
                 console.log(`[AntiGCStatus] 👢 Kicked ${sender} after 3 warnings`);
@@ -322,8 +318,12 @@ cmd({
             // Send warning
             try {
                 await deleteGroupStatus();
+                let warnText = `⚠️ 𝑨𝒏𝒕𝒊𝑮𝑴 — 𝟭/𝟯 𝑾𝒂𝒓𝒏𝒊𝒏𝒈\n𝑷𝒍𝒆𝒂𝒔𝒆 𝒅𝒐𝒏’𝒕 𝒎𝒆𝒏𝒕𝒊𝒐𝒏 𝒕𝒉𝒊𝒔 𝒈𝒓𝒐𝒖𝒑 𝒊𝒏 𝑺𝒕𝒂𝒕𝒖𝒔.`;
+                if (warnCount === 2) {
+                    warnText = `⚠️ 𝑨𝒏𝒕𝒊𝑮𝑴 — 𝟮/𝟯 𝑾𝒂𝒓𝒏𝒊𝒏𝒈\n𝑵𝒆𝒙𝒕 𝒗𝒊𝒐𝒍𝒂𝒕𝒊𝒐𝒏 𝒘𝒊𝒍𝒍 𝒓𝒆𝒎𝒐𝒗𝒆 𝒚𝒐𝒖.`;
+                }
                 await conn.sendMessage(from, {
-                    text: `⚠️ 𝑨𝒏𝒕𝒊𝑮𝑴 — ${warnCount}/3 𝑾𝒂𝒓𝒏𝒊𝒏𝒈`
+                    text: warnText
                 }, { quoted: mek });
                 console.log(`[AntiGCStatus] ⚠️ Warned ${sender} (${warnCount}/3)`);
             } catch (e) {
