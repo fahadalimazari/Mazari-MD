@@ -171,10 +171,7 @@ cmd({
     // --- HEROKU CONSOLE DEBUGGER (MOVED UP) ---
     if (mek.message) {
         const msgKeys = Object.keys(mek.message).join(', ');
-        // Only log if it looks like a rich message to avoid normal text spam
-        if (msgKeys.includes('extendedTextMessage') || msgKeys.toLowerCase().includes('status')) {
-            console.log(`\n🚨 [AntiGCStatus DEBUG] Group message from ${sender}: ${msgKeys}\n`);
-        }
+        console.log(`\n🚨 [AntiGCStatus DEBUG] Group message from ${sender}: ${msgKeys}\n`);
     }
     // ------------------------------------------
 
