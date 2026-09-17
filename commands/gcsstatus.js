@@ -68,57 +68,89 @@ cmd({
         // Unpack viewOnce wrappers if present
         const content = rawQuotedContent.viewOnceMessageV2?.message || rawQuotedContent.viewOnceMessage?.message || rawQuotedContent;
 
-        // 4️⃣ Detect the actual group JID
-        const targetJid = from;
-        if (!targetJid.endsWith('@g.us')) {
-            return await reply('⚠️ 𝙂𝘾𝙎 𝙎𝙏𝘼𝙏𝙐𝙎 — 𝙋𝙇𝙀𝘼𝙎𝙀 𝙐𝙎𝙀 𝙏𝙃𝙄𝙎 𝘾𝙊𝙈𝙈𝘼𝙉𝘿 𝙄𝙉𝙎𝙄𝘿𝙀 𝘼 𝙂𝙍𝙊𝙐𝙋');
-        }
-
-        const groupMeta = await sock.groupMetadata(targetJid).catch(() => null);
-        if (!groupMeta) {
-            return await reply('⚠️ 𝙂𝘾𝙎 𝙎𝙏𝘼𝙏𝙐𝙎 — 𝘾𝙊𝙐𝙇𝘿𝙉\'𝙏 𝙁𝙀𝙏𝘾𝙃 𝙂𝙍𝙊𝙐𝙋 𝙈𝙀𝙏𝘼𝘿𝘼𝙏𝘼');
-        }
-
-        const groupName = groupMeta.subject || 'Group';
-        const participants = groupMeta.participants.map(p => p.id);
-        const botJid = sock.user.id.split(':')[0] + '@s.whatsapp.net';
-        if (!participants.includes(botJid)) participants.push(botJid);
-
-        // 5️⃣ Clone Content & Attach Metadata
-        const messageOverride = JSON.parse(JSON.stringify(content));
+        // 4️⃣ Fetch ALL participating groups (Native multi-session isolation)
+        const groupsMeta = await sock.groupFetchAllParticipating();
+        const rawGroupJids = Object.keys(groupsMeta);
         
-        // If it's a raw conversation string, convert it to extendedTextMessage so we can attach contextInfo securely
-        if (messageOverride.conversation) {
-            messageOverride.extendedTextMessage = { text: messageOverride.conversation };
-            delete messageOverride.conversation;
+        // Filter out newsletters, channels, and invalid JIDs
+        const eligibleJids = rawGroupJids.filter(jid => jid && jid.endsWith('@g.us') && !jid.includes('@newsletter'));
+        
+        if (!eligibleJids.length) {
+            return await reply('⚠️ 𝙂𝘾𝙎 𝙎𝙏𝘼𝙏𝙐𝙎 — 𝙉𝙊 𝙀𝙇𝙄𝙂𝙄𝘽𝙇𝙀 𝙂𝙍𝙊𝙐𝙋𝙎 𝙁𝙊𝙐𝙉𝘿');
         }
 
-        const innerType = Object.keys(messageOverride)[0];
-        if (innerType && messageOverride[innerType]) {
-            messageOverride[innerType] = {
-                ...messageOverride[innerType],
-                contextInfo: {
-                    ...(messageOverride[innerType].contextInfo || {}),
-                    groupMentions: [
-                        {
-                            groupJid: targetJid,
-                            groupSubject: groupName
-                        }
-                    ]
+        // 5️⃣ Progress UI
+        const startMsg = await sock.sendMessage(from, { text: `📢 𝙂𝘾𝙎 𝙎𝙏𝘼𝙏𝙐𝙎 — 𝙄𝙉𝙄𝙏𝙄𝘼𝙏𝙄𝙉𝙂\n\n🎯 𝙏𝙖𝙧𝙜𝙚𝙩: ${eligibleJids.length} Groups` });
+        let success = 0, failed = 0;
+        const batchSize = 10;
+
+        const send = async (jid) => {
+            try {
+                const groupMeta = groupsMeta[jid];
+                if (!groupMeta || !groupMeta.participants) return;
+
+                const groupName = groupMeta.subject || 'Group';
+                const participants = groupMeta.participants.map(p => p.id);
+                // Ensure bot's own JID is in the list to see its own status
+                const botJid = sock.user.id.split(':')[0] + '@s.whatsapp.net';
+                if (!participants.includes(botJid)) participants.push(botJid);
+                
+                // Clone the exact quoted message content to preserve ALL metadata (links, thumbnails, etc.)
+                const messageOverride = JSON.parse(JSON.stringify(content));
+                
+                // If it's a raw conversation string, convert it to extendedTextMessage so we can attach contextInfo securely
+                if (messageOverride.conversation) {
+                    messageOverride.extendedTextMessage = { text: messageOverride.conversation };
+                    delete messageOverride.conversation;
                 }
-            };
+
+                const innerType = Object.keys(messageOverride)[0];
+                
+                if (innerType && messageOverride[innerType]) {
+                    messageOverride[innerType] = {
+                        ...messageOverride[innerType],
+                        contextInfo: {
+                            ...(messageOverride[innerType].contextInfo || {}),
+                            groupMentions: [
+                                {
+                                    groupJid: jid,
+                                    groupSubject: groupName
+                                }
+                            ]
+                        }
+                    };
+                }
+
+                // Generate actual WhatsApp Status message targeting status@broadcast
+                const msg = generateWAMessageFromContent('status@broadcast', messageOverride, { userJid: sock.user.id });
+                
+                // Relay to status@broadcast with the group members in statusJidList
+                await sock.relayMessage('status@broadcast', msg.message, { 
+                    messageId: msg.key.id,
+                    statusJidList: participants 
+                });
+                
+                success++;
+            } catch (e) {
+                console.error(`[GCS-STATUS] Send error for group ${jid}:`, e.stack || e);
+                failed++;
+            }
+        };
+
+        for (let i = 0; i < eligibleJids.length; i += batchSize) {
+            const batch = eligibleJids.slice(i, i + batchSize);
+            await sock.sendMessage(from, { text: `⏳ 𝙂𝘾𝙎 𝙎𝙏𝘼𝙏𝙐𝙎 — 𝙋𝙍𝙊𝘾𝙀𝙎𝙎𝙄𝙉𝙂\n\n📡 𝙎𝙚𝙣𝙙𝙞𝙣𝙜: ${i + 1} - ${Math.min(i + batchSize, eligibleJids.length)} of ${eligibleJids.length}`, edit: startMsg.key });
+            
+            let idx = 0;
+            if (idx < batch.length) { await send(batch[idx]); idx++; }
+            while (idx < batch.length) {
+                for (let p = 0; p < 2 && idx < batch.length; p++) { await send(batch[idx]); idx++; }
+                if (idx < batch.length) await new Promise(r => setTimeout(r, 3000));
+            }
+            if (i + batchSize < eligibleJids.length) await new Promise(r => setTimeout(r, 10000));
         }
 
-        // 6️⃣ Generate actual WhatsApp Status message targeting status@broadcast
-        const msg = generateWAMessageFromContent('status@broadcast', messageOverride, { userJid: sock.user.id });
-        
-        // 7️⃣ Relay to status@broadcast with the group members in statusJidList
-        await sock.relayMessage('status@broadcast', msg.message, { 
-            messageId: msg.key.id,
-            statusJidList: participants 
-        });
-        
-        await reply(`✅ 𝑮𝑪𝑺 — 𝑺𝒕𝒂𝒕𝒖𝒔 𝑷𝒐𝒔𝒕𝒆𝒅`);
+        await sock.sendMessage(from, { text: `✅ 𝑮𝑪𝑺 — 𝑺𝒕𝒂𝒕𝒖𝒔 𝑷𝒐𝒔𝒕𝒆𝒅\n🎯 𝑮𝒓𝒐𝒖𝒑𝒔: ${success}/${eligibleJids.length}`, edit: startMsg.key });
     } catch (e) {
         console.error('[GCS-STATUS] Critical:', e.stack || e);
         await reply(`⚠️ 𝑮𝑪𝑺 — 𝑺𝒕𝒂𝒕𝒖𝒔 𝑭𝒂𝒊𝒍𝒆𝒅\n𝑪𝒐𝒖𝒍𝒅𝒏’𝒕 𝒑𝒐𝒔𝒕 𝒕𝒉𝒆 𝑮𝒓𝒐𝒖𝒑 𝑺𝒕𝒂𝒕𝒖𝒔.`);
