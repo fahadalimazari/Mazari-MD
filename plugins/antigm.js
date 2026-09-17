@@ -187,8 +187,8 @@ cmd({
 
     // ─── SKIP ADMINS & OWNER ───
     if (isAdmins || isOwner || mek.key.fromMe) {
-        console.log(`[AntiGCStatus] Skipped for admin/owner: ${sender}`);
-        return;
+        console.log(`[AntiGCStatus] Sender ${sender} is Admin/Owner, but proceeding temporarily for debug!`);
+        // return; // TEMP DISABLED FOR TESTING
     }
 
     // ─── DETECT GROUP STATUS & EXTRACT ACTUAL KEY ───
