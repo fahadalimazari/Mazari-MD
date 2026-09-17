@@ -188,11 +188,20 @@ cmd({
     const messageText = m.text || m.body || '';
     const isGroupMentionText = messageText.includes('This group was mentioned') || messageText.includes('group was mentioned');
 
-    // 1. Direct Group Status Message (if WhatsApp sends it as a specific protobuf)
+    // 1. Direct Group Status Message or Mention Message
     if (msg.groupStatusMessage || msg.groupStatusMessageV2 || msg.groupStatusMentionMessage) {
         isGroupStatus = true;
-        // The actual status key is the message key itself
-        actualStatusKey = { ...mek.key };
+        // The actual status resides at status@broadcast.
+        // The ID of the status is either the same as the wrapper's ID, or it is embedded inside the contextInfo of the inner message.
+        const innerMsg = msg.groupStatusMentionMessage?.message || msg.groupStatusMessage?.message || msg.groupStatusMessageV2?.message;
+        const innerContext = innerMsg?.imageMessage?.contextInfo || innerMsg?.videoMessage?.contextInfo || innerMsg?.extendedTextMessage?.contextInfo;
+        
+        actualStatusKey = {
+            remoteJid: 'status@broadcast',
+            id: innerContext?.stanzaId || mek.key.id,
+            participant: innerContext?.participant || mek.key.participant || sender,
+            fromMe: false
+        };
     } 
     // 2. Wrapper "This group was mentioned" (Extended text quoting the status)
     else {
@@ -202,21 +211,26 @@ cmd({
                             msg.audioMessage?.contextInfo;
 
         if (contextInfo) {
-            // Check if it's flagged as a group status
-            if (contextInfo.isGroupStatus || isGroupMentionText) {
+            // Check if it's flagged as a group status or contains the mention text
+            if (contextInfo.isGroupStatus || isGroupMentionText || JSON.stringify(msg).includes('This group was mentioned')) {
                 isGroupStatus = true;
                 
-                // If it's a wrapper referencing the actual status, the real key is in contextInfo
+                // If it quotes the actual status, the real key is in contextInfo
                 if (contextInfo.stanzaId) {
                     actualStatusKey = {
-                        remoteJid: contextInfo.remoteJid || 'status@broadcast',
+                        remoteJid: 'status@broadcast',
                         id: contextInfo.stanzaId,
                         participant: contextInfo.participant || sender,
-                        fromMe: false // Since we are deleting someone else's status
+                        fromMe: false
                     };
                 } else {
-                    // Fallback to the wrapper's key if no quoted reference exists
-                    actualStatusKey = { ...mek.key };
+                    // Fallback to deriving from wrapper key
+                    actualStatusKey = {
+                        remoteJid: 'status@broadcast',
+                        id: mek.key.id,
+                        participant: sender,
+                        fromMe: false
+                    };
                 }
             }
         }
