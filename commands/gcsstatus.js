@@ -139,21 +139,26 @@ cmd({
                     const ext = messageOverride[innerType];
                     console.log(`[GCS-STATUS][${reqId}] DEBUG PAYLOAD:`, {
                         messageType: innerType,
-                        hasContextInfo: !!ext?.contextInfo,
                         isGroupStatusFlag: ext?.contextInfo?.isGroupStatus,
                         groupMentionsCount: ext?.contextInfo?.groupMentions?.length,
-                        hasCanonicalUrl: !!ext?.canonicalUrl,
-                        hasJpegThumbnail: !!ext?.jpegThumbnail,
-                        hasCaption: !!ext?.caption,
+                        groupJid: jid,
+                        statusJidListCount: participants.length,
                         statusTarget: 'status@broadcast',
-                        statusJidListCount: participants.length
+                        wrappedInGroupStatusMessage: true
                     });
                 }
 
                 console.log(`[GCS-STATUS][${reqId}] Building and relaying status for ${jid}...`);
 
+                // 🌟 CRITICAL FIX: WhatsApp strictly requires Group Statuses to be wrapped in a FutureProofMessage
+                const finalPayload = {
+                    groupStatusMessage: {
+                        message: messageOverride
+                    }
+                };
+
                 // Generate actual WhatsApp Status message targeting status@broadcast
-                const msg = generateWAMessageFromContent('status@broadcast', messageOverride, { userJid: sock.user.id });
+                const msg = generateWAMessageFromContent('status@broadcast', finalPayload, { userJid: sock.user.id });
                 
                 // Relay to status@broadcast with the group members in statusJidList
                 await sock.relayMessage('status@broadcast', msg.message, { 
