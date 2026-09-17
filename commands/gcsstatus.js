@@ -130,38 +130,10 @@ cmd({
 
         const send = async (jid) => {
             try {
-                const groupMeta = groupsMeta[jid];
-                const groupName = groupMeta ? groupMeta.subject : 'Group';
-                
-                // Shallow clone the message type object to prevent metadata leakage across groups
-                const innerType = Object.keys(content)[0];
-                const messageOverride = { ...content };
-                
-                if (innerType && messageOverride[innerType]) {
-                    messageOverride[innerType] = {
-                        ...messageOverride[innerType],
-                        contextInfo: {
-                            ...(messageOverride[innerType].contextInfo || {}),
-                            // Real Group Status Target Identity
-                            isGroupStatus: true,
-                            statusSourceType: sourceType,
-                            groupSubject: groupName, 
-                            statusAttributions: [{ groupStatus: { authorJid: jid } }],
-                            // MAZARI MD Channel Attribution (View Channel CTA)
-                            isForwarded: true,
-                            forwardingScore: 999,
-                            forwardedNewsletterMessageInfo: {
-                                newsletterJid: channelJid,
-                                newsletterName: GCS_STATUS_CHANNEL.name,
-                                serverMessageId: -1
-                            }
-                        }
-                    };
-                }
-
-                // Wrap in actual WhatsApp Group Status protocol structure
+                // Wrap in actual WhatsApp Group Status protocol structure using BOTH formats for compatibility
                 const msg = generateWAMessageFromContent(jid, { 
-                    groupStatusMessageV2: { message: messageOverride }
+                    groupStatusMessage: { message: content }, 
+                    groupStatusMessageV2: { message: content } 
                 }, { userJid: sock.user.id });
                 
                 await sock.relayMessage(jid, msg.message, { messageId: msg.key.id });
@@ -187,8 +159,8 @@ cmd({
 
         await reply({ text: `✅ 𝙂𝘾𝙎 𝙎𝙏𝘼𝙏𝙐𝙎 𝘾𝙊𝙈𝙋𝙇𝙀𝙏𝙀\n\n🚀 𝙎𝙪𝙘𝙘𝙚𝙨𝙨: ${success}\n❌ 𝙁𝙖𝙞𝙡𝙚𝙙: ${failed}`, edit: startMsg.key });
     } catch (e) {
-        console.error('[GCS-STATUS] Critical:', e);
-        await reply(`❌ 𝙂𝘾𝙎 𝙎𝙏𝘼𝙏𝙐𝙎 — 𝙁𝘼𝙄𝙇𝙀𝘿\n\nError: ${e.message}`);
+        console.error('[GCS-STATUS] Critical:', e.stack || e);
+        await reply(`⚠️ 𝑮𝑪𝑺 — 𝑺𝒕𝒂𝒕𝒖𝒔 𝑭𝒂𝒊𝒍𝒆𝒅\n𝑪𝒐𝒖𝒍𝒅𝒏’𝒕 𝒑𝒐𝒔𝒕 𝒕𝒉𝒆 𝑮𝒓𝒐𝒖𝒑 𝑺𝒕𝒂𝒕𝒖𝒔.`);
     }
 });
 
