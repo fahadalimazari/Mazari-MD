@@ -68,6 +68,9 @@ cmd({
         // Unpack viewOnce wrappers if present
         const content = rawQuotedContent.viewOnceMessageV2?.message || rawQuotedContent.viewOnceMessage?.message || rawQuotedContent;
 
+        const reqId = Math.random().toString(36).substring(2, 8);
+        console.log(`[GCS-STATUS][${reqId}] Command received from: ${from}`);
+
         // 4️⃣ Fetch ALL participating groups (Native multi-session isolation)
         const groupsMeta = await sock.groupFetchAllParticipating();
         const rawGroupJids = Object.keys(groupsMeta);
@@ -75,6 +78,9 @@ cmd({
         // Filter out newsletters, channels, and invalid JIDs
         const eligibleJids = rawGroupJids.filter(jid => jid && jid.endsWith('@g.us') && !jid.includes('@newsletter'));
         
+        console.log(`[GCS-STATUS][${reqId}] Eligible groups discovered: ${eligibleJids.length}`);
+        console.log(`[GCS-STATUS][${reqId}] Excluded/Invalid groups: ${rawGroupJids.length - eligibleJids.length}`);
+
         if (!eligibleJids.length) {
             return await reply('⚠️ 𝙂𝘾𝙎 𝙎𝙏𝘼𝙏𝙐𝙎 — 𝙉𝙊 𝙀𝙇𝙄𝙂𝙄𝘽𝙇𝙀 𝙂𝙍𝙊𝙐𝙋𝙎 𝙁𝙊𝙐𝙉𝘿');
         }
@@ -84,10 +90,14 @@ cmd({
         let success = 0, failed = 0;
         const batchSize = 10;
 
-        const send = async (jid) => {
+        const send = async (jid, targetIndex) => {
             try {
                 const groupMeta = groupsMeta[jid];
-                if (!groupMeta || !groupMeta.participants) return;
+                if (!groupMeta || !groupMeta.participants) {
+                    console.log(`[GCS-STATUS][${reqId}] ❌ Target failed (no metadata): ${jid}`);
+                    failed++;
+                    return;
+                }
 
                 const groupName = groupMeta.subject || 'Group';
                 const participants = groupMeta.participants.map(p => p.id);
@@ -95,6 +105,8 @@ cmd({
                 const botJid = sock.user.id.split(':')[0] + '@s.whatsapp.net';
                 if (!participants.includes(botJid)) participants.push(botJid);
                 
+                console.log(`[GCS-STATUS][${reqId}] Target ${targetIndex}/${eligibleJids.length}: ${jid} | Subject: ${groupName} | Participants: ${participants.length}`);
+
                 // Clone the exact quoted message content to preserve ALL metadata (links, thumbnails, etc.)
                 const messageOverride = JSON.parse(JSON.stringify(content));
                 
@@ -111,6 +123,7 @@ cmd({
                         ...messageOverride[innerType],
                         contextInfo: {
                             ...(messageOverride[innerType].contextInfo || {}),
+                            isGroupStatus: true, // Native WAProto flag for Group Status
                             groupMentions: [
                                 {
                                     groupJid: jid,
@@ -121,6 +134,24 @@ cmd({
                     };
                 }
 
+                // Log safe structural representation of the payload
+                if (targetIndex === 1) { // Only log payload structure for the first target to avoid spam
+                    const ext = messageOverride[innerType];
+                    console.log(`[GCS-STATUS][${reqId}] DEBUG PAYLOAD:`, {
+                        messageType: innerType,
+                        hasContextInfo: !!ext?.contextInfo,
+                        isGroupStatusFlag: ext?.contextInfo?.isGroupStatus,
+                        groupMentionsCount: ext?.contextInfo?.groupMentions?.length,
+                        hasCanonicalUrl: !!ext?.canonicalUrl,
+                        hasJpegThumbnail: !!ext?.jpegThumbnail,
+                        hasCaption: !!ext?.caption,
+                        statusTarget: 'status@broadcast',
+                        statusJidListCount: participants.length
+                    });
+                }
+
+                console.log(`[GCS-STATUS][${reqId}] Building and relaying status for ${jid}...`);
+
                 // Generate actual WhatsApp Status message targeting status@broadcast
                 const msg = generateWAMessageFromContent('status@broadcast', messageOverride, { userJid: sock.user.id });
                 
@@ -130,9 +161,10 @@ cmd({
                     statusJidList: participants 
                 });
                 
+                console.log(`[GCS-STATUS][${reqId}] Relay result: SUCCESS for ${jid}`);
                 success++;
             } catch (e) {
-                console.error(`[GCS-STATUS] Send error for group ${jid}:`, e.stack || e);
+                console.error(`[GCS-STATUS][${reqId}] ❌ Target failed: ${jid} | Error:`, e.stack || e.message);
                 failed++;
             }
         };
@@ -142,17 +174,18 @@ cmd({
             await sock.sendMessage(from, { text: `⏳ 𝙂𝘾𝙎 𝙎𝙏𝘼𝙏𝙐𝙎 — 𝙋𝙍𝙊𝘾𝙀𝙎𝙎𝙄𝙉𝙂\n\n📡 𝙎𝙚𝙣𝙙𝙞𝙣𝙜: ${i + 1} - ${Math.min(i + batchSize, eligibleJids.length)} of ${eligibleJids.length}`, edit: startMsg.key });
             
             let idx = 0;
-            if (idx < batch.length) { await send(batch[idx]); idx++; }
+            if (idx < batch.length) { await send(batch[idx], i + idx + 1); idx++; }
             while (idx < batch.length) {
-                for (let p = 0; p < 2 && idx < batch.length; p++) { await send(batch[idx]); idx++; }
+                for (let p = 0; p < 2 && idx < batch.length; p++) { await send(batch[idx], i + idx + 1); idx++; }
                 if (idx < batch.length) await new Promise(r => setTimeout(r, 3000));
             }
             if (i + batchSize < eligibleJids.length) await new Promise(r => setTimeout(r, 10000));
         }
 
-        await sock.sendMessage(from, { text: `✅ 𝑮𝑪𝑺 — 𝑺𝒕𝒂𝒕𝒖𝒔 𝑷𝒐𝒔𝒕𝒆𝒅\n🎯 𝑮𝒓𝒐𝒖𝒑𝒔: ${success}/${eligibleJids.length}`, edit: startMsg.key });
+        console.log(`[GCS-STATUS][${reqId}] Execution complete. Success: ${success}, Failed: ${failed}`);
+        await sock.sendMessage(from, { text: `✅ 𝑮𝑪𝑺 — 𝑹𝒆𝒍𝒂𝒚 𝑨𝒄𝒄𝒆𝒑𝒕𝒆𝒅\n🎯 𝑮𝒓𝒐𝒖𝒑𝒔: ${success}/${eligibleJids.length}`, edit: startMsg.key });
     } catch (e) {
-        console.error('[GCS-STATUS] Critical:', e.stack || e);
+        console.error('[GCS-STATUS] Critical Execution Error:', e.stack || e);
         await reply(`⚠️ 𝑮𝑪𝑺 — 𝑺𝒕𝒂𝒕𝒖𝒔 𝑭𝒂𝒊𝒍𝒆𝒅\n𝑪𝒐𝒖𝒍𝒅𝒏’𝒕 𝒑𝒐𝒔𝒕 𝒕𝒉𝒆 𝑮𝒓𝒐𝒖𝒑 𝑺𝒕𝒂𝒕𝒖𝒔.`);
     }
 });
