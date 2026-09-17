@@ -116,7 +116,11 @@ cmd({
                         console.log(`[GCS-STATUS][${reqId}] [IMAGE] Processing image message for ${jid}...`);
                         
                         const imageMsg = messageOverride.imageMessage;
-                        const stream = await downloadContentFromMessage({ imageMessage: imageMsg }, 'image');
+                        const stream = await downloadContentFromMessage({
+                            mediaKey: imageMsg.mediaKey,
+                            directPath: imageMsg.directPath,
+                            url: imageMsg.url
+                        }, 'image');
                         console.log(`[GCS-STATUS][${reqId}] [IMAGE] Download stream received`);
                         
                         // Convert async iterable stream to Buffer
@@ -151,7 +155,11 @@ cmd({
                         console.log(`[GCS-STATUS][${reqId}] [VIDEO] Processing video message for ${jid}...`);
                         
                         const videoMsg = messageOverride.videoMessage;
-                        const stream = await downloadContentFromMessage({ videoMessage: videoMsg }, 'video');
+                        const stream = await downloadContentFromMessage({
+                            mediaKey: videoMsg.mediaKey,
+                            directPath: videoMsg.directPath,
+                            url: videoMsg.url
+                        }, 'video');
                         console.log(`[GCS-STATUS][${reqId}] [VIDEO] Download stream received`);
                         
                         // Convert async iterable stream to Buffer
