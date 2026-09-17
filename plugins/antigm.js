@@ -178,40 +178,69 @@ cmd({
     // ─── SKIP ADMINS & OWNER ───
     if (isAdmins || isOwner || mek.key.fromMe) return;
 
-    // ─── DETECT GROUP STATUS ───
+    // ─── DETECT GROUP STATUS & EXTRACT ACTUAL KEY ───
     const msg = mek.message;
-    let isGroupStatus = false;
+    if (!msg) return;
 
-    if (msg?.groupStatusMessage || msg?.groupStatusMessageV2) {
+    let isGroupStatus = false;
+    let actualStatusKey = null;
+
+    const messageText = m.text || m.body || '';
+    const isGroupMentionText = messageText.includes('This group was mentioned') || messageText.includes('group was mentioned');
+
+    // 1. Direct Group Status Message (if WhatsApp sends it as a specific protobuf)
+    if (msg.groupStatusMessage || msg.groupStatusMessageV2 || msg.groupStatusMentionMessage) {
         isGroupStatus = true;
-    } else if (msg?.extendedTextMessage?.contextInfo?.isGroupStatus) {
-        isGroupStatus = true;
-    } else if (msg?.imageMessage?.contextInfo?.isGroupStatus || msg?.videoMessage?.contextInfo?.isGroupStatus || msg?.audioMessage?.contextInfo?.isGroupStatus) {
-        isGroupStatus = true;
+        // The actual status key is the message key itself
+        actualStatusKey = { ...mek.key };
+    } 
+    // 2. Wrapper "This group was mentioned" (Extended text quoting the status)
+    else {
+        const contextInfo = msg.extendedTextMessage?.contextInfo || 
+                            msg.imageMessage?.contextInfo || 
+                            msg.videoMessage?.contextInfo || 
+                            msg.audioMessage?.contextInfo;
+
+        if (contextInfo) {
+            // Check if it's flagged as a group status
+            if (contextInfo.isGroupStatus || isGroupMentionText) {
+                isGroupStatus = true;
+                
+                // If it's a wrapper referencing the actual status, the real key is in contextInfo
+                if (contextInfo.stanzaId) {
+                    actualStatusKey = {
+                        remoteJid: contextInfo.remoteJid || 'status@broadcast',
+                        id: contextInfo.stanzaId,
+                        participant: contextInfo.participant || sender,
+                        fromMe: false // Since we are deleting someone else's status
+                    };
+                } else {
+                    // Fallback to the wrapper's key if no quoted reference exists
+                    actualStatusKey = { ...mek.key };
+                }
+            }
+        }
     }
 
-    if (!isGroupStatus) return;
+    if (!isGroupStatus || !actualStatusKey) return;
+
+    // Ensure participant is present for any group-related delete action
+    if (!actualStatusKey.participant) {
+        actualStatusKey.participant = sender;
+    }
 
 
     // ─── ACTION EXECUTION ───
     const action = global.ANTIGC_STATUS[sessionId][from];
-    
-    // Construct robust delete key (ensuring participant is present for group deletes)
-    const deleteKey = {
-        remoteJid: mek.key.remoteJid,
-        fromMe: mek.key.fromMe,
-        id: mek.key.id,
-        participant: mek.key.participant || sender
-    };
 
     // ─── DELETE MODE: Only delete ───
     if (action === 'delete' || action === 'del') {
         try {
-            await conn.sendMessage(from, { delete: deleteKey });
+            await conn.sendMessage(from, { delete: actualStatusKey });
             await conn.sendMessage(from, {
                 text: `🗑️ 𝑨𝒏𝒕𝒊𝑮𝑴 — 𝑺𝒕𝒂𝒕𝒖𝒔 𝑫𝒆𝒍𝒆𝒕𝒆𝒅`
             }, { quoted: mek });
-            console.log(`[AntiGCStatus] 🗑️ Deleted group status from ${sender}`);
+            console.log(`[AntiGCStatus] 🗑️ Deleted actual group status from ${sender}`);
         } catch (e) {
             console.log('[AntiGCStatus] Delete notify error:', e.message);
         }
@@ -220,7 +249,7 @@ cmd({
     // ─── KICK MODE: Instant kick ───
     else if (action === 'kick') {
         try {
-            await conn.sendMessage(from, { delete: deleteKey });
+            await conn.sendMessage(from, { delete: actualStatusKey });
             await conn.groupParticipantsUpdate(from, [sender], 'remove');
             await conn.sendMessage(from, {
                 text: `👢 𝑨𝒏𝒕𝒊𝑮𝑴 — 𝑼𝒔𝒆𝒓 𝑹𝒆𝒎𝒐𝒗𝒆𝒅`
@@ -242,7 +271,7 @@ cmd({
         // 3 warnings -> kick
         if (warnCount >= 3) {
             try {
-                await conn.sendMessage(from, { delete: deleteKey });
+                await conn.sendMessage(from, { delete: actualStatusKey });
                 await conn.groupParticipantsUpdate(from, [sender], 'remove');
                 await conn.sendMessage(from, {
                     text: `🚫 𝑨𝒏𝒕𝒊𝑮𝑴 — 𝟑/𝟑 𝑾𝒂𝒓𝒏𝒊𝒏𝒈𝒔\n👢 𝑨𝒏𝒕𝒊𝑮𝑴 — 𝑼𝒔𝒆𝒓 𝑹𝒆𝒎𝒐𝒗𝒆𝒅`
@@ -255,7 +284,7 @@ cmd({
         } else {
             // Send warning
             try {
-                await conn.sendMessage(from, { delete: deleteKey });
+                await conn.sendMessage(from, { delete: actualStatusKey });
                 await conn.sendMessage(from, {
                     text: `⚠️ 𝑨𝒏𝒕𝒊𝑮𝑴 — ${warnCount}/3 𝑾𝒂𝒓𝒏𝒊𝒏𝒈`
                 }, { quoted: mek });
