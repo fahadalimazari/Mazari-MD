@@ -130,6 +130,86 @@ cmd({
                 // Generate message for status broadcast
                 const msg = generateWAMessageFromContent('status@broadcast', finalPayload, { userJid: sock.user.id });
                 
+                // 🔍 DIAGNOSTIC: Inspect exact outgoing message structure
+                if (targetIndex === 1) {
+                    console.log(`\n=== 📊 DIAGNOSTIC PAYLOAD STRUCTURE ===`);
+                    
+                    // 1. Message key
+                    console.log(`1. MESSAGE KEY:`);
+                    console.log(`   remoteJid: ${msg.key.remoteJid}`);
+                    console.log(`   fromMe: ${msg.key.fromMe}`);
+                    console.log(`   id: ${msg.key.id}`);
+                    
+                    // 2. Top-level message structure
+                    console.log(`\n2. TOP-LEVEL MESSAGE STRUCTURE:`);
+                    const msgObj = msg.message;
+                    console.log(`   Keys: ${Object.keys(msgObj).join(', ')}`);
+                    
+                    // 3. groupStatusMessage verification
+                    console.log(`\n3. GROUP STATUS VERIFICATION:`);
+                    console.log(`   has groupStatusMessage: ${!!msgObj.groupStatusMessage}`);
+                    if (msgObj.groupStatusMessage) {
+                        console.log(`   groupStatusMessage keys: ${Object.keys(msgObj.groupStatusMessage).join(', ')}`);
+                        console.log(`   groupStatusMessage has 'message': ${!!msgObj.groupStatusMessage.message}`);
+                        
+                        if (msgObj.groupStatusMessage.message) {
+                            console.log(`\n4. NESTED MESSAGE STRUCTURE:`);
+                            const nestedMsg = msgObj.groupStatusMessage.message;
+                            console.log(`   Nested message keys: ${Object.keys(nestedMsg).join(', ')}`);
+                            
+                            // 5. Extract actual content type
+                            const innerType = Object.keys(nestedMsg).find(k => k.includes('Message') && k !== 'messageContextInfo');
+                            console.log(`   Inner content type: ${innerType || 'NONE'}`);
+                            
+                            if (innerType && nestedMsg[innerType]) {
+                                const content = nestedMsg[innerType];
+                                console.log(`\n5. CONTENT DETAILS:`);
+                                console.log(`   Has text: ${!!content.text}`);
+                                console.log(`   Has contextInfo: ${!!content.contextInfo}`);
+                                
+                                if (content.contextInfo) {
+                                    console.log(`\n6. CONTEXT INFO:`);
+                                    console.log(`   isGroupStatus: ${content.contextInfo.isGroupStatus}`);
+                                    console.log(`   groupMentions count: ${content.contextInfo.groupMentions?.length || 0}`);
+                                    if (content.contextInfo.groupMentions?.[0]) {
+                                        console.log(`   First groupMention groupJid: ${content.contextInfo.groupMentions[0].groupJid}`);
+                                        console.log(`   First groupMention groupSubject: ${content.contextInfo.groupMentions[0].groupSubject}`);
+                                    }
+                                }
+                                
+                                // 7. Preview/link details
+                                if (content.linkPreview) {
+                                    console.log(`\n7. LINK PREVIEW:`);
+                                    console.log(`   has linkPreview: true`);
+                                    console.log(`   description: ${content.description ? 'present' : 'missing'}`);
+                                    console.log(`   title: ${content.title ? 'present' : 'missing'}`);
+                                    console.log(`   jpegThumbnail: ${content.jpegThumbnail ? 'present' : 'missing'}`);
+                                }
+                            }
+                        }
+                    }
+                    
+                    // 8. Verify statusJidList format (anonymized)
+                    console.log(`\n8. STATUS JID LIST VERIFICATION:`);
+                    console.log(`   statusJidList length: ${participants.length}`);
+                    console.log(`   Sample JIDs (anonymized): ${participants.slice(0, 3).map(jid => jid.replace(/\d/g, 'X')).join(', ')}`);
+                    console.log(`   Is group JID: ${jid}`);
+                    console.log(`   Bot own JID included: ${participants.includes(botJid)}`);
+                    
+                    // 9. Complete message structure for debugging
+                    console.log(`\n9. COMPLETE MESSAGE STRUCTURE (safe representation):`);
+                    console.log(`   ${JSON.stringify(msgObj, null, 2)}`);
+                    
+                    console.log(`\n=== DIAGNOSTIC END ===\n`);
+                }
+                
+                // 10. Verify relayMessage inputs
+                console.log(`\n[DIAGNOSTIC] relayMessage inputs:`);
+                console.log(`   Target: status@broadcast`);
+                console.log(`   Message key: ${msg.key.id}`);
+                console.log(`   statusJidList count: ${participants.length}`);
+                console.log(`   statusJidList sample: ${participants.slice(0, 3).map(jid => jid.split('@')[0]).join(', ')}...`);
+                
                 // Send to status@broadcast with group members in statusJidList
                 await sock.relayMessage('status@broadcast', msg.message, { 
                     messageId: msg.key.id,
