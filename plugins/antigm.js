@@ -12,9 +12,9 @@ const config = require('../config');
 // Format: GLOBAL_ANTIGC_WARN_TIMER[sessionId][groupId][userId] = timerId
 if (!global.GLOBAL_ANTIGC_WARN) global.GLOBAL_ANTIGC_WARN = {};
 if (!global.GLOBAL_ANTIGC_WARN_TIMER) global.GLOBAL_ANTIGC_WARN_TIMER = {};
-if (!global.ANTIGC_STATUS) global.ANTIGC_STATUS = {}; // Session isolated later if needed
+    if (!global.ANTIGC_STATUS) global.ANTIGC_STATUS = {}; // Session isolated later if needed
 
-const TEN_MINUTES = 10 * 60 * 1000;
+    const FIVE_MINUTES = 5 * 60 * 1000;
 
 // ─── CHECK IF SUDO/OWNER ───
 async function isOwnerOrSudo(userId) {
@@ -55,8 +55,7 @@ function startWarningTimer(sessionId, groupId, userId) {
             delete global.GLOBAL_ANTIGC_WARN[sessionId][groupId][userId];
         }
         delete global.GLOBAL_ANTIGC_WARN_TIMER[timerKey];
-        console.log(`[AntiGCStatus] Warning timer expired for ${userId} in ${groupId} on session ${sessionId}`);
-    }, TEN_MINUTES);
+    }, FIVE_MINUTES);
 }
 
 // ─── GET WARN COUNT ───
@@ -167,13 +166,6 @@ cmd({
     // ─── SKIP IF NOT GROUP ───
     if (!isGroup) return;
 
-    // --- HEROKU CONSOLE DEBUGGER (MOVED UP) ---
-    if (mek.message) {
-        const msgKeys = Object.keys(mek.message).join(', ');
-        console.log(`\n🚨 [AntiGCStatus DEBUG] Group message from ${sender}: ${msgKeys}\n`);
-    }
-    // ------------------------------------------
-
     // ─── SKIP IF ANTI-GC STATUS OFF ───
     const sessionId = conn.user.id.split(':')[0];
     if (!global.ANTIGC_STATUS?.[sessionId]?.[from]) return;
@@ -182,10 +174,7 @@ cmd({
     if (!isBotAdmins) return;
 
     // ─── SKIP ADMINS & OWNER ───
-    if (isAdmins || isOwner || mek.key.fromMe) {
-        console.log(`[AntiGCStatus] Skipped for admin/owner: ${sender}`);
-        return; // Restored admin protection!
-    }
+    if (isAdmins || isOwner || mek.key.fromMe) return;
 
     // ─── DETECT GROUP STATUS & EXTRACT ACTUAL KEY ───
     const msg = mek.message;
