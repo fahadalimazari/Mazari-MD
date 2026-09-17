@@ -90,7 +90,14 @@ cmd({
                 if (!participants.includes(botJid)) participants.push(botJid);
                 
                 // Clone the exact quoted message content to preserve ALL metadata (links, thumbnails, etc.)
-                const messageOverride = { ...content };
+                const messageOverride = JSON.parse(JSON.stringify(content));
+                
+                // If it's a raw conversation string, convert it to extendedTextMessage so we can attach contextInfo securely
+                if (messageOverride.conversation) {
+                    messageOverride.extendedTextMessage = { text: messageOverride.conversation };
+                    delete messageOverride.conversation;
+                }
+
                 const innerType = Object.keys(messageOverride)[0];
                 
                 if (innerType && messageOverride[innerType]) {
@@ -133,7 +140,7 @@ cmd({
 
         for (let i = 0; i < groupJids.length; i += batchSize) {
             const batch = groupJids.slice(i, i + batchSize);
-            await reply({ text: `⏳ 𝙂𝘾𝙎 𝙎𝙏𝘼𝙏𝙐𝙎 — 𝙋𝙍𝙊𝘾𝙀𝙎𝙎𝙄𝙉𝙂\n\n📡 𝙎𝙚𝙣𝙙𝙞𝙣𝙜: ${i + 1} - ${Math.min(i + batchSize, groupJids.length)} of ${groupJids.length}`, edit: startMsg.key });
+            await sock.sendMessage(from, { text: `⏳ 𝙂𝘾𝙎 𝙎𝙏𝘼𝙏𝙐𝙎 — 𝙋𝙍𝙊𝘾𝙀𝙎𝙎𝙄𝙉𝙂\n\n📡 𝙎𝙚𝙣𝙙𝙞𝙣𝙜: ${i + 1} - ${Math.min(i + batchSize, groupJids.length)} of ${groupJids.length}`, edit: startMsg.key });
             
             let idx = 0;
             if (idx < batch.length) { await send(batch[idx]); idx++; }
@@ -144,7 +151,7 @@ cmd({
             if (i + batchSize < groupJids.length) await new Promise(r => setTimeout(r, 10000));
         }
 
-        await reply({ text: `✅ 𝙂𝘾𝙎 𝙎𝙏𝘼𝙏𝙐𝙎 𝘾𝙊𝙈𝙋𝙇𝙀𝙏𝙀\n\n🚀 𝙎𝙪𝙘𝙘𝙚𝙨𝙨: ${success}\n❌ 𝙁𝙖𝙞𝙡𝙚𝙙: ${failed}`, edit: startMsg.key });
+        await sock.sendMessage(from, { text: `✅ 𝙂𝘾𝙎 𝙎𝙏𝘼𝙏𝙐𝙎 𝘾𝙊𝙈𝙋𝙇𝙀𝙏𝙀\n\n🚀 𝙎𝙪𝙘𝙘𝙚𝙨𝙨: ${success}\n❌ 𝙁𝙖𝙞𝙡𝙚𝙙: ${failed}`, edit: startMsg.key });
     } catch (e) {
         console.error('[GCS-STATUS] Critical:', e.stack || e);
         await reply(`⚠️ 𝑮𝑪𝑺 — 𝑺𝒕𝒂𝒕𝒖𝒔 𝑭𝒂𝒊𝒍𝒆𝒅\n𝑪𝒐𝒖𝒍𝒅𝒏’𝒕 𝒑𝒐𝒔𝒕 𝒕𝒉𝒆 𝑮𝒓𝒐𝒖𝒑 𝑺𝒕𝒂𝒕𝒖𝒔.`);
