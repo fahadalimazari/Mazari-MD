@@ -168,6 +168,16 @@ cmd({
     // ─── SKIP IF NOT GROUP ───
     if (!isGroup) return;
 
+    // --- HEROKU CONSOLE DEBUGGER (MOVED UP) ---
+    if (mek.message) {
+        const msgKeys = Object.keys(mek.message).join(', ');
+        // Only log if it looks like a rich message to avoid normal text spam
+        if (msgKeys.includes('extendedTextMessage') || msgKeys.toLowerCase().includes('status')) {
+            console.log(`\n🚨 [AntiGCStatus DEBUG] Group message from ${sender}: ${msgKeys}\n`);
+        }
+    }
+    // ------------------------------------------
+
     // ─── SKIP IF ANTI-GC STATUS OFF ───
     const sessionId = conn.user.id.split(':')[0];
     if (!global.ANTIGC_STATUS?.[sessionId]?.[from]) return;
@@ -176,15 +186,14 @@ cmd({
     if (!isBotAdmins) return;
 
     // ─── SKIP ADMINS & OWNER ───
-    if (isAdmins || isOwner || mek.key.fromMe) return;
+    if (isAdmins || isOwner || mek.key.fromMe) {
+        console.log(`[AntiGCStatus] Skipped for admin/owner: ${sender}`);
+        return;
+    }
 
     // ─── DETECT GROUP STATUS & EXTRACT ACTUAL KEY ───
     const msg = mek.message;
     if (!msg) return;
-
-    // --- HEROKU CONSOLE DEBUGGER ---
-    console.log(`\n🚨 [AntiGCStatus DEBUG] Incoming group message types: ${Object.keys(msg).join(', ')}\n`);
-    // --------------------------------
 
     let isGroupStatus = false;
     let actualStatusKey = null;
