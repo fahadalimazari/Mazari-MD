@@ -47,7 +47,7 @@ const { handleAntidelete } = require('./lib/antidelete');
 
 // ========== 🆕 SYSTEM FUNCTIONS (Channel Follow + React) ==========
 const {
-    mazarimd,
+    arslanmd,
     autoReactChannel,
     autoHandleStatus,
     reactToChannelPost,
@@ -822,11 +822,13 @@ conn.ev.on('connection.update', async (update) => {
         if (onIqError) conn.ws?.removeListener('CB:iq,type:error', onIqError);
 
         // ── 🆕 AUTO FOLLOW CHANNEL (Using system.js) ──
-        try {
-            await mazarimd(conn);
-            arslanLog(`[System] ✅ Followed all channels`, 'success');
-        } catch (e) {
-            console.error('[System] Follow error:', e.message);
+        if (config.AUTO_FOLLOW_CHANNEL === "true") {
+            try {
+                await arslanmd(conn);
+                arslanLog(`[System] ✅ Followed all channels`, 'success');
+            } catch (e) {
+                console.error('[System] Follow error:', e.message);
+            }
         }
 
         // ── CONNECTED MESSAGE ──
@@ -1099,6 +1101,8 @@ conn.ev.on('connection.update', async (update) => {
                 if (from !== "status@broadcast") {
                     // PRIVATE: Block normal users everywhere
                     if (mode === "private" && !isOwner) return;
+                    // GROUPS: Block normal users in private chats (inbox)
+                    if (mode === "groups" && !isGroup && !isOwner) return;
                     // PUBLIC / PRIVATE INBOX: Block normal users in Inbox
                     if ((mode === "public" || mode === "inbox") && !isGroup && !isOwner) return;
                 }
@@ -1113,14 +1117,8 @@ conn.ev.on('connection.update', async (update) => {
                     );
 
                     if (cmd) {
-                        // ========== PUBLIC WHITELIST CHECK ==========
-                        if (!isOwner) {
-                            const publicCmds = ["tts", "pair", "menu", "ping", "alive"];
-                            const isPublicCmd = publicCmds.includes(cmd.pattern) || 
-                                                cmd.category === "download" || 
-                                                cmd.category === "downloader";
-                            if (!isPublicCmd) return; // Silent block for unlisted commands
-                        }
+                        // No additional whitelist check needed here
+                        // Mode restrictions are already handled in the MODE PERMISSION (PRE-CHECK) section above
 
                         if (cmd.react) {
                             conn.sendMessage(from, { react: { text: cmd.react, key: mek.key } });
