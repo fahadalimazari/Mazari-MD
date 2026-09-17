@@ -58,65 +58,15 @@ cmd({
         // 2️⃣ Resolve channel JID (for the CTA attribution)
         const channelJid = await resolveChannelJid(sock);
 
-        // 3️⃣ Content extraction
-        const quoted = mek.message?.extendedTextMessage?.contextInfo?.quotedMessage;
-        const textArg = args.join(' ').trim();
-        let content = null;
-        let sourceType = 4; // TEXT by default
-
-        if (quoted) {
-            const unpacked = quoted.viewOnceMessageV2?.message || quoted.viewOnceMessage?.message || quoted;
-            // Media handling
-            let mediaKey = null, mediaType = '';
-            if (unpacked.imageMessage) { mediaKey = unpacked.imageMessage; mediaType = 'image'; }
-            else if (unpacked.videoMessage) { mediaKey = unpacked.videoMessage; mediaType = 'video'; }
-            else if (unpacked.audioMessage) { mediaKey = unpacked.audioMessage; mediaType = 'audio'; }
-
-            if (mediaKey) {
-                await reply('⏳ 𝙂𝘾𝙎 𝙎𝙏𝘼𝙏𝙐𝙎 — 𝙋𝙍𝙊𝘾𝙀𝙎𝙎𝙄𝙉 𝙈𝙀𝘿𝙄𝘼...');
-                const stream = await downloadContentFromMessage(mediaKey, mediaType);
-                let buffer = Buffer.from([]);
-                for await (const chunk of stream) buffer = Buffer.concat([buffer, chunk]);
-                if (!buffer.length) throw new Error('Empty media buffer');
-                
-                const gen = {};
-                if (mediaType === 'image') { gen.image = buffer; if (textArg) gen.caption = textArg; sourceType = 0; }
-                else if (mediaType === 'video') { gen.video = buffer; if (textArg) gen.caption = textArg; sourceType = 1; }
-                else if (mediaType === 'audio') { gen.audio = buffer; gen.mimetype = mediaKey.mimetype || 'audio/mp4'; gen.ptt = true; sourceType = 3; }
-                
-                content = await generateWAMessageContent(gen, { upload: sock.waUploadToServer });
-            } else {
-                // Quoted text handling
-                const quotedText = unpacked.conversation || unpacked.extendedTextMessage?.text || unpacked.imageMessage?.caption || unpacked.videoMessage?.caption || unpacked.documentMessage?.caption || unpacked.documentMessage?.fileName || unpacked.documentMessage?.title || unpacked.caption || unpacked.text || unpacked.contentText || unpacked.selectedDisplayText || unpacked.title || '';
-                const finalText = textArg || quotedText;
-                if (!finalText) return await reply('⚠️ 𝙋𝙍𝙊𝙑𝙄𝘿𝙀 𝙏𝙀𝙓𝙏 𝙊𝙍 𝙍𝙀𝙋𝙇𝙔 𝙏𝙊 𝙈𝙀𝘿𝙄𝘼');
-                
-                const ext = unpacked.extendedTextMessage || {};
-                content = {
-                    extendedTextMessage: {
-                        text: finalText,
-                        backgroundArgb: 4278241280,
-                        font: 1,
-                        matchedText: ext.matchedText,
-                        canonicalUrl: ext.canonicalUrl,
-                        description: ext.description,
-                        title: ext.title,
-                        jpegThumbnail: ext.jpegThumbnail,
-                        previewType: ext.previewType
-                    }
-                };
-            }
-        } else {
-            // Direct text command
-            if (!textArg) return await reply('⚠️ 𝙋𝙍𝙊𝙑𝙄𝘿𝙀 𝙏𝙀𝙓𝙏 𝙊𝙍 𝙍𝙀𝙋𝙇𝙔 𝙏𝙊 𝙈𝙀𝘿𝙄𝘼');
-            content = {
-                extendedTextMessage: {
-                    text: textArg,
-                    backgroundArgb: 4278241280,
-                    font: 1
-                }
-            };
+        // 3️⃣ Content extraction (Must Reply)
+        const rawQuotedContent = mek.message?.extendedTextMessage?.contextInfo?.quotedMessage;
+        
+        if (!rawQuotedContent) {
+            return await reply('⚠️ 𝙂𝘾𝙎 𝙎𝙏𝘼𝙏𝙐𝙎 — 𝙋𝙇𝙀𝘼𝙎𝙀 𝙍𝙀𝙋𝙇𝙔 𝙏𝙊 𝘼 𝙈𝙀𝙎𝙎𝘼𝙂𝙀 (𝙏𝙚𝙭𝙩/𝙈𝙚𝙙𝙞𝙖/𝙇𝙞𝙣𝙠)');
         }
+
+        // Unpack viewOnce wrappers if present
+        const content = rawQuotedContent.viewOnceMessageV2?.message || rawQuotedContent.viewOnceMessage?.message || rawQuotedContent;
 
         // 4️⃣ Fetch groups
         const groupsMeta = await sock.groupFetchAllParticipating();
@@ -139,7 +89,7 @@ cmd({
                 const botJid = sock.user.id.split(':')[0] + '@s.whatsapp.net';
                 if (!participants.includes(botJid)) participants.push(botJid);
                 
-                // Clone content to attach group mention metadata
+                // Clone the exact quoted message content to preserve ALL metadata (links, thumbnails, etc.)
                 const messageOverride = { ...content };
                 const innerType = Object.keys(messageOverride)[0];
                 
