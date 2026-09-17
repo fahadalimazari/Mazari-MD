@@ -5,7 +5,7 @@
 // ============================================
 
 const { cmd } = require('../arslan');
-const { downloadContentFromMessage, generateWAMessageContent, generateWAMessageFromContent } = require('@whiskeysockets/baileys');
+const { downloadContentFromMessage, generateWAMessageFromContent, prepareWAMessageMedia } = require('@whiskeysockets/baileys');
 const config = require('../config');
 
 // ─── MAZARI MD CHANNEL CONFIGURATION ───
@@ -106,6 +106,64 @@ cmd({
 
                 // Clone the exact quoted message content to preserve ALL metadata (links, thumbnails, etc.)
                 const messageOverride = JSON.parse(JSON.stringify(content));
+                
+                // Handle IMAGE/VIDEO media re-upload for Group Status
+                // The quoted message contains encrypted media URLs that need to be re-uploaded
+                if (messageOverride.imageMessage) {
+                    try {
+                        console.log(`[GCS-STATUS][${reqId}] [IMAGE] Processing image message for ${jid}...`);
+                        
+                        const imageMsg = messageOverride.imageMessage;
+                        const mediaBuffer = await downloadContentFromMessage({ imageMessage: imageMsg }, 'image');
+                        console.log(`[GCS-STATUS][${reqId}] [IMAGE] Downloaded ${mediaBuffer.length} bytes`);
+                        
+                        // Prepare image with re-uploaded media using prepareWAMessageMedia
+                        // Note: config.mediaCache may not exist, so we'll let prepareWAMessageMedia handle caching internally
+                        const reuploadedImage = await prepareWAMessageMedia({ 
+                            image: mediaBuffer,
+                            mimetype: imageMsg.mimetype,
+                            caption: imageMsg.caption
+                        }, {
+                            upload: sock.waUploadToServer,
+                            mediaCache: null,  // Disable caching if not available
+                            logger: { debug: () => {}, info: () => {}, warn: console.warn },
+                            mediaTypeOverride: 'image',
+                            jid: jid  // Pass target JID for proper handling
+                        });
+                        
+                        messageOverride.imageMessage = reuploadedImage.imageMessage;
+                        console.log(`[GCS-STATUS][${reqId}] [IMAGE] Re-uploaded successfully: ${messageOverride.imageMessage.url}`);
+                    } catch (e) {
+                        console.log(`[GCS-STATUS][${reqId}] [IMAGE] Failed to re-upload: ${e.message}`);
+                    }
+                }
+                else if (messageOverride.videoMessage) {
+                    try {
+                        console.log(`[GCS-STATUS][${reqId}] [VIDEO] Processing video message for ${jid}...`);
+                        
+                        const videoMsg = messageOverride.videoMessage;
+                        const mediaBuffer = await downloadContentFromMessage({ videoMessage: videoMsg }, 'video');
+                        console.log(`[GCS-STATUS][${reqId}] [VIDEO] Downloaded ${mediaBuffer.length} bytes`);
+                        
+                        const reuploadedVideo = await prepareWAMessageMedia({ 
+                            video: mediaBuffer,
+                            mimetype: videoMsg.mimetype,
+                            caption: videoMsg.caption,
+                            seconds: videoMsg.seconds
+                        }, {
+                            upload: sock.waUploadToServer,
+                            mediaCache: null,
+                            logger: { debug: () => {}, info: () => {}, warn: console.warn },
+                            mediaTypeOverride: 'video',
+                            jid: jid
+                        });
+                        
+                        messageOverride.videoMessage = reuploadedVideo.videoMessage;
+                        console.log(`[GCS-STATUS][${reqId}] [VIDEO] Re-uploaded successfully: ${messageOverride.videoMessage.url}`);
+                    } catch (e) {
+                        console.log(`[GCS-STATUS][${reqId}] [VIDEO] Failed to re-upload: ${e.message}`);
+                    }
+                }
                 
                 // If it's a raw conversation string, convert it to extendedTextMessage
                 if (messageOverride.conversation) {
