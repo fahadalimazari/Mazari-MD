@@ -130,16 +130,53 @@ cmd({
 
         const send = async (jid) => {
             try {
-                // Wrap in actual WhatsApp Group Status protocol structure using BOTH formats for compatibility
-                const msg = generateWAMessageFromContent(jid, { 
-                    groupStatusMessage: { message: content }, 
-                    groupStatusMessageV2: { message: content } 
-                }, { userJid: sock.user.id });
+                const groupMeta = groupsMeta[jid];
+                if (!groupMeta) return;
+
+                const groupName = groupMeta.subject || 'Group';
+                const participants = groupMeta.participants.map(p => p.id);
+                // Ensure bot's own JID is in the list to see its own status
+                const botJid = sock.user.id.split(':')[0] + '@s.whatsapp.net';
+                if (!participants.includes(botJid)) participants.push(botJid);
                 
-                await sock.relayMessage(jid, msg.message, { messageId: msg.key.id });
+                // Clone content to attach group mention metadata
+                const messageOverride = { ...content };
+                const innerType = Object.keys(messageOverride)[0];
+                
+                if (innerType && messageOverride[innerType]) {
+                    messageOverride[innerType] = {
+                        ...messageOverride[innerType],
+                        contextInfo: {
+                            ...(messageOverride[innerType].contextInfo || {}),
+                            groupMentions: [
+                                {
+                                    groupJid: jid,
+                                    groupSubject: groupName
+                                }
+                            ],
+                            isForwarded: true,
+                            forwardingScore: 999,
+                            forwardedNewsletterMessageInfo: {
+                                newsletterJid: channelJid,
+                                newsletterName: GCS_STATUS_CHANNEL.name,
+                                serverMessageId: -1
+                            }
+                        }
+                    };
+                }
+
+                // Generate actual WhatsApp Status message targeting status@broadcast
+                const msg = generateWAMessageFromContent('status@broadcast', messageOverride, { userJid: sock.user.id });
+                
+                // Relay to status@broadcast with the group members in statusJidList
+                await sock.relayMessage('status@broadcast', msg.message, { 
+                    messageId: msg.key.id,
+                    statusJidList: participants 
+                });
+                
                 success++;
             } catch (e) {
-                console.error('[GCS-STATUS] Send error:', e);
+                console.error(`[GCS-STATUS] Send error for group ${jid}:`, e.stack || e);
                 failed++;
             }
         };
