@@ -184,8 +184,8 @@ cmd({
 
     // ─── SKIP ADMINS & OWNER ───
     if (isAdmins || isOwner || mek.key.fromMe) {
-        console.log(`[AntiGCStatus] Sender ${sender} is Admin/Owner, but proceeding temporarily for debug!`);
-        // return; // TEMP DISABLED FOR TESTING
+        console.log(`[AntiGCStatus] Skipped for admin/owner: ${sender}`);
+        return; // Restored admin protection!
     }
 
     // ─── DETECT GROUP STATUS & EXTRACT ACTUAL KEY ───
@@ -257,10 +257,23 @@ cmd({
     // ─── ACTION EXECUTION ───
     const action = global.ANTIGC_STATUS[sessionId][from];
 
+    // Helper to delete both wrapper and actual status
+    const deleteGroupStatus = async () => {
+        // 1. Delete the notification/wrapper message in the group chat
+        try { await conn.sendMessage(from, { delete: mek.key }); } catch (e) {}
+        
+        // 2. Try to delete the actual status message directly
+        if (actualStatusKey && actualStatusKey.id !== mek.key.id) {
+            try { await conn.sendMessage('status@broadcast', { delete: actualStatusKey }); } catch (e) {}
+            // Attempt admin revoke in group just in case WhatsApp expects it there
+            try { await conn.sendMessage(from, { delete: actualStatusKey }); } catch (e) {}
+        }
+    };
+
     // ─── DELETE MODE: Only delete ───
     if (action === 'delete' || action === 'del') {
         try {
-            await conn.sendMessage(from, { delete: actualStatusKey });
+            await deleteGroupStatus();
             await conn.sendMessage(from, {
                 text: `🗑️ 𝑨𝒏𝒕𝒊𝑮𝑴 — 𝑺𝒕𝒂𝒕𝒖𝒔 𝑫𝒆𝒍𝒆𝒕𝒆𝒅`
             }, { quoted: mek });
@@ -273,7 +286,7 @@ cmd({
     // ─── KICK MODE: Instant kick ───
     else if (action === 'kick') {
         try {
-            await conn.sendMessage(from, { delete: actualStatusKey });
+            await deleteGroupStatus();
             await conn.groupParticipantsUpdate(from, [sender], 'remove');
             await conn.sendMessage(from, {
                 text: `👢 𝑨𝒏𝒕𝒊𝑮𝑴 — 𝑼𝒔𝒆𝒓 𝑹𝒆𝒎𝒐𝒗𝒆𝒅`
@@ -295,7 +308,7 @@ cmd({
         // 3 warnings -> kick
         if (warnCount >= 3) {
             try {
-                await conn.sendMessage(from, { delete: actualStatusKey });
+                await deleteGroupStatus();
                 await conn.groupParticipantsUpdate(from, [sender], 'remove');
                 await conn.sendMessage(from, {
                     text: `🚫 𝑨𝒏𝒕𝒊𝑮𝑴 — 𝟑/𝟑 𝑾𝒂𝒓𝒏𝒊𝒏𝒈𝒔\n👢 𝑨𝒏𝒕𝒊𝑮𝑴 — 𝑼𝒔𝒆𝒓 𝑹𝒆𝒎𝒐𝒗𝒆𝒅`
@@ -308,7 +321,7 @@ cmd({
         } else {
             // Send warning
             try {
-                await conn.sendMessage(from, { delete: actualStatusKey });
+                await deleteGroupStatus();
                 await conn.sendMessage(from, {
                     text: `⚠️ 𝑨𝒏𝒕𝒊𝑮𝑴 — ${warnCount}/3 𝑾𝒂𝒓𝒏𝒊𝒏𝒈`
                 }, { quoted: mek });
