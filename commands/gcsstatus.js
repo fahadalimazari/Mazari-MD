@@ -222,57 +222,60 @@ cmd({
                 }
 
                 // 🌟 CORRECT GROUP STATUS STRUCTURE
-                // Group Status requires specific fields on the inner message for proper rendering:
-                // - statusSourceType: IMAGE or VIDEO
-                // - statusAttributions: array of attributions (optional)
+                // Group Status requires specific fields on the Message proto for proper rendering:
+                // - statusSourceType: 0=IMAGE, 1=VIDEO
+                // - statusAttributions: array of StatusAttribution objects (can be empty)
                 // - isGroupStatus: true
-                // These fields are on the Message proto, NOT on imageMessage/videoMessage
-                const isMedia = messageOverride.imageMessage || messageOverride.videoMessage;
-                const mediaType = messageOverride.imageMessage ? 'imageMessage' : 
-                                  messageOverride.videoMessage ? 'videoMessage' : null;
+                // These fields are on the Message proto itself, NOT inside imageMessage/videoMessage
+                const hasImage = !!messageOverride.imageMessage;
+                const hasVideo = !!messageOverride.videoMessage;
+                const hasText = !!(messageOverride.extendedTextMessage || messageOverride.conversation);
                 
-                // For Group Status, we need to include status fields on the Message proto
-                // The inner message should be a generic Message with the media plus status flags
-                const groupStatusContent = {
-                    // Preserve original media or text message
-                    ...(messageOverride.imageMessage ? { imageMessage: messageOverride.imageMessage } : {}),
-                    ...(messageOverride.videoMessage ? { videoMessage: messageOverride.videoMessage } : {}),
-                    ...(messageOverride.extendedTextMessage ? { extendedTextMessage: messageOverride.extendedTextMessage } : {}),
-                    ...(messageOverride.conversation ? { extendedTextMessage: { text: messageOverride.conversation } } : {}),
-                    statusSourceType: mediaType === 'imageMessage' ? 0 :  // IMAGE = 0
-                                       mediaType === 'videoMessage' ? 1 :  // VIDEO = 1
-                                       undefined,
+                // Build the inner message content with status fields
+                // For media, we need to include statusSourceType and isGroupStatus
+                const innerMessage = {
+                    ...(hasImage ? { imageMessage: messageOverride.imageMessage } : {}),
+                    ...(hasVideo ? { videoMessage: messageOverride.videoMessage } : {}),
+                    ...(hasText ? { extendedTextMessage: messageOverride.extendedTextMessage || { text: messageOverride.conversation } } : {}),
+                    statusSourceType: hasImage ? 0 : hasVideo ? 1 : undefined,
                     statusAttributions: [],
                     isGroupStatus: true
                 };
 
-                const finalPayload = {
-                    groupStatusMessage: {
-                        message: groupStatusContent
-                    },
-                    groupStatusMessageV2: {
-                        message: groupStatusContent
+                // Create the final payload structure for relayMessage
+                // Group Status uses groupChatMessage with the inner message
+                const groupStatusPayload = {
+                    groupChatMessage: {
+                        message: innerMessage,
+                        contextInfo: {
+                            mentionedJid: [],
+                            quotedMessage: null,
+                            remoteJid: channelJid,
+                            participant: sock.user.id
+                        }
                     }
                 };
 
-                // Generate message for direct group send (OLD WORKING PATTERN)
-                const msg = generateWAMessageFromContent(jid, finalPayload, { userJid: sock.user.id });
+                // Generate message for direct group send
+                const msg = generateWAMessageFromContent(jid, groupStatusPayload, { userJid: sock.user.id });
                 
                 // 🔍 DIAGNOSTIC: Verify final payload structure
                 console.log(`[GCS-STATUS][${reqId}] FINAL PAYLOAD STRUCTURE:`);
                 const msgObj = msg.message;
                 console.log(`  Keys in msg.message: ${Object.keys(msgObj).join(', ')}`);
-                console.log(`  Has groupStatusMessage: ${!!msgObj.groupStatusMessage}`);
-                console.log(`  Has groupStatusMessageV2: ${!!msgObj.groupStatusMessageV2}`);
+                console.log(`  Has groupChatMessage: ${!!msgObj.groupChatMessage}`);
                 
-                if (msgObj.groupStatusMessage?.message) {
-                    const innerMsg = msgObj.groupStatusMessage.message;
-                    console.log(`  groupStatusMessage.message keys: ${Object.keys(innerMsg).join(', ')}`);
+                if (msgObj.groupChatMessage?.message) {
+                    const innerMsg = msgObj.groupChatMessage.message;
+                    console.log(`  groupChatMessage.message keys: ${Object.keys(innerMsg).join(', ')}`);
                     const mediaType = Object.keys(innerMsg).find(k => k.includes('Message') && k !== 'messageContextInfo');
                     console.log(`  Inner media type: ${mediaType}`);
+                    console.log(`  Has statusSourceType: ${!!innerMsg.statusSourceType}, value: ${innerMsg.statusSourceType}`);
+                    console.log(`  Has statusAttributions: ${!!innerMsg.statusAttributions}, value: ${JSON.stringify(innerMsg.statusAttributions)}`);
+                    console.log(`  Has isGroupStatus: ${!!innerMsg.isGroupStatus}, value: ${innerMsg.isGroupStatus}`);
                 }
                 
-                // Send directly to the group (OLD WORKING PATTERN - no statusJidList)
+                // Send directly to the group using relayMessage (standard group message pattern)
                 await sock.relayMessage(jid, msg.message, { 
                     messageId: msg.key.id
                 });
