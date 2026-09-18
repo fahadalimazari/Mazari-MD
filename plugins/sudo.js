@@ -1,5 +1,5 @@
 const { cmd } = require('../arslan');
-const { updateUserConfigInPostgres } = require('../lib/database-pg');
+const { updateUserConfigInPostgres, getUserConfigFromPostgres } = require('../lib/database-pg');
 
 // ==================== SETSUDO COMMAND ====================
 cmd({
@@ -48,6 +48,7 @@ cmd({
         
         conn.userConfig.SUDO.push(targetNum);
         await updateUserConfigInPostgres(botNumber, { SUDO: conn.userConfig.SUDO });
+        conn.userConfig = await getUserConfigFromPostgres(botNumber) || conn.userConfig;
         
         reply(`🛡️ 𝑺𝒖𝒅𝒐 𝑨𝒅𝒅𝒆𝒅\n> 𝑺𝒖𝒅𝒐 𝒂𝒄𝒄𝒆𝒔𝒔 𝒈𝒓𝒂𝒏𝒕𝒆𝒅.`);
     } catch (e) {
@@ -100,6 +101,7 @@ cmd({
         
         conn.userConfig.SUDO = conn.userConfig.SUDO.filter(num => num !== targetNum);
         await updateUserConfigInPostgres(botNumber, { SUDO: conn.userConfig.SUDO });
+        conn.userConfig = await getUserConfigFromPostgres(botNumber) || conn.userConfig;
         
         reply(`🗑️ 𝑺𝒖𝒅𝒐 𝑹𝒆𝒎𝒐𝒗𝒆𝒅\n> 𝑺𝒖𝒅𝒐 𝒂𝒄𝒄𝒆𝒔𝒔 𝒓𝒆𝒗𝒐𝒌𝒆𝒅.`);
     } catch (e) {
