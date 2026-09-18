@@ -34,9 +34,7 @@ cmd({
             }
         }
         
-        if (targetJid.includes('@lid')) {
-            return reply("⚠️ 𝑰𝒏𝒗𝒂𝒍𝒊𝒅 𝑻𝒂𝒓𝒈𝒆𝒕\n> 𝑪𝒂𝒏𝒏𝒐𝒕 𝒖𝒔𝒆 𝑳𝑰𝑫. 𝑷𝒍𝒆𝒂𝒔𝒆 𝒎𝒆𝒏𝒕𝒊𝒐𝒏 𝒕𝒉𝒆 𝒖𝒔𝒆𝒓'𝒔 𝒑𝒉𝒐𝒏𝒆 𝒏𝒖𝒎𝒃𝒆𝒓 𝒅𝒊𝒓𝒆𝒄𝒕𝒍𝒚.");
-        }
+
         
         // Extract real normalized phone number
         let targetNum = targetJid.split('@')[0].split(':')[0];
@@ -91,9 +89,7 @@ cmd({
             }
         }
         
-        if (targetJid.includes('@lid')) {
-            return reply("⚠️ 𝑰𝒏𝒗𝒂𝒍𝒊𝒅 𝑻𝒂𝒓𝒈𝒆𝒕\n> 𝑪𝒂𝒏𝒏𝒐𝒕 𝒖𝒔𝒆 𝑳𝑰𝑫. 𝑷𝒍𝒆𝒂𝒔𝒆 𝒎𝒆𝒏𝒕𝒊𝒐𝒏 𝒕𝒉𝒆 𝒖𝒔𝒆𝒓'𝒔 𝒑𝒉𝒐𝒏𝒆 𝒏𝒖𝒎𝒃𝒆𝒓 𝒅𝒊𝒓𝒆𝒄𝒕𝒍𝒚.");
-        }
+
         
         // Extract real normalized phone number
         let targetNum = targetJid.split('@')[0].split(':')[0];
