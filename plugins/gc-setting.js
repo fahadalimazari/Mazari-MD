@@ -188,15 +188,15 @@ cmd({
     react: "🗑️",
     filename: __filename
 },
-async (conn, mek, m, { from, isGroup, isAdmins, reply, mentionedJid, participants }) => {
+async (conn, mek, m, { from, isGroup, isAdmins, isOwner, isBotAdmins, reply, mentionedJid }) => {
     try {
         if (!isGroup) return reply("❌ This command only works in groups.");
-        // Correctly check if the BOT is admin, not the command sender
-        const botJid = conn.user.id.includes(':') ? conn.user.id.split(':')[0] + "@s.whatsapp.net" : conn.user.id;
-        const botParticipant = participants?.find(p => p.id === botJid);
-        const botIsAdmin = botParticipant?.admin === 'admin' || botParticipant?.admin === 'superadmin';
         
-        if (!botIsAdmin) return reply("❌ Only group admins can use this command.");
+        // Allow command if sender is admin or owner
+        if (!isAdmins && !isOwner) return reply("❌ You don't have permission to use this command.");
+
+        // Correctly check if the BOT is admin using the robust `isBotAdmins` calculated by the handler (handles LIDs correctly)
+        if (!isBotAdmins) return reply("❌ Only group admins can use this command.");
 
         let target = mentionedJid?.[0];
         if (!target) target = mek.message?.extendedTextMessage?.contextInfo?.participant;
