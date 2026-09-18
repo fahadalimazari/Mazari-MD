@@ -3,24 +3,24 @@ const config = require('../config');
 const os = require('os');
 
 // =================================================================
-// 🏓 COMMANDE PING (Style Speedtest)
+// ⏳ COMMANDE UPTIME
 // =================================================================
 cmd({
-    pattern: "Uptime",
-    alias: ["speed"],
-    desc: "Vérifier la latence et les ressources",
+    pattern: "uptime",
+    alias: ["up"],
+    desc: "Vérifier l'uptime et la RAM",
     category: "general",
-    react: "👑"
+    react: "🟢",
+    filename: __filename
 },
 async(conn, mek, m, { from, reply, myquoted }) => {
     try {
-        const start = Date.now();
-        
-        // 1. Message d'attente
-        const msg = await conn.sendMessage(from, { text: '*T E S T I N G....*' }, { quoted: myquoted });
-        
-        const end = Date.now();
-        const latency = end - start;
+        // 1. Calcul Uptime
+        let sec = process.uptime();
+        let d = Math.floor(sec / (3600 * 24));
+        let h = Math.floor((sec % (3600 * 24)) / 3600);
+        let min = Math.floor((sec % 3600) / 60);
+        let s = Math.floor(sec % 60);
         
         // 2. Calcul Mémoire (RAM)
         const totalMem = (os.totalmem() / 1024 / 1024).toFixed(0);
@@ -28,17 +28,9 @@ async(conn, mek, m, { from, reply, myquoted }) => {
         const usedMem = (totalMem - freeMem).toFixed(0);
 
         // 3. Message Final Stylé
-        const pingMsg = `
-*👑 MAZARI-MD UPTIME 👑* ⚡
+        const pingMsg = `🟢 𝑴𝑨𝒁𝑨𝑹𝑰-𝑴𝑫 𝑼𝑷𝑻𝑰𝑴𝑬\n\n> ⏳ 𝑼𝒑𝒕𝒊𝒎𝒆 : ${d}𝒅 ${h}𝒉 ${min}𝒎 ${s}𝒔\n> 💾 𝑹𝑨𝑴 : ${usedMem}MB / ${totalMem}MB`;
 
-* UPTIME :❯  ${latency}*
-
-*👑 RAM :❯ ${usedMem}MB / ${totalMem}MB
-
-`;
-
-        // 4. Édition du message (Effet visuel)
-        await conn.sendMessage(from, { text: pingMsg, edit: msg.key });
+        await conn.sendMessage(from, { text: pingMsg }, { quoted: myquoted || mek });
 
     } catch (e) {
         reply("Error: " + e.message);
@@ -52,8 +44,9 @@ async(conn, mek, m, { from, reply, myquoted }) => {
 cmd({
     pattern: "owner",
     desc: "Contacter le créateur",
-    category: "general",
-    react: "👑"
+    category: "owner",
+    react: "👑",
+    filename: __filename
 },
 async(conn, mek, m, { from, myquoted }) => {
     const ownerNumber = config.OWNER_NUMBER;
@@ -71,5 +64,5 @@ async(conn, mek, m, { from, myquoted }) => {
             displayName: 'MAZARI-MD',
             contacts: [{ vcard }]
         }
-    }, { quoted: myquoted });
+    }, { quoted: myquoted || mek });
 });
