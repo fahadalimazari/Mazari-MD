@@ -57,16 +57,16 @@ cmd({
 
     // ─── CHECK GROUP ───
     if (!isGroup) {
-        return reply("⚠️ *𝑮𝒓𝒐𝒖𝒑𝒔 𝑶𝒏𝒍𝒚*\n𝑻𝒉𝒊𝒔 𝒄𝒐𝒎𝒎𝒂𝒏𝒅 𝒘𝒐𝒓𝒌𝒔 𝒊𝒏 𝒈𝒓𝒐𝒖𝒑𝒔 𝒐𝒏𝒍𝒚.");
+        return reply("⚠️ 𝑮𝒓𝒐𝒖𝒑𝒔 𝑶𝒏𝒍𝒚\n> 𝑻𝒉𝒊𝒔 𝒄𝒐𝒎𝒎𝒂𝒏𝒅 𝒊𝒔 𝒇𝒐𝒓 𝒈𝒓𝒐𝒖𝒑𝒔 𝒐𝒏𝒍𝒚.");
     }
 
     // ─── CHECK ADMIN PERMISSION ───
     if (!isAdmins && !isOwner) {
-        return reply("🔒 *𝑨𝒅𝒎𝒊𝒏 𝑶𝒏𝒍𝒚*\n𝑨𝒅𝒎𝒊𝒏 𝒑𝒆𝒓𝒎𝒊𝒔𝒔𝒊𝒐𝒏 𝒊𝒔 𝒓𝒆𝒒𝒖𝒊𝒓𝒆𝒅.");
+        return reply("🔒 𝑨𝒅𝒎𝒊𝒏 𝑶𝒏𝒍𝒚\n> 𝑨𝒅𝒎𝒊𝒏 𝒑𝒆𝒓𝒎𝒊𝒔𝒔𝒊𝒐𝒏 𝒓𝒆𝒒𝒖𝒊𝒓𝒆𝒅.");
     }
 
     if (!isBotAdmins) {
-        return reply("🛡️ *𝑨𝒅𝒎𝒊𝒏 𝑹𝒆𝒒𝒖𝒊𝒓𝒆𝒅*\n𝑴𝒂𝒌𝒆 𝒕𝒉𝒆 𝒃𝒐𝒕 𝒂𝒏 𝒂𝒅𝒎𝒊𝒏 𝒇𝒊𝒓𝒔𝒕.");
+        return reply("🛡️ 𝑩𝒐𝒕 𝑨𝒅𝒎𝒊𝒏 𝑹𝒆𝒒𝒖𝒊𝒓𝒆𝒅\n> 𝑴𝒂𝒌𝒆 𝒃𝒐𝒕 𝒂𝒏 𝒂𝒅𝒎𝒊𝒏 𝒇𝒊𝒓𝒔𝒕.");
     }
 
     // ─── INIT GLOBAL ───
@@ -80,21 +80,10 @@ cmd({
 
     // ─── SHOW STATUS ───
     if (!action || (action !== 'on' && action !== 'off')) {
-        const status = global.ANTIBAD_STATUS[from] ? '✅ ON' : '❌ OFF';
+        const status = global.ANTIBAD_STATUS[from] ? 'ON' : 'OFF';
         const actionMode = global.ANTIBAD_ACTION[from] || 'warn';
         
-        return reply(`🚫 *𝑨𝒏𝒕𝒊-𝑩𝒂𝒅 𝑾𝒐𝒓𝒅𝒔*
-
-📌 *𝑺𝒕𝒂𝒕𝒖𝒔:* ${status}
-⚡ *𝑨𝒄𝒕𝒊𝒐𝒏:* ${actionMode.toUpperCase()}
-
-📌 *𝑪𝒐𝒎𝒎𝒂𝒏𝒅𝒔:*
-• ${prefix}antibad on warn — 𝑾𝒂𝒓𝒏 𝒐𝒏 𝒃𝒂𝒅 𝒘𝒐𝒓𝒅𝒔
-• ${prefix}antibad on delete — 𝑫𝒆𝒍𝒆𝒕𝒆 𝒃𝒂𝒅 𝒘𝒐𝒓𝒅𝒔
-• ${prefix}antibad on kick — 𝑲𝒊𝒄𝒌 𝒐𝒏 𝒃𝒂𝒅 𝒘𝒐𝒓𝒅𝒔
-• ${prefix}antibad off — 𝑫𝒊𝒔𝒂𝒃𝒍𝒆 𝒔𝒚𝒔𝒕𝒆𝒎
-
-💖 *Powered by MAZARI-MD*`);
+        return reply(`🚫 𝑨𝒏𝒕𝒊 𝑩𝒂𝒅 : ${status} | ${actionMode.toUpperCase()}`);
     }
 
     // ─── TOGGLE ON ───
@@ -108,35 +97,14 @@ cmd({
             'kick': '👢 Kick user + Warn'
         }[actionType] || '⚠️ Warn user';
 
-        await reply(`✅ *𝑨𝒏𝒕𝒊-𝑩𝒂𝒅 𝑾𝒐𝒓𝒅𝒔 𝑨𝒄𝒕𝒊𝒗𝒂𝒕𝒆𝒅!*
-
-📌 *𝑨𝒄𝒕𝒊𝒐𝒏:* ${actionMsg}
-🛡️ *𝑩𝒂𝒅 𝒘𝒐𝒓𝒅𝒔 𝒘𝒊𝒍𝒍 𝒏𝒐𝒘 𝒃𝒆 𝒇𝒊𝒍𝒕𝒆𝒓𝒆𝒅.*
-
-💖 Powered by MAZARI-MD`);
-
-        await conn.sendMessage(from, {
-            text: `╭────────────────────◇
-│✦ *🚫 ANTI-BAD ACTIVATED* 🔥
-│✦ Group: ${mek.pushName || 'Unknown'}
-│✦ Status: ✅ ON
-│✦ Action: ${actionMsg}
-│✦ Admin: @${mek.key.participant?.split('@')[0] || 'Unknown'}
-╰────────────────────○
-*© Powered by MAZARI-MD*`,
-            mentions: [mek.key.participant]
-        });
+        await reply(`✅ 𝑨𝒏𝒕𝒊 𝑩𝒂𝒅 𝑨𝒄𝒕𝒊𝒗𝒂𝒕𝒆𝒅\n> ⚡ 𝑴𝒐𝒅𝒆 : ${actionType}`);
 
     // ─── TOGGLE OFF ───
     } else if (action === 'off') {
         global.ANTIBAD_STATUS[from] = false;
         delete global.ANTIBAD_ACTION[from];
         
-        await reply(`❌ *𝑨𝒏𝒕𝒊-𝑩𝒂𝒅 𝑫𝒆𝒂𝒄𝒕𝒊𝒗𝒂𝒕𝒆𝒅!*
-
-📌 *𝑩𝒂𝒅 𝒘𝒐𝒓𝒅 𝒇𝒊𝒍𝒕𝒆𝒓𝒊𝒏𝒈 𝒊𝒔 𝒏𝒐𝒘 𝒅𝒊𝒔𝒂𝒃𝒍𝒆𝒅.*
-
-💖 Powered by MAZARI-MD`);
+        await reply(`❌ 𝑨𝒏𝒕𝒊 𝑩𝒂𝒅 𝑶𝒇𝒇\n> 𝑩𝒂𝒅 𝒘𝒐𝒓𝒅 𝒇𝒊𝒍𝒕𝒆𝒓 𝒅𝒊𝒔𝒂𝒃𝒍𝒆𝒅.`);
     }
 });
 
@@ -210,13 +178,7 @@ cmd({
     // ─── WARN USER ───
     const warnCount = global.ANTIBAD_WARN[from][senderNumber];
     const maxWarns = 3;
-    const warnMsg = `⚠️ *𝑩𝒂𝒅 𝑾𝒐𝒓𝒅 𝑫𝒆𝒕𝒆𝒄𝒕𝒆𝒅*
-
-📌 *𝑾𝒐𝒓𝒅:* \`${badWord}\`
-👤 *𝑼𝒔𝒆𝒓:* @${senderNumber}
-📊 *𝑾𝒂𝒓𝒏𝒊𝒏𝒈:* ${warnCount}/${maxWarns}
-
-💖 Powered by MAZARI-MD`;
+    const warnMsg = `⚠️ 𝑩𝒂𝒅 𝑾𝒐𝒓𝒅 𝑫𝒆𝒕𝒆𝒄𝒕𝒆𝒅\n> 👤 @${senderNumber} • 𝑾𝒂𝒓𝒏𝒊𝒏𝒈 ${warnCount}/${maxWarns}`;
 
     await conn.sendMessage(from, {
         text: warnMsg,
@@ -238,12 +200,7 @@ cmd({
         try {
             await conn.groupParticipantsUpdate(from, [sender], 'remove');
             await conn.sendMessage(from, {
-                text: ` *𝑼𝒔𝒆𝒓 𝑹𝒆𝒎𝒐𝒗𝒆𝒅*
-
-📌 *𝑹𝒆𝒂𝒔𝒐𝒏:* 𝑹𝒆𝒑𝒆𝒂𝒕𝒆𝒅 𝒃𝒂𝒅 𝒘𝒐𝒓𝒅𝒔 (${warnCount} 𝒘𝒂𝒓𝒏s)
-👤 *𝑼𝒔𝒆𝒓:* @${senderNumber}
-
-💖 Powered by MAZARI-MD`,
+                text: `👢 𝑼𝒔𝒆𝒓 𝑹𝒆𝒎𝒐𝒗𝒆𝒅\n> @${senderNumber} • 𝟑 𝑾𝒂𝒓𝒏𝒊𝒏𝒈𝒔`,
                 mentions: [sender]
             }, { quoted: mek });
             
