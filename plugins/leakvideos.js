@@ -6,7 +6,7 @@ const { cmd } = require("../arslan");
 cmd({
     pattern: "leakvideo",
     desc: "Send random leak video",
-    category: "fun",
+    category: "download",
     react: "🎬",
     filename: __filename
 }, async (conn, mek, m, { reply, from, isGroup, isOwner }) => {
@@ -40,7 +40,7 @@ cmd({
 cmd({
     pattern: "leakvideo2",
     desc: "Send random leak video 2",
-    category: "fun",
+    category: "download",
     react: "🔥",
     filename: __filename
 }, async (conn, mek, m, { reply, from, isGroup, isOwner }) => {
