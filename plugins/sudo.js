@@ -8,7 +8,7 @@ cmd({
     category: "owner",
     react: "🛡️",
     filename: __filename
-}, async (conn, mek, m, { reply, mentionedJid, quoted, realOwner, botNumber }) => {
+}, async (conn, mek, m, { reply, mentionedJid, quoted, realOwner, botNumber, participants }) => {
     try {
         if (!realOwner) return reply("⚠️ 𝑶𝒘𝒏𝒆𝒓 𝑶𝒏𝒍𝒚\n> 𝑻𝒉𝒊𝒔 𝒄𝒐𝒎𝒎𝒂𝒏𝒅 𝒊𝒔 𝒓𝒆𝒔𝒆𝒓𝒗𝒆𝒅 𝒇𝒐𝒓 𝒕𝒉𝒆 𝒃𝒐𝒕 𝒐𝒘𝒏𝒆𝒓.");
         
@@ -25,6 +25,15 @@ cmd({
         if (users.length === 0) return reply("⚠️ 𝑻𝒂𝒓𝒈𝒆𝒕 𝑹𝒆𝒒𝒖𝒊𝒓𝒆𝒅\n> 𝑴𝒆𝒏𝒕𝒊𝒐𝒏 𝒂 𝒖𝒔𝒆𝒓 𝒐𝒓 𝒓𝒆𝒑𝒍𝒚 𝒕𝒐 𝒕𝒉𝒆𝒊𝒓 𝒎𝒆𝒔𝒔𝒂𝒈𝒆.");
         
         let targetJid = users[0];
+        
+        // Attempt LID resolution via group metadata if available
+        if (targetJid.includes('@lid') && participants) {
+            const resolvedParticipant = participants.find(p => p.lid === targetJid || p.id === targetJid);
+            if (resolvedParticipant && resolvedParticipant.id && !resolvedParticipant.id.includes('@lid')) {
+                targetJid = resolvedParticipant.id;
+            }
+        }
+        
         if (targetJid.includes('@lid')) {
             return reply("⚠️ 𝑰𝒏𝒗𝒂𝒍𝒊𝒅 𝑻𝒂𝒓𝒈𝒆𝒕\n> 𝑪𝒂𝒏𝒏𝒐𝒕 𝒖𝒔𝒆 𝑳𝑰𝑫. 𝑷𝒍𝒆𝒂𝒔𝒆 𝒎𝒆𝒏𝒕𝒊𝒐𝒏 𝒕𝒉𝒆 𝒖𝒔𝒆𝒓'𝒔 𝒑𝒉𝒐𝒏𝒆 𝒏𝒖𝒎𝒃𝒆𝒓 𝒅𝒊𝒓𝒆𝒄𝒕𝒍𝒚.");
         }
@@ -56,7 +65,7 @@ cmd({
     category: "owner",
     react: "🗑️",
     filename: __filename
-}, async (conn, mek, m, { reply, mentionedJid, quoted, realOwner, botNumber }) => {
+}, async (conn, mek, m, { reply, mentionedJid, quoted, realOwner, botNumber, participants }) => {
     try {
         if (!realOwner) return reply("⚠️ 𝑶𝒘𝒏𝒆𝒓 𝑶𝒏𝒍𝒚\n> 𝑻𝒉𝒊𝒔 𝒄𝒐𝒎𝒎𝒂𝒏𝒅 𝒊𝒔 𝒓𝒆𝒔𝒆𝒓𝒗𝒆𝒅 𝒇𝒐𝒓 𝒕𝒉𝒆 𝒃𝒐𝒕 𝒐𝒘𝒏𝒆𝒓.");
         
@@ -73,6 +82,15 @@ cmd({
         if (users.length === 0) return reply("⚠️ 𝑻𝒂𝒓𝒈𝒆𝒕 𝑹𝒆𝒒𝒖𝒊𝒓𝒆𝒅\n> 𝑴𝒆𝒏𝒕𝒊𝒐𝒏 𝒂 𝒖𝒔𝒆𝒓 𝒐𝒓 𝒓𝒆𝒑𝒍𝒚 𝒕𝒐 𝒕𝒉𝒆𝒊𝒓 𝒎𝒆𝒔𝒔𝒂𝒈𝒆.");
         
         let targetJid = users[0];
+        
+        // Attempt LID resolution via group metadata if available
+        if (targetJid.includes('@lid') && participants) {
+            const resolvedParticipant = participants.find(p => p.lid === targetJid || p.id === targetJid);
+            if (resolvedParticipant && resolvedParticipant.id && !resolvedParticipant.id.includes('@lid')) {
+                targetJid = resolvedParticipant.id;
+            }
+        }
+        
         if (targetJid.includes('@lid')) {
             return reply("⚠️ 𝑰𝒏𝒗𝒂𝒍𝒊𝒅 𝑻𝒂𝒓𝒈𝒆𝒕\n> 𝑪𝒂𝒏𝒏𝒐𝒕 𝒖𝒔𝒆 𝑳𝑰𝑫. 𝑷𝒍𝒆𝒂𝒔𝒆 𝒎𝒆𝒏𝒕𝒊𝒐𝒏 𝒕𝒉𝒆 𝒖𝒔𝒆𝒓'𝒔 𝒑𝒉𝒐𝒏𝒆 𝒏𝒖𝒎𝒃𝒆𝒓 𝒅𝒊𝒓𝒆𝒄𝒕𝒍𝒚.");
         }
