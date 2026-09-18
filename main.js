@@ -1351,7 +1351,7 @@ function setupAutoRestart(socket, number) {
 
             const isNormalError = statusCode === 408 || (errorMessage && errorMessage.includes('QR refs attempts ended'));
             if (isNormalError) {
-                arslanLog(`Normal closure (timeout) for ${number}, cleaning up temporary pairing state...`, 'info');
+                arslanLog(`Normal closure (timeout) for ${number}. Checking session state...`, 'info');
                 const sanitizedNumber = number.replace(/[^0-9]/g, '');
 
                 // Always clear lock and active socket so it doesn't block future attempts
@@ -1359,7 +1359,7 @@ function setupAutoRestart(socket, number) {
                 socketCreationTime.delete(sanitizedNumber);
                 if (global[`mazari_lock_${sanitizedNumber}`]) delete global[`mazari_lock_${sanitizedNumber}`];
 
-                // ONLY delete session data if pairing never completed (unregistered)
+                // ONLY delete session data and HALT reconnection if pairing never completed (unregistered)
                 if (!socket.authState?.creds?.registered) {
                     arslanLog(`Session was unregistered. Removing temporary PostgreSQL and local data for ${sanitizedNumber}`, 'info');
                     deleteSessionFromPostgres(sanitizedNumber).catch(e => arslanLog(`Postgres cleanup error: ${e.message}`, 'error'));
@@ -1371,12 +1371,12 @@ function setupAutoRestart(socket, number) {
                     } catch (e) {
                         arslanLog(`Local session cleanup error: ${e.message}`, 'error');
                     }
+                    socket.ev.removeAllListeners();
+                    return; // Halt reconnect for failed pairings
                 } else {
-                    arslanLog(`Session was registered. Keeping PostgreSQL data for ${sanitizedNumber} to allow auto-reconnect later.`, 'info');
+                    arslanLog(`Active session timed out for ${sanitizedNumber}. Proceeding to auto-recovery...`, 'warning');
+                    // DO NOT return here. Fall through to the restartAttempts logic below.
                 }
-
-                socket.ev.removeAllListeners();
-                return;
             }
 
             if (restartAttempts < maxRestartAttempts) {
