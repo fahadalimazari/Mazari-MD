@@ -60,7 +60,7 @@ const title = res.data.result.metadata.title || vid.title
 await conn.sendMessage(from,{
 video:{url:videoUrl},
 mimetype:"video/mp4",
-caption: `🎬 𝑽𝒊𝒅𝒆𝒐 𝑹𝒆𝒂𝒅𝒚\n> ${title}\n\n⚡ 𝑷𝒐𝒘𝒆𝒓𝒆𝒅 𝒃𝒚 𝑴𝑨𝒁𝑨𝑹𝑰-𝑴𝑫`
+caption: `*╭━━━〔 𝑴𝑨𝒁𝑨𝑹𝑰-𝑴𝑫 〕━━━⊷*\n*┃*\n*┃ ✦ ${title}*\n*┃*\n*┃ ✦ 𝑫𝑶𝑾𝑵𝑳𝑶𝑨𝑫𝑬𝑫 𝑺𝑼𝑪𝑪𝑬𝑺𝑺𝑭𝑼𝑳𝑳𝒀 ✓*\n*┃*\n*╰━━━━━━━━━━━━━━━━━━━━⊷*`
 })
 
 }catch(err){
