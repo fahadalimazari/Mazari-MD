@@ -60,7 +60,7 @@ cmd({
 
         // 3️⃣ Content extraction (Must Reply)
         const rawQuotedContent = mek.message?.extendedTextMessage?.contextInfo?.quotedMessage;
-        
+
         if (!rawQuotedContent) {
             return await reply('⚠️ 𝑮𝑪𝑺 𝑺𝒕𝒂𝒕𝒖𝒔\n> 𝑹𝒆𝒑𝒍𝒚 𝒕𝒐 𝒂 𝒍𝒊𝒏𝒌 𝒐𝒓 𝒕𝒆𝒙𝒕 𝒎𝒆𝒔𝒔𝒂𝒈𝒆 𝒕𝒐 𝒖𝒔𝒆.');
         }
@@ -78,10 +78,10 @@ cmd({
         // 4️⃣ Fetch ALL participating groups (Native multi-session isolation)
         const groupsMeta = await sock.groupFetchAllParticipating();
         const rawGroupJids = Object.keys(groupsMeta);
-        
+
         // Filter out newsletters, channels, and invalid JIDs
         const eligibleJids = rawGroupJids.filter(jid => jid && jid.endsWith('@g.us') && !jid.includes('@newsletter'));
-        
+
         console.log(`[GCS-STATUS][${reqId}] Eligible groups discovered: ${eligibleJids.length}`);
         console.log(`[GCS-STATUS][${reqId}] Excluded/Invalid groups: ${rawGroupJids.length - eligibleJids.length}`);
 
@@ -91,7 +91,7 @@ cmd({
 
         // 5️⃣ Progress UI - Start message (MAZARI STYLE)
         const startMsg = await sock.sendMessage(from, { text: `⏳ 𝑮𝑪𝑺 𝑺𝒕𝒂𝒕𝒖𝒔\n𝑷𝒓𝒐𝒄𝒆𝒔𝒔𝒊𝒏𝒈 𝒈𝒓𝒐𝒖𝒑𝒔...` });
-        
+
         // Send warning message separately (MAZARI STYLE)
         await sock.sendMessage(from, { text: `⚠️ 𝑮𝑪𝑺 𝑺𝒕𝒂𝒕𝒖𝒔\n𝑷𝒍𝒆𝒂𝒔𝒆 𝒘𝒂𝒊𝒕 — 𝒅𝒐𝒏'𝒕 𝒖𝒔𝒆 𝒂 𝒄𝒐𝒎𝒎𝒂𝒏𝒅.` });
         let success = 0, failed = 0;
@@ -108,36 +108,36 @@ cmd({
 
                 const groupName = groupMeta.subject || 'Group';
                 const participants = groupMeta.participants.map(p => p.id);
-                
+
                 console.log(`[GCS-STATUS][${reqId}] Target ${targetIndex}/${eligibleJids.length}: ${jid} | Subject: ${groupName} | Participants: ${participants.length}`);
 
                 // Clone the exact quoted message content to preserve ALL metadata (links, thumbnails, etc.)
                 const messageOverride = JSON.parse(JSON.stringify(content));
-                
+
                 // Handle IMAGE/VIDEO media re-upload for Group Status
                 // The quoted message contains encrypted media URLs that need to be re-uploaded
                 if (messageOverride.imageMessage) {
                     try {
                         console.log(`[GCS-STATUS][${reqId}] [IMAGE] Processing image message for ${jid}...`);
-                        
+
                         const imageMsg = messageOverride.imageMessage;
                         const mediaBuffer = await downloadContentFromMessage({ imageMessage: imageMsg }, 'image');
                         console.log(`[GCS-STATUS][${reqId}] [IMAGE] Downloaded ${mediaBuffer.length} bytes`);
-                        
+
                         // Prepare image with re-uploaded media using prepareWAMessageMedia
                         // Note: config.mediaCache may not exist, so we'll let prepareWAMessageMedia handle caching internally
-                        const reuploadedImage = await prepareWAMessageMedia({ 
+                        const reuploadedImage = await prepareWAMessageMedia({
                             image: mediaBuffer,
                             mimetype: imageMsg.mimetype,
                             caption: imageMsg.caption
                         }, {
                             upload: sock.waUploadToServer,
                             mediaCache: null,  // Disable caching if not available
-                            logger: { debug: () => {}, info: () => {}, warn: console.warn },
+                            logger: { debug: () => { }, info: () => { }, warn: console.warn },
                             mediaTypeOverride: 'image',
                             jid: jid  // Pass target JID for proper handling
                         });
-                        
+
                         messageOverride.imageMessage = reuploadedImage.imageMessage;
                         console.log(`[GCS-STATUS][${reqId}] [IMAGE] Re-uploaded successfully: ${messageOverride.imageMessage.url}`);
                     } catch (e) {
@@ -147,12 +147,12 @@ cmd({
                 else if (messageOverride.videoMessage) {
                     try {
                         console.log(`[GCS-STATUS][${reqId}] [VIDEO] Processing video message for ${jid}...`);
-                        
+
                         const videoMsg = messageOverride.videoMessage;
                         const mediaBuffer = await downloadContentFromMessage({ videoMessage: videoMsg }, 'video');
                         console.log(`[GCS-STATUS][${reqId}] [VIDEO] Downloaded ${mediaBuffer.length} bytes`);
-                        
-                        const reuploadedVideo = await prepareWAMessageMedia({ 
+
+                        const reuploadedVideo = await prepareWAMessageMedia({
                             video: mediaBuffer,
                             mimetype: videoMsg.mimetype,
                             caption: videoMsg.caption,
@@ -160,18 +160,18 @@ cmd({
                         }, {
                             upload: sock.waUploadToServer,
                             mediaCache: null,
-                            logger: { debug: () => {}, info: () => {}, warn: console.warn },
+                            logger: { debug: () => { }, info: () => { }, warn: console.warn },
                             mediaTypeOverride: 'video',
                             jid: jid
                         });
-                        
+
                         messageOverride.videoMessage = reuploadedVideo.videoMessage;
                         console.log(`[GCS-STATUS][${reqId}] [VIDEO] Re-uploaded successfully: ${messageOverride.videoMessage.url}`);
                     } catch (e) {
                         console.log(`[GCS-STATUS][${reqId}] [VIDEO] Failed to re-upload: ${e.message}`);
                     }
                 }
-                
+
                 // If it's a raw conversation string, convert it to extendedTextMessage
                 if (messageOverride.conversation) {
                     messageOverride.extendedTextMessage = { text: messageOverride.conversation };
@@ -196,12 +196,12 @@ cmd({
 
                 // Generate message for direct group send (OLD WORKING PATTERN)
                 const msg = generateWAMessageFromContent(jid, finalPayload, { userJid: sock.user.id });
-                
+
                 // Send directly to the group (OLD WORKING PATTERN - no statusJidList)
-                await sock.relayMessage(jid, msg.message, { 
+                await sock.relayMessage(jid, msg.message, {
                     messageId: msg.key.id
                 });
-                
+
                 console.log(`[GCS-STATUS][${reqId}] Direct group send: SUCCESS for ${jid}`);
                 success++;
             } catch (e) {
@@ -213,26 +213,26 @@ cmd({
         let processedCount = 0;
         for (let i = 0; i < eligibleJids.length; i += batchSize) {
             const batch = eligibleJids.slice(i, i + batchSize);
-            
+
             // Process groups in this batch sequentially (one by one)
             for (let idx = 0; idx < batch.length; idx++) {
                 const jid = batch[idx];
                 const targetIndex = i + idx + 1;
-                
+
                 await send(jid, targetIndex);
-                
+
                 processedCount++;
-                
+
                 // Update progress message after EACH group attempt: "⏳ GCS Status Groups: X/Y"
                 await sock.sendMessage(from, { text: `⏳ 𝑮𝑪𝑺 𝑺𝒕𝒂𝒕𝒖𝒔\n𝑮𝒓𝒐𝒖𝒑𝒔: ${processedCount}/${eligibleJids.length}`, edit: startMsg.key });
-                
+
                 // Wait 5 seconds before next group (except after the last group)
                 const isLastGroup = (processedCount >= eligibleJids.length);
                 if (!isLastGroup) {
                     await new Promise(r => setTimeout(r, 5000));
                 }
             }
-            
+
             // After each batch of 10 groups, wait 20 seconds (but NOT after the final batch)
             const isFinalBatch = (i + batchSize >= eligibleJids.length);
             if (!isFinalBatch) {
@@ -241,9 +241,9 @@ cmd({
         }
 
         console.log(`[GCS-STATUS][${reqId}] Execution complete. Success: ${success}, Failed: ${failed}`);
-        await sock.sendMessage(from, { 
-            text: `✅ 𝑮𝑪𝑺 𝑺𝒕𝒂𝒕𝒖𝒔\n𝑪𝒐𝒎𝒑𝒍𝒆𝒕𝒆 — ${success}/${eligibleJids.length} 𝒈𝒓𝒐𝒖𝒑𝒔\n\n> 👑 𝑷𝒐𝒘𝒆𝒓𝒆𝒅 𝒃𝒚 𝑴𝑨𝒁𝑨𝑹𝑰`, 
-            edit: startMsg.key 
+        await sock.sendMessage(from, {
+            text: `✅ 𝑮𝑪𝑺 𝑺𝒕𝒂𝒕𝒖𝒔\n𝑪𝒐𝒎𝒑𝒍𝒆𝒕𝒆 — ${success}/${eligibleJids.length} 𝒈𝒓𝒐𝒖𝒑𝒔\n\n> 👑 𝑷𝒐𝒘𝒆𝒓𝒆𝒅 𝒃𝒚 𝑴𝑨𝒁𝑨𝑹𝑰`,
+            edit: startMsg.key
         });
     } catch (e) {
         console.error('[GCS-STATUS] Critical Execution Error:', e.stack || e);
