@@ -1179,6 +1179,7 @@ conn.ev.on('connection.update', async (update) => {
                                 groupAdmins,
                                 isBotAdmins,
                                 isAdmins,
+                                prefix: currentPrefix,
                                 reply: (text) => conn.sendMessage(from, { text }, { quoted: mek }),
                                 config: config
                             });

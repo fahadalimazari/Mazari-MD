@@ -1,4 +1,5 @@
 const { cmd, commands } = require("../arslan");
+const { getPrefix } = require('../lib/prefix');
 
 // Unicode small letter mapping
 const toSmallUnicode = (str) => {
@@ -23,6 +24,9 @@ cmd({
     filename: __filename,
 }, async (conn, mek, m, { reply, config, prefix }) => {
     try {
+        // Resolve the active prefix (use passed multi-session prefix or fallback to global)
+        const activePrefix = prefix || getPrefix() || '.';
+        
         let totalCommands = 0;
         let grouped = {};
 
@@ -43,9 +47,9 @@ cmd({
             for (let i = 0; i < sortedCommands.length; i++) {
                 const cmdName = sortedCommands[i];
                 if (i === sortedCommands.length - 1) {
-                    menuText += `*│⬥└─ _${toSmallUnicode(cmdName)}_*\n`;
+                    menuText += `*│⬥└─ ${activePrefix}${toSmallUnicode(cmdName)}*\n`;
                 } else {
-                    menuText += `*│⬥├─ _${toSmallUnicode(cmdName)}_*\n`;
+                    menuText += `*│⬥├─ ${activePrefix}${toSmallUnicode(cmdName)}*\n`;
                 }
             }
             menuText += `*╰─────────────┈⊷*\n`;
