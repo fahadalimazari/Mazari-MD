@@ -219,8 +219,9 @@ cmd({
                     }
                 }
                 
-                // If it's a raw conversation string, convert it to extendedTextMessage
-                if (messageOverride.conversation) {
+                // If it's a raw conversation string and there's no existing extendedTextMessage, convert it
+                // Do NOT replace complete extendedTextMessage because it contains link-preview metadata
+                if (messageOverride.conversation && !messageOverride.extendedTextMessage) {
                     messageOverride.extendedTextMessage = { text: messageOverride.conversation };
                     delete messageOverride.conversation;
                 }
