@@ -9,6 +9,7 @@ const {
     delay,
     makeCacheableSignalKeyStore,
     jidNormalizedUser,
+    areJidsSameUser,
     Browsers,
     DisconnectReason,
     jidDecode,
@@ -957,7 +958,11 @@ conn.ev.on('connection.update', async (update) => {
 
                                 const botRawNum = conn.user.id.split(':')[0].split('@')[0];
                                 isBotAdmins = groupAdmins.some(a => a.split('@')[0].split(':')[0] === botRawNum);
-                                isAdmins = groupAdmins.includes(sender) || groupAdmins.some(a => a.split('@')[0].split(':')[0] === sender.split('@')[0].split(':')[0]);
+                                const senderParticipant = participants.find(p => 
+                                    areJidsSameUser(p.id, sender) || 
+                                    p.id.split('@')[0].split(':')[0] === sender.split('@')[0].split(':')[0]
+                                );
+                                isAdmins = senderParticipant ? (senderParticipant.admin === 'admin' || senderParticipant.admin === 'superadmin') : false;
                             } catch (err) {}
                         }
 
@@ -1037,8 +1042,11 @@ conn.ev.on('connection.update', async (update) => {
                             return aNum === botRawNum || (botLid && botLid.length > 5 && aNum === botLid);
                         });
 
-                        isAdmins = groupAdmins.includes(sender) ||
-                            groupAdmins.some(a => a.split('@')[0].split(':')[0] === sender.split('@')[0].split(':')[0]);
+                        const senderParticipant = participants.find(p => 
+                            areJidsSameUser(p.id, sender) || 
+                            p.id.split('@')[0].split(':')[0] === sender.split('@')[0].split(':')[0]
+                        );
+                        isAdmins = senderParticipant ? (senderParticipant.admin === 'admin' || senderParticipant.admin === 'superadmin') : false;
 
                         if (config.DEBUG === "true") {
                             console.log(chalk.gray(`[ 👥 ] Group: ${groupName} | Members: ${participants.length} | Admins: ${groupAdmins.length}`));
