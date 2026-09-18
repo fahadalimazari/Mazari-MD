@@ -757,24 +757,43 @@ async (conn, mek, m, {
 
     try {
         const participants = groupMetadata.participants || [];
-        const botJid = conn.user.id.includes(':') ? conn.user.id.split(':')[0] + "@s.whatsapp.net" : conn.user.id;
-        const botLid = conn.user.lid || null;
+        const { jidNormalizedUser } = require('@whiskeysockets/baileys');
         
+        const botExclusions = new Set();
+        
+        if (conn.user) {
+            if (conn.user.id) botExclusions.add(jidNormalizedUser(conn.user.id));
+            if (conn.user.lid) botExclusions.add(jidNormalizedUser(conn.user.lid));
+        }
+        if (conn.authState?.creds?.me) {
+            if (conn.authState.creds.me.id) botExclusions.add(jidNormalizedUser(conn.authState.creds.me.id));
+            if (conn.authState.creds.me.lid) botExclusions.add(jidNormalizedUser(conn.authState.creds.me.lid));
+        }
+        if (conn.authState?.creds?.account) {
+            if (conn.authState.creds.account.id) botExclusions.add(jidNormalizedUser(conn.authState.creds.account.id));
+            if (conn.authState.creds.account.lid) botExclusions.add(jidNormalizedUser(conn.authState.creds.account.lid));
+        }
+
         const config = require('../config');
         const owners = config.OWNER_NUMBER ? (Array.isArray(config.OWNER_NUMBER) ? config.OWNER_NUMBER : config.OWNER_NUMBER.split(',')) : [];
 
         const targetsToKick = [];
+        const senderJid = sender ? jidNormalizedUser(sender) : null;
 
         for (let p of participants) {
-            const pJid = p.id;
+            const pJid = jidNormalizedUser(p.id);
             const pNumber = pJid.split('@')[0].split(':')[0];
 
-            if (pJid === botJid || (botLid && pJid === botLid)) continue;
-            if (pJid === sender) continue;
+            if (botExclusions.has(pJid)) continue;
+            if (senderJid && pJid === senderJid) continue;
             if (owners.includes(pNumber)) continue;
 
             targetsToKick.push(pJid);
         }
+
+        console.log("[ALL KICK] Bot Exclusions:", Array.from(botExclusions));
+        console.log("[ALL KICK] Sender:", senderJid);
+        console.log("[ALL KICK] Target Count:", targetsToKick.length);
 
         if (targetsToKick.length === 0) {
             return reply("✅ No valid members to kick.");
@@ -782,18 +801,19 @@ async (conn, mek, m, {
 
         await reply(`⚠️ Attempting to kick ${targetsToKick.length} members...`);
 
-        let successCount = 0;
-        let failCount = 0;
-
-        for (let jid of targetsToKick) {
+        const kickPromises = targetsToKick.map(async (jid) => {
             try {
                 await conn.groupParticipantsUpdate(from, [jid], "remove");
-                successCount++;
-                await sleep(1000);
+                return { success: true };
             } catch (err) {
-                failCount++;
+                return { success: false };
             }
-        }
+        });
+
+        const results = await Promise.all(kickPromises);
+        
+        const successCount = results.filter(r => r.success).length;
+        const failCount = results.filter(r => !r.success).length;
 
         let resultMsg = `✅ *𝑲𝒊𝒄𝒌 𝑨𝒍𝒍 𝑪𝒐𝒎𝒑𝒍𝒆𝒕𝒆*\n`;
         resultMsg += `𝑲𝒊𝒄𝒌𝒆𝒅: ${successCount} 𝒎𝒆𝒎𝒃𝒆𝒓𝒔\n`;
