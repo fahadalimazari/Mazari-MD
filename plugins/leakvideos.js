@@ -7,7 +7,7 @@ cmd({
     pattern: "leakvideo",
     desc: "Send random leak video",
     category: "download",
-    react: "🎬",
+    react: "🥵",
     filename: __filename
 }, async (conn, mek, m, { reply, from, isGroup, isOwner }) => {
 
@@ -41,7 +41,7 @@ cmd({
     pattern: "leakvideo2",
     desc: "Send random leak video 2",
     category: "download",
-    react: "🔥",
+    react: "🥵",
     filename: __filename
 }, async (conn, mek, m, { reply, from, isGroup, isOwner }) => {
 
