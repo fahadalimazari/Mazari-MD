@@ -10,54 +10,45 @@ cmd({
 }, async (conn, mek, m, { reply, from }) => {
     try {
         const pushname = m.pushName || "User";
-        const currentTime = moment().format("HH:mm:ss");
-        const currentDate = moment().format("dddd, MMMM Do YYYY");
+        const now = new Date();
+        const currentTime = now.toLocaleTimeString('en-US', { hour12: false });
+        const currentDate = now.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
 
-        const runtimeMilliseconds = Date.now() - botStartTime;
-        const runtimeSeconds = Math.floor((runtimeMilliseconds / 1000) % 60);
-        const runtimeMinutes = Math.floor((runtimeMilliseconds / (1000 * 60)) % 60);
-        const runtimeHours = Math.floor(runtimeMilliseconds / (1000 * 60 * 60));
+        let sec = process.uptime();
+        const runtimeHours = Math.floor(sec / 3600);
+        const runtimeMinutes = Math.floor((sec % 3600) / 60);
+        const runtimeSeconds = Math.floor(sec % 60);
 
-        const formattedInfo = `
-╭┄┄┄┄[ *MAZARI-MD status* ]┄┄┄┄
-┊
-┊     Hi 🫵🏽 ${pushname}
-┊
-┊🕒 *ᴛɪᴍᴇ*: ${currentTime}
-┊📅 *ᴅᴀᴛᴇ*: ${currentDate}
-┊⏳ *ᴜᴘᴛɪᴍᴇ*: ${runtimeHours} hours, ${runtimeMinutes} minutes, ${runtimeSeconds} seconds
-╰───────────────
+        const formattedInfo = `╭━━━〔 🤖 𝑴𝑨𝒁𝑨𝑹𝑰-𝑴𝑫 〕━━━⊷
+┃
+┃ 👋 ✦ 𝑯𝒊 ${pushname}
+┃
+┃ 🕒 ✦ 𝑻𝑰𝑴𝑬 : ${currentTime}
+┃ 📅 ✦ 𝑫𝑨𝑻𝑬 : ${currentDate}
+┃ ⏳ ✦ 𝑼𝑷𝑻𝑰𝑴𝑬 : ${runtimeHours}h ${runtimeMinutes}m ${runtimeSeconds}s
+┃
+┃ 🟢 ✦ 𝑨𝑳𝑰𝑽𝑬 & 𝑹𝑬𝑨𝑫𝒀
+┃ 🤖 ✦ 𝑴𝑨𝒁𝑨𝑹𝑰-𝑴𝑫 𝑰𝑺 𝑶𝑵𝑳𝑰𝑵𝑬
+┃
+┃ ⚡ ✦ 𝑬𝒏𝒋𝒐𝒚 𝒕𝒉𝒆 𝒔𝒆𝒓𝒗𝒊𝒄𝒆!
+┃
+╰━━━━━━━━━━━━━━━━━━━━⊷`;
 
-> 🤖 *Status*: *MAZARI-MD-MINI is Alive and Ready!*
+        // Check if ALIVE_IMG is globally defined
+        const imgUrl = typeof ALIVE_IMG !== 'undefined' ? ALIVE_IMG : (config.ALIVE_IMG || "https://files.catbox.moe/jtarms.png");
 
-🎉 *Enjoy the Service!*
-        `.trim();
-
-        // Check if the image is defined
-        if (!ALIVE_IMG || !ALIVE_IMG.startsWith("http")) {
-            throw new Error("Invalid ALIVE_IMG URL. Please set a valid image URL.");
-        }
-
-        // Send the message with image and caption
         await conn.sendMessage(from, {
-            image: { url: ALIVE_IMG },
+            image: { url: imgUrl },
             caption: formattedInfo,
             contextInfo: {
                 mentionedJid: [m.sender]
             }
-        });
+        }, { quoted: mek });
 
     } catch (error) {
         console.error("Error in alive command: ", error);
         
-        // Respond with error details 
-        const errorMessage = `
-❌ *𝑨𝒍𝒊𝒗𝒆 𝑪𝒉𝒆𝒄𝒌 𝑭𝒂𝒊𝒍𝒆𝒅*
-🛠️ *𝑬𝒓𝒓𝒐𝒓:*
-${error.message}
-
-𝑷𝒍𝒆𝒂𝒔𝒆 𝒕𝒓𝒚 𝒂𝒈𝒂𝒊𝒏 𝒍𝒂𝒕𝒆𝒓.
-        `.trim();
+        const errorMessage = `❌ 𝑨𝒍𝒊𝒗𝒆 𝑪𝒉𝒆𝒄𝒌 𝑭𝒂𝒊𝒍𝒆𝒅\n\n> 🛠️ 𝑬𝒓𝒓𝒐𝒓 : ${error.message}\n> 𝑷𝒍𝒆𝒂𝒔𝒆 𝒕𝒓𝒚 𝒂𝒈𝒂𝒊𝒏 𝒍𝒂𝒕𝒆𝒓.`;
         return reply(errorMessage);
     }
 });
