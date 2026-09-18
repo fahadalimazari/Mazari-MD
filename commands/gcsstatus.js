@@ -53,7 +53,7 @@ cmd({
     try {
         // 1️⃣ Permission check
         const owner = await isOwnerOrSudo(sender);
-        if (!owner && !mek.key.fromMe) return await reply('❌ 𝙂𝘾𝙎 𝙎𝙏𝘼𝙏𝙐𝙎 — 𝙊𝙒𝙉𝙀𝙍/𝙎𝙐𝘿𝙊 𝙊𝙉𝙇𝙔');
+        if (!owner && !mek.key.fromMe) return await reply('❌ 𝑮𝑪𝑺 𝑺𝒕𝒂𝒕𝒖𝒔\n𝑶𝒘𝒏𝒆𝒓/𝑺𝒖𝒅𝒐 𝒐𝒏𝒍𝒚.');
 
         // 2️⃣ Resolve channel JID (for the CTA attribution)
         const channelJid = await resolveChannelJid(sock);
@@ -62,7 +62,7 @@ cmd({
         const rawQuotedContent = mek.message?.extendedTextMessage?.contextInfo?.quotedMessage;
         
         if (!rawQuotedContent) {
-            return await reply('⚠️ 𝙂𝘾𝙎 𝙎𝙏𝘼𝙏𝙐𝙎 — 𝙋𝙇𝙀𝘼𝙎𝙀 𝙍𝙀𝙋𝙇𝙔 𝙏𝙊 𝘼 𝙈𝙀𝙎𝙎𝘼𝙂𝙀 (𝙏𝙚𝙭𝙩/𝙈𝙚𝙙𝙞𝙖/𝙇𝙞𝙣𝙠)');
+            return await reply('⚠️ 𝑮𝑪𝑺 𝑺𝒕𝒂𝒕𝒖𝒔\n𝑷𝒍𝒆𝒂𝒔𝒆 𝒓𝒆𝒑𝒍𝒚 𝒕𝒐 𝒂 𝒎𝒆𝒔𝒔𝒂𝒈𝒆.');
         }
 
         // Unpack viewOnce wrappers if present
@@ -82,11 +82,15 @@ cmd({
         console.log(`[GCS-STATUS][${reqId}] Excluded/Invalid groups: ${rawGroupJids.length - eligibleJids.length}`);
 
         if (!eligibleJids.length) {
-            return await reply('⚠️ 𝙂𝘾𝙎 𝙎𝙏𝘼𝙏𝙐𝙎 — 𝙉𝙊 𝙀𝙇𝙄𝙂𝙄𝘽𝙇𝙀 𝙂𝙍𝙊𝙐𝙋𝙎 𝙁𝙊𝙐𝙉𝘿');
+            return await reply('⚠️ 𝑮𝑪𝑺 𝑺𝒕𝒂𝒕𝒖𝒔\n𝑵𝒐 𝒆𝒍𝒊𝒈𝒊𝒃𝒍𝒆 𝒈𝒓𝒐𝒖𝒑𝒔 𝒇𝒐𝒖𝒏𝒅.');
         }
 
-        // 5️⃣ Progress UI
-        const startMsg = await sock.sendMessage(from, { text: `📢 𝙂𝘾𝙎 𝙎𝙏𝘼𝙏𝙐𝙎 — 𝙄𝙉𝙄𝙏𝙄𝘼𝙏𝙄𝙉𝙂\n\n🎯 𝙏𝙖𝙧𝙜𝙚𝙩: ${eligibleJids.length} Groups` });
+        // 5️⃣ Progress UI - Start message (MAZARI STYLE)
+        const startMsg = await sock.sendMessage(from, { text: `⏳ 𝑮𝑪𝑺 𝑺𝒕𝒂𝒕𝒖𝒔\n𝑷𝒓𝒐𝒄𝒆𝒔𝒔𝒊𝒏𝒈 𝒈𝒓𝒐𝒖𝒑𝒔...` });
+        
+        // Send warning message separately (MAZARI STYLE)
+        await sock.sendMessage(from, { text: `⚠️ 𝑮𝑪𝑺 𝑺𝒕𝒂𝒕𝒖𝒔\n𝑷𝒍𝒆𝒂𝒔𝒆 𝒘𝒂𝒊𝒕 — 𝒅𝒐𝒏'𝒕 𝒖𝒔𝒆 𝒂 𝒄𝒐𝒎𝒎𝒂𝒏𝒅.` });
+        
         let success = 0, failed = 0;
         const batchSize = 10;
 
@@ -288,24 +292,50 @@ cmd({
             }
         };
 
+        // 6️⃣ Process groups sequentially in batches of 10
+        // Between groups: 5 seconds
+        // Between batches: 20 seconds (but not after the final batch)
+        let processedCount = 0;
         for (let i = 0; i < eligibleJids.length; i += batchSize) {
             const batch = eligibleJids.slice(i, i + batchSize);
-            await sock.sendMessage(from, { text: `⏳ 𝙂𝘾𝙎 𝙎𝙏𝘼𝙏𝙐𝙎 — 𝙋𝙍𝙊𝘾𝙀𝙎𝙎𝙄𝙉𝙂\n\n📡 𝙎𝙚𝙣𝙙𝙞𝙣𝙜: ${i + 1} - ${Math.min(i + batchSize, eligibleJids.length)} of ${eligibleJids.length}`, edit: startMsg.key });
             
-            let idx = 0;
-            if (idx < batch.length) { await send(batch[idx], i + idx + 1); idx++; }
-            while (idx < batch.length) {
-                for (let p = 0; p < 2 && idx < batch.length; p++) { await send(batch[idx], i + idx + 1); idx++; }
-                if (idx < batch.length) await new Promise(r => setTimeout(r, 3000));
+            // Process groups in this batch sequentially (one by one, no parallel)
+            for (let idx = 0; idx < batch.length; idx++) {
+                const jid = batch[idx];
+                const targetIndex = i + idx + 1;
+                
+                await send(jid, targetIndex);
+                
+                processedCount++;
+                
+                // Update progress message after EACH group is processed
+                await sock.sendMessage(from, { text: `⏳ 𝑮𝑪𝑺 𝑺𝒕𝒂𝒕𝒖𝒔\n𝑮𝒓𝒐𝒖𝒑𝒔: ${processedCount}/${eligibleJids.length}`, edit: startMsg.key });
+                
+                // After completing a batch of 10 groups, wait 20 seconds
+                // But do NOT wait after the very last group (final completion)
+                const isLastGroup = (processedCount >= eligibleJids.length);
+                const isBatchComplete = (processedCount % batchSize === 0);
+                
+                if (!isLastGroup && isBatchComplete) {
+                    // Wait 20 seconds after completing a full batch
+                    await new Promise(r => setTimeout(r, 20000));
+                } else if (!isLastGroup) {
+                    // Wait 5 seconds between normal groups (inside a batch)
+                    await new Promise(r => setTimeout(r, 5000));
+                }
             }
-            if (i + batchSize < eligibleJids.length) await new Promise(r => setTimeout(r, 10000));
         }
 
-        console.log(`[GCS-STATUS][${reqId}] Execution complete. Success: ${success}, Failed: ${failed}`);
-        await sock.sendMessage(from, { text: `✅ 𝑮𝑪𝑺 — 𝑹𝒆𝒍𝒂𝒚 𝑨𝒄𝒄𝒆𝒑𝒕𝒆𝒅\n🎯 𝑮𝒓𝒐𝒖𝒑𝒔: ${success}/${eligibleJids.length}\n\n⚠️ 𝑾𝒉𝒂𝒕𝒔𝑨𝒑𝒑 𝑼𝑰 𝒗𝒆𝒓𝒊𝒇𝒊𝒄𝒂𝒕𝒊𝒐𝒏: 𝑵𝑶𝑻 𝑷𝑬𝑹𝑭𝑶𝑹𝑴𝑬𝑫`, edit: startMsg.key });
+        // 7️⃣ Final completion message with exact MAZARI style
+        // Line 1: ✅ GCS Status Complete — X/Y groups
+        // Line 2: 👑 Powered by MAZARI MD
+        await sock.sendMessage(from, { 
+            text: `✅ 𝑮𝑪𝑺 𝑺𝒕𝒂𝒕𝒖𝒔\n𝑪𝒐𝒎𝒑𝒍𝒆𝒕𝒆 — ${success}/${eligibleJids.length} 𝒈𝒓𝒐𝒖𝒑𝒔\n\n👑 𝑷𝒐𝒘𝒆𝒓𝒆𝒅 𝒃𝒚 𝑴𝑨𝒁𝑨𝑹𝑰 𝑴𝑫`, 
+            edit: startMsg.key 
+        });
     } catch (e) {
         console.error('[GCS-STATUS] Critical Execution Error:', e.stack || e);
-        await reply(`⚠️ 𝑮𝑪𝑺 — 𝑺𝒕𝒂𝒕𝒖𝒔 𝑭𝒂𝒊𝒍𝒆𝒅\n𝑪𝒐𝒖𝒍𝒅𝒏'𝒕 𝒑𝒐𝒔𝒕 𝒕𝒉𝒆 𝑮𝒓𝒐𝒖𝒑 𝑺𝒕𝒂𝒕𝒖𝒔.`);
+        await reply(`❌ 𝑮𝑪𝑺 𝑺𝒕𝒂𝒕𝒖𝒔\n𝑺𝒕𝒂𝒕𝒖𝒔 𝒇𝒂𝒊𝒍𝒆𝒅 — 𝒑𝒍𝒆𝒂𝒔𝒆 𝒕𝒓𝒚 𝒂𝒈𝒂𝒊𝒏.`);
     }
 });
 
