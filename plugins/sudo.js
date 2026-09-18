@@ -24,7 +24,13 @@ cmd({
         users = [...new Set(users.filter(u => u && u.includes('@')))];
         if (users.length === 0) return reply("⚠️ 𝑻𝒂𝒓𝒈𝒆𝒕 𝑹𝒆𝒒𝒖𝒊𝒓𝒆𝒅\n> 𝑴𝒆𝒏𝒕𝒊𝒐𝒏 𝒂 𝒖𝒔𝒆𝒓 𝒐𝒓 𝒓𝒆𝒑𝒍𝒚 𝒕𝒐 𝒕𝒉𝒆𝒊𝒓 𝒎𝒆𝒔𝒔𝒂𝒈𝒆.");
         
-        let targetNum = users[0].split('@')[0].split(':')[0];
+        let targetJid = users[0];
+        if (targetJid.includes('@lid')) {
+            return reply("⚠️ 𝑰𝒏𝒗𝒂𝒍𝒊𝒅 𝑻𝒂𝒓𝒈𝒆𝒕\n> 𝑪𝒂𝒏𝒏𝒐𝒕 𝒖𝒔𝒆 𝑳𝑰𝑫. 𝑷𝒍𝒆𝒂𝒔𝒆 𝒎𝒆𝒏𝒕𝒊𝒐𝒏 𝒕𝒉𝒆 𝒖𝒔𝒆𝒓'𝒔 𝒑𝒉𝒐𝒏𝒆 𝒏𝒖𝒎𝒃𝒆𝒓 𝒅𝒊𝒓𝒆𝒄𝒕𝒍𝒚.");
+        }
+        
+        // Extract real normalized phone number
+        let targetNum = targetJid.split('@')[0].split(':')[0];
         
         if (!conn.userConfig) conn.userConfig = {};
         if (!Array.isArray(conn.userConfig.SUDO)) conn.userConfig.SUDO = [];
@@ -66,7 +72,13 @@ cmd({
         users = [...new Set(users.filter(u => u && u.includes('@')))];
         if (users.length === 0) return reply("⚠️ 𝑻𝒂𝒓𝒈𝒆𝒕 𝑹𝒆𝒒𝒖𝒊𝒓𝒆𝒅\n> 𝑴𝒆𝒏𝒕𝒊𝒐𝒏 𝒂 𝒖𝒔𝒆𝒓 𝒐𝒓 𝒓𝒆𝒑𝒍𝒚 𝒕𝒐 𝒕𝒉𝒆𝒊𝒓 𝒎𝒆𝒔𝒔𝒂𝒈𝒆.");
         
-        let targetNum = users[0].split('@')[0].split(':')[0];
+        let targetJid = users[0];
+        if (targetJid.includes('@lid')) {
+            return reply("⚠️ 𝑰𝒏𝒗𝒂𝒍𝒊𝒅 𝑻𝒂𝒓𝒈𝒆𝒕\n> 𝑪𝒂𝒏𝒏𝒐𝒕 𝒖𝒔𝒆 𝑳𝑰𝑫. 𝑷𝒍𝒆𝒂𝒔𝒆 𝒎𝒆𝒏𝒕𝒊𝒐𝒏 𝒕𝒉𝒆 𝒖𝒔𝒆𝒓'𝒔 𝒑𝒉𝒐𝒏𝒆 𝒏𝒖𝒎𝒃𝒆𝒓 𝒅𝒊𝒓𝒆𝒄𝒕𝒍𝒚.");
+        }
+        
+        // Extract real normalized phone number
+        let targetNum = targetJid.split('@')[0].split(':')[0];
         
         if (!conn.userConfig || !Array.isArray(conn.userConfig.SUDO) || !conn.userConfig.SUDO.includes(targetNum)) {
             return reply(`⚠️ 𝑵𝒐𝒕 𝑺𝒖𝒅𝒐\n> @${targetNum} 𝒊𝒔 𝒏𝒐𝒕 𝒊𝒏 𝒕𝒉𝒆 𝒔𝒖𝒅𝒐 𝒍𝒊𝒔𝒕.`, { mentions: [users[0]] });
