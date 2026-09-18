@@ -36,7 +36,7 @@ cmd({
         conn.userConfig.SUDO.push(targetNum);
         await updateUserConfigInPostgres(botNumber, { SUDO: conn.userConfig.SUDO });
         
-        reply(`🛡️ 𝑺𝒖𝒅𝒐 𝑨𝒅𝒅𝒆𝒅\n> 𝑺𝒖𝒅𝒐 𝒂𝒄𝒄𝒆𝒔𝒔 𝒈𝒓𝒂𝒏𝒕𝒆𝒅 𝒕𝒐 @${targetNum}.`, { mentions: [users[0]] });
+        reply(`🛡️ 𝑺𝒖𝒅𝒐 𝑨𝒅𝒅𝒆𝒅\n> 𝑺𝒖𝒅𝒐 𝒂𝒄𝒄𝒆𝒔𝒔 𝒈𝒓𝒂𝒏𝒕𝒆𝒅.`);
     } catch (e) {
         console.error("SetSudo Error:", e);
         reply("❌ Error: " + e.message);
@@ -75,7 +75,7 @@ cmd({
         conn.userConfig.SUDO = conn.userConfig.SUDO.filter(num => num !== targetNum);
         await updateUserConfigInPostgres(botNumber, { SUDO: conn.userConfig.SUDO });
         
-        reply(`🗑️ 𝑺𝒖𝒅𝒐 𝑹𝒆𝒎𝒐𝒗𝒆𝒅\n> 𝑺𝒖𝒅𝒐 𝒂𝒄𝒄𝒆𝒔𝒔 𝒓𝒆𝒗𝒐𝒌𝒆𝒅 𝒇𝒓𝒐𝒎 @${targetNum}.`, { mentions: [users[0]] });
+        reply(`🗑️ 𝑺𝒖𝒅𝒐 𝑹𝒆𝒎𝒐𝒗𝒆𝒅\n> 𝑺𝒖𝒅𝒐 𝒂𝒄𝒄𝒆𝒔𝒔 𝒓𝒆𝒗𝒐𝒌𝒆𝒅.`);
     } catch (e) {
         console.error("DelSudo Error:", e);
         reply("❌ Error: " + e.message);
@@ -102,12 +102,12 @@ cmd({
         let text = `🛡️ 𝑺𝒖𝒅𝒐 𝑳𝒊𝒔𝒕\n\n`;
         
         sudoUsers.forEach((num, i) => {
-            text += `♛ ${i + 1}. @${num}\n`;
+            text += `♛ ${i + 1}. +${num}\n`;
         });
         
         text += `\n👥 𝑻𝒐𝒕𝒂𝒍 : ${sudoUsers.length}`;
         
-        reply(text, { mentions: sudoUsers.map(num => `${num}@s.whatsapp.net`) });
+        reply(text);
     } catch (e) {
         console.error("SudoList Error:", e);
         reply("❌ Error: " + e.message);
