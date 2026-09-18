@@ -21,6 +21,7 @@ cmd({
     alias: ["commandlist", "allmenu", "help", "m", "manu"],
     desc: "Fetch and display all available bot commands",
     category: "system",
+    react: "🔱",
     filename: __filename,
 }, async (conn, mek, m, { reply, config, prefix }) => {
     try {
