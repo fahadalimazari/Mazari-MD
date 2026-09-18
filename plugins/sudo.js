@@ -43,7 +43,7 @@ cmd({
         if (!Array.isArray(conn.userConfig.SUDO)) conn.userConfig.SUDO = [];
         
         if (conn.userConfig.SUDO.includes(targetNum)) {
-            return reply(`⚠️ 𝑨𝒍𝒓𝒆𝒂𝒅𝒚 𝑺𝒖𝒅𝒐\n> @${targetNum} 𝒊𝒔 𝒂𝒍𝒓𝒆𝒂𝒅𝒚 𝒂 𝒔𝒖𝒅𝒐 𝒖𝒔𝒆𝒓.`, { mentions: [users[0]] });
+            return reply(`⚠️ 𝑨𝒍𝒓𝒆𝒂𝒅𝒚 𝑺𝒖𝒅𝒐\n> 𝑻𝒉𝒊𝒔 𝒖𝒔𝒆𝒓 𝒊𝒔 𝒂𝒍𝒓𝒆𝒂𝒅𝒚 𝒂 𝒔𝒖𝒅𝒐 𝒖𝒔𝒆𝒓.`);
         }
         
         conn.userConfig.SUDO.push(targetNum);
