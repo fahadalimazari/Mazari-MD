@@ -325,9 +325,9 @@ async (conn, mek, m, {
 // ==================== FIXED PROMOTE COMMAND ====================
 cmd({
 pattern: "promote",
-alias: ["p", "giveadmin", "makeadmin"],
+alias: ["p", "giveadmin", "makeadmin", "pro"],
 desc: "Promote a user to admin",
-category: "group",
+category: "admin",
 react: "👑",
 filename: __filename
 }, async (conn, mek, m, {
@@ -342,9 +342,9 @@ isAdmins,
 isBotAdmins
 }) => {
 try {
-    if (!isGroup) return reply("⚠️ This command only works in groups.");
-    if (!isAdmins) return reply("❌ Only group admins can use this command.");
-    if (!isBotAdmins) return reply("❌ Bot needs to be admin to promote users!");
+    if (!isGroup) return reply("⚠️ 𝑮𝒓𝒐𝒖𝒑𝒔 𝑶𝒏𝒍𝒚\n> 𝑻𝒉𝒊𝒔 𝒄𝒐𝒎𝒎𝒂𝒏𝒅 𝒘𝒐𝒓𝒌𝒔 𝒊𝒏 𝒈𝒓𝒐𝒖𝒑𝒔 𝒐𝒏𝒍𝒚.");
+    if (!isAdmins) return reply("⚠️ 𝑨𝒅𝒎𝒊𝒏 𝑨𝒄𝒄𝒆𝒔𝒔 𝑹𝒆𝒒𝒖𝒊𝒓𝒆𝒅\n> 𝑶𝒏𝒍𝒚 𝒈𝒓𝒐𝒖𝒑 𝒂𝒅𝒎𝒊𝒏𝒔 𝒄𝒂𝒏 𝒖𝒔𝒆 𝒕𝒉𝒊𝒔.");
+    if (!isBotAdmins) return reply("⚠️ 𝑩𝒐𝒕 𝑨𝒅𝒎𝒊𝒏 𝑹𝒆𝒒𝒖𝒊𝒓𝒆𝒅\n> 𝑴𝒂𝒌𝒆 𝒕𝒉𝒆 𝒃𝒐𝒕 𝒂𝒏 𝒂𝒅𝒎𝒊𝒏 𝒇𝒊𝒓𝒔𝒕.");
 
     let users = [];  
     
@@ -355,7 +355,7 @@ try {
     } else if (m.message?.extendedTextMessage?.contextInfo?.mentionedJid) {  
         users = m.message.extendedTextMessage.contextInfo.mentionedJid;  
     } else {  
-        return reply("❓ Please mention or quote a user to promote!\nExample: .promote @user");  
+        return reply("⚠️ 𝑵𝒐 𝑼𝒔𝒆𝒓 𝑺𝒆𝒍𝒆𝒄𝒕𝒆𝒅\n> 𝑴𝒆𝒏𝒕𝒊𝒐𝒏 𝒐𝒓 𝒓𝒆𝒑𝒍𝒚 𝒕𝒐 𝒂 𝒖𝒔𝒆𝒓.");  
     }  
 
     users = [...new Set(users.filter(user => user && user.includes('@')))];  
@@ -365,9 +365,9 @@ try {
         await conn.groupParticipantsUpdate(from, users, "promote");  
         
         if (users.length === 1) {  
-            reply(`✅ Successfully promoted @${users[0].split('@')[0]} to admin.`, { mentions: users });  
+            reply(`👑 𝑷𝒓𝒐𝒎𝒐𝒕𝒆𝒅\n> 𝑨𝒅𝒎𝒊𝒏 𝒂𝒄𝒄𝒆𝒔𝒔 𝒈𝒓𝒂𝒏𝒕𝒆𝒅 𝒔𝒖𝒄𝒄𝒆𝒔𝒔𝒇𝒖𝒍𝒍𝒚. (@${users[0].split('@')[0]})`, { mentions: users });  
         } else {  
-            reply(`✅ Successfully promoted ${users.length} users to admin.`, { mentions: users });  
+            reply(`👑 𝑷𝒓𝒐𝒎𝒐𝒕𝒆𝒅\n> ${users.length} 𝒖𝒔𝒆𝒓𝒔 𝒂𝒓𝒆 𝒏𝒐𝒘 𝒂𝒅𝒎𝒊𝒏𝒔.`, { mentions: users });  
         }  
     } catch (promoteError) {  
         if (promoteError.message.includes("already")) {  
@@ -386,9 +386,9 @@ try {
 // ==================== FIXED DEMOTE COMMAND ====================
 cmd({
 pattern: "demote",
-alias: ["d", "dismiss", "removeadmin"],
+alias: ["d", "dismiss", "removeadmin", "dis"],
 desc: "Demote a group admin",
-category: "group",
+category: "admin",
 react: "⬇️",
 filename: __filename
 }, async (conn, mek, m, {
@@ -403,9 +403,9 @@ isAdmins,
 isBotAdmins
 }) => {
 try {
-    if (!isGroup) return reply("⚠️ This command only works in groups.");
-    if (!isAdmins) return reply("❌ Only group admins can use this command.");
-    if (!isBotAdmins) return reply("❌ Bot needs to be admin to demote users!");
+    if (!isGroup) return reply("⚠️ 𝑮𝒓𝒐𝒖𝒑𝒔 𝑶𝒏𝒍𝒚\n> 𝑻𝒉𝒊𝒔 𝒄𝒐𝒎𝒎𝒂𝒏𝒅 𝒘𝒐𝒓𝒌𝒔 𝒊𝒏 𝒈𝒓𝒐𝒖𝒑𝒔 𝒐𝒏𝒍𝒚.");
+    if (!isAdmins) return reply("⚠️ 𝑨𝒅𝒎𝒊𝒏 𝑨𝒄𝒄𝒆𝒔𝒔 𝑹𝒆𝒒𝒖𝒊𝒓𝒆𝒅\n> 𝑶𝒏𝒍𝒚 𝒈𝒓𝒐𝒖𝒑 𝒂𝒅𝒎𝒊𝒏𝒔 𝒄𝒂𝒏 𝒖𝒔𝒆 𝒕𝒉𝒊𝒔.");
+    if (!isBotAdmins) return reply("⚠️ 𝑩𝒐𝒕 𝑨𝒅𝒎𝒊𝒏 𝑹𝒆𝒒𝒖𝒊𝒓𝒆𝒅\n> 𝑴𝒂𝒌𝒆 𝒕𝒉𝒆 𝒃𝒐𝒕 𝒂𝒏 𝒂𝒅𝒎𝒊𝒏 𝒇𝒊𝒓𝒔𝒕.");
 
     let users = [];  
     
@@ -416,7 +416,7 @@ try {
     } else if (m.message?.extendedTextMessage?.contextInfo?.mentionedJid) {  
         users = m.message.extendedTextMessage.contextInfo.mentionedJid;  
     } else {  
-        return reply("❓ Please mention or quote an admin to demote!\nExample: .demote @admin");  
+        return reply("⚠️ 𝑵𝒐 𝑼𝒔𝒆𝒓 𝑺𝒆𝒍𝒆𝒄𝒕𝒆𝒅\n> 𝑴𝒆𝒏𝒕𝒊𝒐𝒏 𝒐𝒓 𝒓𝒆𝒑𝒍𝒚 𝒕𝒐 𝒂 𝒖𝒔𝒆𝒓.");  
     }  
 
     users = [...new Set(users.filter(user => user && user.includes('@')))];  
@@ -426,9 +426,9 @@ try {
         await conn.groupParticipantsUpdate(from, users, "demote");  
         
         if (users.length === 1) {  
-            reply(`✅ Successfully demoted @${users[0].split('@')[0]} from admin.`, { mentions: users });  
+            reply(`⬇️ 𝑫𝒆𝒎𝒐𝒕𝒆𝒅\n> 𝑨𝒅𝒎𝒊𝒏 𝒂𝒄𝒄𝒆𝒔𝒔 𝒓𝒆𝒎𝒐𝒗𝒆𝒅 𝒔𝒖𝒄𝒄𝒆𝒔𝒔𝒇𝒖𝒍𝒍𝒚. (@${users[0].split('@')[0]})`, { mentions: users });  
         } else {  
-            reply(`✅ Successfully demoted ${users.length} admins.`, { mentions: users });  
+            reply(`⬇️ 𝑫𝒆𝒎𝒐𝒕𝒆𝒅\n> ${users.length} 𝒂𝒅𝒎𝒊𝒏𝒔 𝒓𝒆ْم𝒐𝒗𝒆𝒅 𝒔𝒖𝒄𝒄𝒆𝒔𝒔𝒇𝒖𝒍𝒍𝒚.`, { mentions: users });  
         }  
     } catch (demoteError) {  
         if (demoteError.message.includes("not admin")) {  
