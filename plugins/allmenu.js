@@ -47,9 +47,9 @@ cmd({
             for (let i = 0; i < sortedCommands.length; i++) {
                 const cmdName = sortedCommands[i];
                 if (i === sortedCommands.length - 1) {
-                    menuText += `*│⬥└─ ${activePrefix}${toSmallUnicode(cmdName)}*\n`;
+                    menuText += `*│⬥└─ _${toSmallUnicode(cmdName)}_*\n`;
                 } else {
-                    menuText += `*│⬥├─ ${activePrefix}${toSmallUnicode(cmdName)}*\n`;
+                    menuText += `*│⬥├─ _${toSmallUnicode(cmdName)}_*\n`;
                 }
             }
             menuText += `*╰─────────────┈⊷*\n`;
@@ -74,7 +74,7 @@ cmd({
 *┃ ✦╭────〔 ${toSmallUnicode('BOT INFO')} 〕────⊷*
 *┃ ✦│▸ ${toSmallUnicode('TOTAL COMMANDS')} : ${totalCommands}*
 *┃ ✦│▸ ${toSmallUnicode('TIME')} : ${time}*
-*┃ ✦│▸ ${toSmallUnicode('PREFIX')} : ${prefix}*
+*┃ ✦│▸ ${toSmallUnicode('PREFIX')} : ${activePrefix}*
 *┃ ✦│▸ ${toSmallUnicode('MODE')} : ${mode}*
 *┃ ✦╰─────────────┈⊷*
 *┃*
