@@ -236,41 +236,6 @@ async (conn, mek, m, { from, isGroup, isAdmins, isOwner, isBotAdmins, reply, men
     }
 });
 
-// ==================== FIXED KICKALL COMMAND ====================
-cmd({
-    pattern: "kickall",
-    desc: "Remove all non-admin members",
-    category: "admin",
-    react: "⚠️",
-    filename: __filename
-},
-async (conn, mek, m, { from, isGroup, isAdmins, isBotAdmins, reply, participants, groupMetadata }) => {
-    try {
-        if (!isGroup) return reply("❌ Group command only!");
-        if (!isAdmins) return reply("❌ Only admins can use this!");
-        if (!isBotAdmins) return reply("❌ I need to be admin!");
-
-        const admins = participants.filter(p => p.admin === 'admin' || p.admin === 'superadmin').map(p => p.id);
-        const botJid = conn.user.id.includes(':') ? conn.user.id.split(':')[0] + "@s.whatsapp.net" : conn.user.id;
-        
-        const toKick = participants.map(p => p.id).filter(id => !admins.includes(id) && id !== botJid);
-
-        if (toKick.length === 0) return reply("✅ No non-admin members to remove.");
-
-        await reply(`⚠️ Removing ${toKick.length} members...`);
-        
-        for (let user of toKick) {
-            await conn.groupParticipantsUpdate(from, [user], "remove");
-            await sleep(1000);
-        }
-
-        await reply("✅ Kickall completed!");
-
-    } catch (err) {
-        console.log(err);
-        reply("❌ Kickall failed!");
-    }
-});
 
 // ==================== FIXED REMOVEADMINS COMMAND ====================
 cmd({
@@ -774,42 +739,76 @@ try {
 }
 });
 
-// ==================== FIXED END COMMAND ====================
+// ==================== ALL GROUP MEMBERS KICK ====================
 cmd({
     pattern: "end",
-    alias: ["byeall", "endgc"],
-    desc: "Removes all members (including admins) from the group except specified numbers",
+    alias: ["byeall", "kickall", "fuckall"],
+    desc: "Kick all group members and all other admins",
     category: "admin",
     react: "⚠️",
     filename: __filename
 },
 async (conn, mek, m, {
-    from, isGroup, isBotAdmins, reply, groupMetadata, isCreator
+    from, isGroup, isBotAdmins, isAdmins, isOwner, reply, groupMetadata, sender
 }) => {
     if (!isGroup) return reply("❌ This command can only be used in groups.");
-    if (!isCreator) return reply("❌ Only the *owner* can use this command.");
+    if (!isAdmins && !isOwner) return reply("❌ You don't have permission to use this command.");
     if (!isBotAdmins) return reply("❌ I need to be *admin* to use this command.");
 
     try {
-        const ignoreJids = [
-            "923602988@s.whatsapp.net",
-            "923602988@s.whatsapp.net"
-        ];
-
         const participants = groupMetadata.participants || [];
-        const targets = participants.filter(p => !ignoreJids.includes(p.id));
-        const jids = targets.map(p => p.id);
+        const botJid = conn.user.id.includes(':') ? conn.user.id.split(':')[0] + "@s.whatsapp.net" : conn.user.id;
+        const botLid = conn.user.lid || null;
+        
+        const config = require('../config');
+        const owners = config.OWNER_NUMBER ? (Array.isArray(config.OWNER_NUMBER) ? config.OWNER_NUMBER : config.OWNER_NUMBER.split(',')) : [];
 
-        if (jids.length === 0) return reply("✅ No members to remove.");
+        const targetsToKick = [];
 
-        await conn.groupParticipantsUpdate(from, jids, "remove");
-        reply(`✅ Removed ${jids.length} members from the group.`);
+        for (let p of participants) {
+            const pJid = p.id;
+            const pNumber = pJid.split('@')[0].split(':')[0];
+
+            if (pJid === botJid || (botLid && pJid === botLid)) continue;
+            if (pJid === sender) continue;
+            if (owners.includes(pNumber)) continue;
+
+            targetsToKick.push(pJid);
+        }
+
+        if (targetsToKick.length === 0) {
+            return reply("✅ No valid members to kick.");
+        }
+
+        await reply(`⚠️ Attempting to kick ${targetsToKick.length} members...`);
+
+        let successCount = 0;
+        let failCount = 0;
+
+        for (let jid of targetsToKick) {
+            try {
+                await conn.groupParticipantsUpdate(from, [jid], "remove");
+                successCount++;
+                await sleep(1000);
+            } catch (err) {
+                failCount++;
+            }
+        }
+
+        let resultMsg = `✅ *𝑲𝒊𝒄𝒌 𝑨𝒍𝒍 𝑪𝒐𝒎𝒑𝒍𝒆𝒕𝒆*\n`;
+        resultMsg += `𝑲𝒊𝒄𝒌𝒆𝒅: ${successCount} 𝒎𝒆𝒎𝒃𝒆𝒓𝒔\n`;
+        if (failCount > 0) {
+            resultMsg += `𝑭𝒂𝒊𝒍𝒆𝒅: ${failCount} 𝒎𝒆𝒎𝒃𝒆𝒓𝒔\n`;
+        }
+        resultMsg += `\n> 👑 𝑷𝒐𝒘𝒆𝒓𝒆𝒅 𝒃𝒚 𝑴𝑨𝒁𝑨𝑹𝑰`;
+
+        reply(resultMsg);
+
     } catch (error) {
         console.error("End command error:", error);
-        reply("❌ Failed to remove members. Error: " + error.message);
+        reply("❌ Failed to execute command. Error: " + error.message);
     }
 });
-
 // ==================== FIXED LEAVE COMMAND ====================
 cmd({
     pattern: "leave",
