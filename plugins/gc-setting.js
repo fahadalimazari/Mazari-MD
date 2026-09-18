@@ -588,19 +588,19 @@ command,
 isAdmins
 }) => {
 try {
-    if (!isGroup) return reply("⚠️ This command only works in groups.");
-    if (!isAdmins) return reply("❌ Only group admins can use this command.");
+    if (!isGroup) return reply("⚠️ 𝑮𝒓𝒐𝒖𝒑 𝑶𝒏𝒍𝒚\n> 𝑻𝒉𝒊𝒔 𝒄𝒐𝒎𝒎𝒂𝒏𝒅 𝒐𝒏𝒍𝒚 𝒘𝒐𝒓𝒌𝒔 𝒊𝒏 𝒈𝒓𝒐𝒖𝒑𝒔.");
+    if (!isAdmins) return reply("❌ 𝑨𝒅𝒎𝒊𝒏 𝑶𝒏𝒍𝒚\n> 𝑶𝒏𝒍𝒚 𝒈𝒓𝒐𝒖𝒑 𝒂𝒅𝒎𝒊𝒏𝒔 𝒄𝒂𝒏 𝒖𝒔𝒆 𝒕𝒉𝒊𝒔.");
 
     let message = body.slice(body.indexOf(command) + command.length).trim();  
     if (!message) message = "Attention Everyone!";  
     
-    let text = `📢 *TAG ALL*\n\n📝 Message: ${message}\n\n`;  
+    let text = `╭━━━〔 👑 𝑴𝑨𝒁𝑨𝑹𝑰-𝑴𝑫 〕━━━⊷\n┃\n┃ 📢 ✦ 𝑻𝑨𝑮 𝑨𝑳𝑳\n┃\n┃ 📝 ✦ 𝑴𝑬𝑺𝑺𝑨𝑮𝑬\n┃ ➜ ${message}\n┃\n`;  
     
     participants.forEach((member, i) => {  
-        text += `${i+1}. @${member.id.split('@')[0]}\n`;  
+        text += `┃ ♛ ${i+1}. @${member.id.split('@')[0]}\n`;  
     });  
     
-    text += `\n✅ Total: ${participants.length} members`;  
+    text += `┃\n┃ 👥 ✦ 𝑻𝑶𝑻𝑨𝑳 : ${participants.length} 𝑴𝑬𝑴𝑩𝑬𝑹𝑺\n╰━━━━━━━━━━━━━━━━━━━━⊷`;  
     
     await conn.sendMessage(from, {  
         text: text,  
