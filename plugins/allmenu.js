@@ -18,7 +18,7 @@ const toSmallUnicode = (str) => {
 
 cmd({
     pattern: "menu",
-    alias: ["commandlist", "allmenu", "help"],
+    alias: ["commandlist", "allmenu", "help", "m", "manu"],
     desc: "Fetch and display all available bot commands",
     category: "system",
     filename: __filename,
@@ -100,7 +100,7 @@ ${menuText}
             contextInfo: {
                 mentionedJid: [m.sender]
             }
-        });
+        }, { quoted: mek });
 
     } catch (err) {
         console.error("AllMenu Error:", err);
