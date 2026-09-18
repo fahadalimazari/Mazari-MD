@@ -188,24 +188,26 @@ cmd({
     react: "🗑️",
     filename: __filename
 },
-async (conn, mek, m, { from, isGroup, isAdmins, isBotAdmins, reply, mentionedJid, quoted }) => {
+async (conn, mek, m, { from, isGroup, isAdmins, reply, mentionedJid, participants }) => {
     try {
         if (!isGroup) return reply("❌ This command only works in groups.");
         if (!isAdmins) return reply("❌ Only group admins can use this command.");
-        if (!isBotAdmins) return reply("❌ I need admin rights to remove members.");
+        
+        const botJid = conn.user.id.includes(':') ? conn.user.id.split(':')[0] + "@s.whatsapp.net" : conn.user.id;
+        const botParticipant = participants?.find(p => p.id === botJid);
+        const botIsAdmin = botParticipant?.admin === 'admin' || botParticipant?.admin === 'superadmin';
+        if (!botIsAdmin) return reply("❌ I need admin rights to remove members.");
 
-        const target = quoted?.sender || mentionedJid?.[0];
+        let target = mentionedJid?.[0];
+        if (!target) target = mek.message?.extendedTextMessage?.contextInfo?.participant;
         if (!target) return reply("❌ Reply to a message or mention a user!");
 
         await conn.groupParticipantsUpdate(from, [target], "remove");
-        await conn.sendMessage(from, {
-            text: `🚫 @${target.split("@")[0]} has been removed!`,
-            mentions: [target]
-        }, { quoted: m });
+        
+        conn.sendMessage(from, { delete: mek.key }).catch(() => {});
 
     } catch (error) {
         console.error("Kick error:", error);
-        reply("❌ Failed to remove member.");
     }
 });
 
