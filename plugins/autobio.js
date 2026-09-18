@@ -24,14 +24,18 @@ cmd({
         `*AUTO BIO COMMAND*\n\n` +
         `• .autobio on\n` +
         `• .autobio off\n` +
-        `• Current status: ${global.autoBio ? "✅ ON" : "❌ OFF"}`
+        `• Current status: ${conn.userConfig?.autoBio ? "✅ ON" : "❌ OFF"}`
       );
     }
 
-    // ✅ Set state
-    global.autoBio = state === "on";
+    const { updateUserConfigInPostgres } = require('../lib/database-pg');
 
-    if (global.autoBio) {
+    // ✅ Set state
+    if (!conn.userConfig) conn.userConfig = {};
+    conn.userConfig.autoBio = state === "on";
+    await updateUserConfigInPostgres(conn.user.id.split(':')[0], conn.userConfig);
+
+    if (conn.userConfig.autoBio) {
       updateBio(conn);
     }
 
@@ -46,7 +50,7 @@ cmd({
 
 // ================= BIO UPDATER =================
 async function updateBio(conn) {
-  if (!global.autoBio) return;
+  if (!conn.userConfig?.autoBio) return;
 
   try {
     const uptime = clockString(process.uptime() * 1000);

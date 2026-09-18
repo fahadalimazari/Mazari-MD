@@ -83,9 +83,12 @@ cmd({
         return reply("🛡️ *𝑨𝒅𝒎𝒊𝒏 𝑹𝒆𝒒𝒖𝒊𝒓𝒆𝒅*\n𝑴𝒂𝒌𝒆 𝒕𝒉𝒆 𝒃𝒐𝒕 𝒂𝒏 𝒂𝒅𝒎𝒊𝒏 𝒇𝒊𝒓𝒔𝒕.");
     }
 
-    // ─── INIT GLOBAL ───
-    if (!global.ANTILINK_STATUS) global.ANTILINK_STATUS = {};
-    if (!global.ANTILINK_ACTION) global.ANTILINK_ACTION = {};
+    // ─── INIT CONFIG ───
+    if (!conn.userConfig) conn.userConfig = {};
+    if (!conn.userConfig.ANTILINK_STATUS) conn.userConfig.ANTILINK_STATUS = {};
+    if (!conn.userConfig.ANTILINK_ACTION) conn.userConfig.ANTILINK_ACTION = {};
+    
+    // Warn timers/counters remain ephemeral in global
     if (!global.ANTILINK_WARN) global.ANTILINK_WARN = {};
     if (!global.ANTILINK_WARN_TIMER) global.ANTILINK_WARN_TIMER = {};
 
@@ -95,8 +98,8 @@ cmd({
 
     // ─── SHOW STATUS ───
     if (!action || (action !== 'on' && action !== 'off')) {
-        const status = global.ANTILINK_STATUS[from] ? '𝑶𝑵' : '𝑶𝑭𝑭';
-        const actionMode = global.ANTILINK_ACTION[from] || 'warn';
+        const status = conn.userConfig.ANTILINK_STATUS[from] ? '𝑶𝑵' : '𝑶𝑭𝑭';
+        const actionMode = conn.userConfig.ANTILINK_ACTION[from] || 'warn';
         
         return reply(`🔗 *𝑨𝒏𝒕𝒊𝑳𝒊𝒏𝒌 𝑺𝒕𝒂𝒕𝒖𝒔:* ${status} ⚡ *𝑨𝒄𝒕𝒊𝒐𝒏:* ${actionMode.toUpperCase()}
 ⚠️ ${prefix}antilink on warn — 𝑾𝒂𝒓𝒏 𝒐𝒏 𝒍𝒊𝒏𝒌𝒔
@@ -106,9 +109,13 @@ cmd({
     }
 
     // ─── TOGGLE ON ───
+    const { updateUserConfigInPostgres } = require('../lib/database-pg');
+    
     if (action === 'on') {
-        global.ANTILINK_STATUS[from] = true;
-        global.ANTILINK_ACTION[from] = actionType || 'warn';
+        conn.userConfig.ANTILINK_STATUS[from] = true;
+        conn.userConfig.ANTILINK_ACTION[from] = actionType || 'warn';
+        
+        await updateUserConfigInPostgres(conn.user.id.split(':')[0], conn.userConfig);
         
         const actionMsg = {
             'warn': '𝑾𝒂𝒓𝒏',
@@ -121,8 +128,10 @@ cmd({
 
     // ─── TOGGLE OFF ───
     } else if (action === 'off') {
-        global.ANTILINK_STATUS[from] = false;
-        delete global.ANTILINK_ACTION[from];
+        conn.userConfig.ANTILINK_STATUS[from] = false;
+        delete conn.userConfig.ANTILINK_ACTION[from];
+        
+        await updateUserConfigInPostgres(conn.user.id.split(':')[0], conn.userConfig);
         
         await reply(`🔕 𝑨𝒏𝒕𝒊𝑳𝒊𝒏𝒌 𝑫𝒆𝒂𝒄𝒕𝒊𝒗𝒂𝒕𝒆𝒅
 𝑳𝒊𝒏𝒌 𝒇𝒊𝒍𝒕𝒆𝒓𝒊𝒏𝒈 𝒊𝒔 𝒏𝒐𝒘 𝒅𝒊𝒔𝒂𝒃𝒍𝒆𝒅.`);
@@ -144,7 +153,7 @@ cmd({
     if (!isGroup) return;
 
     // ─── SKIP IF ANTI-LINK OFF ───
-    if (!global.ANTILINK_STATUS?.[from]) return;
+    if (!conn.userConfig?.ANTILINK_STATUS?.[from]) return;
 
     // ─── SKIP IF BOT NOT ADMIN ───
     if (!isBotAdmins) return;
@@ -164,12 +173,15 @@ cmd({
     const links = extractLinks(body);
     if (links.length === 0) return;
 
-    // ─── CHECK IF ALL LINKS ARE ALLOWED ───
-    const hasDisallowedLink = links.some(link => !isAllowedLink(link));
-    if (!hasDisallowedLink) return;
+    // ─── FILTER ALLOWED LINKS ───
+    const hasBadLink = links.some(link => !isAllowedLink(link));
+    if (!hasBadLink) return;
 
-    // ─── GET ACTION ───
-    const action = global.ANTILINK_ACTION[from] || 'warn';
+    // ============================================
+    // ⚠️ EXECUTE ACTIONS
+    // ============================================
+    
+    const action = conn.userConfig?.ANTILINK_ACTION?.[from] || 'warn';
 
     // ─── INIT WARN COUNT ───
     if (!global.ANTILINK_WARN[from]) global.ANTILINK_WARN[from] = {};

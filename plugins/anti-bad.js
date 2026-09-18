@@ -69,9 +69,12 @@ cmd({
         return reply("🛡️ 𝑩𝒐𝒕 𝑨𝒅𝒎𝒊𝒏 𝑹𝒆𝒒𝒖𝒊𝒓𝒆𝒅\n> 𝑴𝒂𝒌𝒆 𝒃𝒐𝒕 𝒂𝒏 𝒂𝒅𝒎𝒊𝒏 𝒇𝒊𝒓𝒔𝒕.");
     }
 
-    // ─── INIT GLOBAL ───
-    if (!global.ANTIBAD_STATUS) global.ANTIBAD_STATUS = {};
-    if (!global.ANTIBAD_ACTION) global.ANTIBAD_ACTION = {};
+    // ─── INIT CONFIG ───
+    if (!conn.userConfig) conn.userConfig = {};
+    if (!conn.userConfig.ANTIBAD_STATUS) conn.userConfig.ANTIBAD_STATUS = {};
+    if (!conn.userConfig.ANTIBAD_ACTION) conn.userConfig.ANTIBAD_ACTION = {};
+    
+    // Warn counters remain in global
     if (!global.ANTIBAD_WARN) global.ANTIBAD_WARN = {};
 
     // ─── GET ARGUMENT ───
@@ -80,16 +83,20 @@ cmd({
 
     // ─── SHOW STATUS ───
     if (!action || (action !== 'on' && action !== 'off')) {
-        const status = global.ANTIBAD_STATUS[from] ? 'ON' : 'OFF';
-        const actionMode = global.ANTIBAD_ACTION[from] || 'warn';
+        const status = conn.userConfig.ANTIBAD_STATUS[from] ? 'ON' : 'OFF';
+        const actionMode = conn.userConfig.ANTIBAD_ACTION[from] || 'warn';
         
         return reply(`🚫 𝑨𝒏𝒕𝒊 𝑩𝒂𝒅 : ${status} | ${actionMode.toUpperCase()}`);
     }
 
     // ─── TOGGLE ON ───
+    const { updateUserConfigInPostgres } = require('../lib/database-pg');
+    
     if (action === 'on') {
-        global.ANTIBAD_STATUS[from] = true;
-        global.ANTIBAD_ACTION[from] = actionType || 'warn';
+        conn.userConfig.ANTIBAD_STATUS[from] = true;
+        conn.userConfig.ANTIBAD_ACTION[from] = actionType || 'warn';
+        
+        await updateUserConfigInPostgres(conn.user.id.split(':')[0], conn.userConfig);
         
         const actionMsg = {
             'warn': '⚠️ Warn user',
@@ -101,8 +108,10 @@ cmd({
 
     // ─── TOGGLE OFF ───
     } else if (action === 'off') {
-        global.ANTIBAD_STATUS[from] = false;
-        delete global.ANTIBAD_ACTION[from];
+        conn.userConfig.ANTIBAD_STATUS[from] = false;
+        delete conn.userConfig.ANTIBAD_ACTION[from];
+        
+        await updateUserConfigInPostgres(conn.user.id.split(':')[0], conn.userConfig);
         
         await reply(`❌ 𝑨𝒏𝒕𝒊 𝑩𝒂𝒅 𝑶𝒇𝒇\n> 𝑩𝒂𝒅 𝒘𝒐𝒓𝒅 𝒇𝒊𝒍𝒕𝒆𝒓 𝒅𝒊𝒔𝒂𝒃𝒍𝒆𝒅.`);
     }
@@ -123,7 +132,7 @@ cmd({
     if (!isGroup) return;
 
     // ─── SKIP IF ANTI-BAD OFF ───
-    if (!global.ANTIBAD_STATUS?.[from]) return;
+    if (!conn.userConfig?.ANTIBAD_STATUS?.[from]) return;
 
     // ─── SKIP IF BOT NOT ADMIN ───
     if (!isBotAdmins) return;
@@ -165,8 +174,11 @@ cmd({
 
     if (!foundBadWord) return;
 
-    // ─── GET ACTION ───
-    const action = global.ANTIBAD_ACTION[from] || 'warn';
+    // ============================================
+    // ⚠️ EXECUTE ACTIONS
+    // ============================================
+    
+    const action = conn.userConfig?.ANTIBAD_ACTION?.[from] || 'warn';
 
     // ─── INIT WARN COUNT ───
     if (!global.ANTIBAD_WARN[from]) global.ANTIBAD_WARN[from] = {};

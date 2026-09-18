@@ -97,7 +97,8 @@ cmd({
 
     // ─── GET SESSION ID ───
     const sessionId = conn.user.id.split(':')[0];
-    if (!global.ANTIGC_STATUS[sessionId]) global.ANTIGC_STATUS[sessionId] = {};
+    if (!conn.userConfig) conn.userConfig = {};
+    if (!conn.userConfig.ANTIGC_STATUS) conn.userConfig.ANTIGC_STATUS = {};
 
     // ─── CHECK GROUP ───
     if (!isGroup) {
@@ -123,33 +124,39 @@ cmd({
 
     // ─── STATUS MODE ───
     if (action === 'status') {
-        const status = global.ANTIGC_STATUS[sessionId][from] || false;
+        const status = conn.userConfig.ANTIGC_STATUS[from] || false;
         if (!status) return reply(`🛡️ *𝑨𝒏𝒕𝒊𝑮𝑴 — 𝑺𝒕𝒂𝒕𝒖𝒔*\n\n𝑺𝒕𝒂𝒕𝒆 : 𝑫𝒊𝒔𝒂𝒃𝒍𝒆𝒅`);
         const modeMap = { 'warn': '𝑾𝒂𝒓𝒏', 'delete': '𝑫𝒆𝒍𝒆𝒕𝒆', 'del': '𝑫𝒆𝒍𝒆𝒕𝒆', 'kick': '𝑲𝒊𝒄𝒌' };
         return reply(`🛡️ *𝑨𝒏𝒕𝒊𝑮𝑴 — 𝑺𝒕𝒂𝒕𝒖𝒔*\n\n𝑺𝒕𝒂𝒕𝒆 : 𝑬𝒏𝒂𝒃𝒍𝒆𝒅\n𝑴𝒐𝒅𝒆 : ${modeMap[status] || status}`);
     }
 
+    const { updateUserConfigInPostgres } = require('../lib/database-pg');
+
     // ─── ON / WARN MODE ───
     if (action === 'on' || action === 'warn' || action === '1') {
-        global.ANTIGC_STATUS[sessionId][from] = 'warn';
+        conn.userConfig.ANTIGC_STATUS[from] = 'warn';
+        await updateUserConfigInPostgres(sessionId, conn.userConfig);
         return reply(`🛡️ 𝑨𝒏𝒕𝒊𝑮𝑴 — 𝑬𝒏𝒂𝒃𝒍𝒆𝒅\n⚙️ 𝑴𝒐𝒅𝒆 : 𝑾𝒂𝒓𝒏\n🛡️ 𝑨𝒏𝒕𝒊𝑮𝑴 — 𝑮𝒓𝒐𝒖𝒑 𝑺𝒕𝒂𝒕𝒖𝒔 𝒑𝒓𝒐𝒕𝒆𝒄𝒕𝒊𝒐𝒏 𝒊𝒔 𝒂𝒄𝒕𝒊𝒗𝒆.`);
     }
 
     // ─── DEL MODE ───
     if (action === 'del' || action === 'delete' || action === '2') {
-        global.ANTIGC_STATUS[sessionId][from] = 'delete';
+        conn.userConfig.ANTIGC_STATUS[from] = 'delete';
+        await updateUserConfigInPostgres(sessionId, conn.userConfig);
         return reply(`🛡️ 𝑨𝒏𝒕𝒊𝑮𝑴 — 𝑬𝒏𝒂𝒃𝒍𝒆𝒅\n⚙️ 𝑴𝒐𝒅𝒆 : 𝑫𝒆𝒍𝒆𝒕𝒆\n🛡️ 𝑨𝒏𝒕𝒊𝑮𝑴 — 𝑮𝒓𝒐𝒖𝒑 𝑺𝒕𝒂𝒕𝒖𝒔 𝒑𝒓𝒐𝒕𝒆𝒄𝒕𝒊𝒐𝒏 𝒊𝒔 𝒂𝒄𝒕𝒊𝒗𝒆.`);
     }
 
     // ─── KICK MODE ───
     if (action === 'kick' || action === '3') {
-        global.ANTIGC_STATUS[sessionId][from] = 'kick';
+        conn.userConfig.ANTIGC_STATUS[from] = 'kick';
+        await updateUserConfigInPostgres(sessionId, conn.userConfig);
         return reply(`🛡️ 𝑨𝒏𝒕𝒊𝑮𝑴 — 𝑬𝒏𝒂𝒃𝒍𝒆𝒅\n⚙️ 𝑴𝒐𝒅𝒆 : 𝑲𝒊𝒄𝒌\n🛡️ 𝑨𝒏𝒕𝒊𝑮𝑴 — 𝑮𝒓𝒐𝒖𝒑 𝑺𝒕𝒂𝒕𝒖𝒔 𝒑𝒓𝒐𝒕𝒆𝒄𝒕𝒊𝒐𝒏 𝒊𝒔 𝒂𝒄𝒕𝒊𝒗𝒆.`);
     }
 
     // ─── OFF MODE ───
     if (action === 'off' || action === '4') {
-        global.ANTIGC_STATUS[sessionId][from] = false;
+        conn.userConfig.ANTIGC_STATUS[from] = false;
+        await updateUserConfigInPostgres(sessionId, conn.userConfig);
         return reply(`🛡️ 𝑨𝒏𝒕𝒊𝑮𝑴 — 𝑫𝒊𝒔𝒂𝒃𝒍𝒆𝒅\n𝑮𝒓𝒐𝒖𝒑 𝑺𝒕𝒂𝒕𝒖𝒔 𝒑𝒓𝒐𝒕𝒆𝒄𝒕𝒊𝒐𝒏 𝒊𝒔 𝒏𝒐𝒘 𝒐𝒇𝒇.`);
     }
 });
@@ -167,8 +174,7 @@ cmd({
     if (!isGroup) return;
 
     // ─── SKIP IF ANTI-GC STATUS OFF ───
-    const sessionId = conn.user.id.split(':')[0];
-    if (!global.ANTIGC_STATUS?.[sessionId]?.[from]) return;
+    if (!conn.userConfig?.ANTIGC_STATUS?.[from]) return;
 
     // ─── SKIP IF BOT NOT ADMIN ───
     if (!isBotAdmins) return;
@@ -243,7 +249,7 @@ cmd({
 
 
     // ─── ACTION EXECUTION ───
-    const action = global.ANTIGC_STATUS[sessionId][from];
+    const action = conn.userConfig.ANTIGC_STATUS[from];
 
     // Helper to delete both wrapper and actual status
     const deleteGroupStatus = async () => {
