@@ -8,11 +8,11 @@ const defaultCaption = `╭━━━〔 📸 𝑴𝑨𝒁𝑨𝑹𝑰-𝑴𝑫 �
 ╰━━━━━━━━━━━━━━━━━━━━⊷`;
 
 cmd({
-    pattern: "igdl",
-    alias: ["instagram", "insta", "ig"],
+    pattern: "instagram",
+    alias: ["igdl", "insta", "ig", "ins", "inst"],
     react: "⬇️",
     desc: "Download Instagram videos/reels",
-    category: "downloader",
+    category: "download",
     use: ".igdl <Instagram URL>",
     filename: __filename
 }, async (conn, mek, m, { from, reply, args, q }) => {
