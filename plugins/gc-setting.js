@@ -347,15 +347,24 @@ try {
     if (!isBotAdmins) return reply("⚠️ 𝑩𝒐𝒕 𝑨𝒅𝒎𝒊𝒏 𝑹𝒆𝒒𝒖𝒊𝒓𝒆𝒅\n> 𝑴𝒂𝒌𝒆 𝒕𝒉𝒆 𝒃𝒐𝒕 𝒂𝒏 𝒂𝒅𝒎𝒊𝒏 𝒇𝒊𝒓𝒔𝒕.");
 
     let users = [];  
+    const msg = m.message;
+    const contextInfo = msg?.extendedTextMessage?.contextInfo ||
+                        msg?.imageMessage?.contextInfo ||
+                        msg?.videoMessage?.contextInfo ||
+                        msg?.audioMessage?.contextInfo ||
+                        msg?.documentMessage?.contextInfo ||
+                        msg?.stickerMessage?.contextInfo;
     
     if (mentionedJid && mentionedJid.length > 0) {  
         users = mentionedJid;  
     } else if (quoted && quoted.sender) {  
         users = [quoted.sender];  
-    } else if (m.message?.extendedTextMessage?.contextInfo?.mentionedJid) {  
-        users = m.message.extendedTextMessage.contextInfo.mentionedJid;  
+    } else if (contextInfo?.participant) {
+        users = [contextInfo.participant];
+    } else if (contextInfo?.mentionedJid) {  
+        users = contextInfo.mentionedJid;  
     } else {  
-        return reply("⚠️ 𝑵𝒐 𝑼𝒔𝒆𝒓 𝑺𝒆𝒍𝒆𝒄𝒕𝒆𝒅\n> 𝑴𝒆𝒏𝒕𝒊𝒐𝒏 𝒐𝒓 𝒓𝒆𝒑𝒍𝒚 𝒕𝒐 𝒂 𝒖𝒔𝒆𝒓.");  
+        return reply("⚠️ 𝑻𝒂𝒓𝒈𝒆𝒕 𝑹𝒆𝒒𝒖𝒊𝒓𝒆𝒅\n> 𝑴𝒆𝒏𝒕𝒊𝒐𝒏 𝒂 𝒖𝒔𝒆𝒓 𝒐𝒓 𝒓𝒆𝒑𝒍𝒚 𝒕𝒐 𝒕𝒉𝒆𝒊𝒓 𝒎𝒆𝒔𝒔𝒂𝒈𝒆.");  
     }  
 
     users = [...new Set(users.filter(user => user && user.includes('@')))];  
@@ -408,15 +417,24 @@ try {
     if (!isBotAdmins) return reply("⚠️ 𝑩𝒐𝒕 𝑨𝒅𝒎𝒊𝒏 𝑹𝒆𝒒𝒖𝒊𝒓𝒆𝒅\n> 𝑴𝒂𝒌𝒆 𝒕𝒉𝒆 𝒃𝒐𝒕 𝒂𝒏 𝒂𝒅𝒎𝒊𝒏 𝒇𝒊𝒓𝒔𝒕.");
 
     let users = [];  
+    const msg = m.message;
+    const contextInfo = msg?.extendedTextMessage?.contextInfo ||
+                        msg?.imageMessage?.contextInfo ||
+                        msg?.videoMessage?.contextInfo ||
+                        msg?.audioMessage?.contextInfo ||
+                        msg?.documentMessage?.contextInfo ||
+                        msg?.stickerMessage?.contextInfo;
     
     if (mentionedJid && mentionedJid.length > 0) {  
         users = mentionedJid;  
     } else if (quoted && quoted.sender) {  
         users = [quoted.sender];  
-    } else if (m.message?.extendedTextMessage?.contextInfo?.mentionedJid) {  
-        users = m.message.extendedTextMessage.contextInfo.mentionedJid;  
+    } else if (contextInfo?.participant) {
+        users = [contextInfo.participant];
+    } else if (contextInfo?.mentionedJid) {  
+        users = contextInfo.mentionedJid;  
     } else {  
-        return reply("⚠️ 𝑵𝒐 𝑼𝒔𝒆𝒓 𝑺𝒆𝒍𝒆𝒄𝒕𝒆𝒅\n> 𝑴𝒆𝒏𝒕𝒊𝒐𝒏 𝒐𝒓 𝒓𝒆𝒑𝒍𝒚 𝒕𝒐 𝒂 𝒖𝒔𝒆𝒓.");  
+        return reply("⚠️ 𝑻𝒂𝒓𝒈𝒆𝒕 𝑹𝒆𝒒𝒖𝒊𝒓𝒆𝒅\n> 𝑴𝒆𝒏𝒕𝒊𝒐𝒏 𝒂 𝒖𝒔𝒆𝒓 𝒐𝒓 𝒓𝒆𝒑𝒍𝒚 𝒕𝒐 𝒕𝒉𝒆𝒊𝒓 𝒎𝒆𝒔𝒔𝒂𝒈𝒆.");  
     }  
 
     users = [...new Set(users.filter(user => user && user.includes('@')))];  
