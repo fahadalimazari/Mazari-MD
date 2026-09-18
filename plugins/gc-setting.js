@@ -198,13 +198,38 @@ async (conn, mek, m, { from, isGroup, isAdmins, isOwner, isBotAdmins, reply, men
         // Correctly check if the BOT is admin using the robust `isBotAdmins` calculated by the handler (handles LIDs correctly)
         if (!isBotAdmins) return reply("❌ Only group admins can use this command.");
 
-        let target = mentionedJid?.[0];
-        if (!target) target = mek.message?.extendedTextMessage?.contextInfo?.participant;
+        const msgType = mek.message?.extendedTextMessage ? 'extendedTextMessage' : 
+                        mek.message?.imageMessage ? 'imageMessage' : 
+                        mek.message?.videoMessage ? 'videoMessage' : null;
+        
+        const contextInfo = msgType ? mek.message[msgType].contextInfo : null;
+
+        // Priority 1: Mentioned user. Priority 2: Replied message sender
+        let target = mentionedJid?.[0] || contextInfo?.mentionedJid?.[0];
+        
+        if (!target && contextInfo?.participant) {
+            target = contextInfo.participant;
+        }
+
         if (!target) return reply("❌ Reply to a message or mention a user!");
 
+        // Execute kick
         await conn.groupParticipantsUpdate(from, [target], "remove");
         
+        // Delete the command message itself (silent behavior)
         conn.sendMessage(from, { delete: mek.key }).catch(() => {});
+
+        // If it was a reply and the target is the replied sender, delete their original message
+        if (contextInfo?.stanzaId && contextInfo?.participant && target === contextInfo.participant) {
+            conn.sendMessage(from, { 
+                delete: {
+                    remoteJid: from,
+                    fromMe: false,
+                    id: contextInfo.stanzaId,
+                    participant: contextInfo.participant
+                }
+            }).catch(() => {});
+        }
 
     } catch (error) {
         console.error("Kick error:", error);
