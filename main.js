@@ -1195,7 +1195,7 @@ conn.ev.on('connection.update', async (update) => {
                                 participants,
                                 groupAdmins,
                                 isBotAdmins,
-                                isAdmins,
+                                isAdmins: isAdmins || effectiveIsOwner,
                                 prefix: currentPrefix,
                                 reply: (text) => conn.sendMessage(from, { text }, { quoted: mek }),
                                 config: config
