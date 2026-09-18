@@ -222,18 +222,36 @@ cmd({
                 }
 
                 // 🌟 CORRECT GROUP STATUS STRUCTURE
-                // OLD WORKING IMPLEMENTATION PROVEN:
-                // generateWAMessageFromContent(targetJid, { groupStatusMessage, groupStatusMessageV2 }, { userJid })
-                // relayMessage(targetJid, msg.message)  // targetJid = actual group JID
-                //
-                // Current status@broadcast approach is NOT the proven working pattern.
-                // Group Status should be sent directly to each group with both message types.
+                // Group Status requires specific fields on the inner message for proper rendering:
+                // - statusSourceType: IMAGE or VIDEO
+                // - statusAttributions: array of attributions (optional)
+                // - isGroupStatus: true
+                // These fields are on the Message proto, NOT on imageMessage/videoMessage
+                const isMedia = messageOverride.imageMessage || messageOverride.videoMessage;
+                const mediaType = messageOverride.imageMessage ? 'imageMessage' : 
+                                  messageOverride.videoMessage ? 'videoMessage' : null;
+                
+                // For Group Status, we need to include status fields on the Message proto
+                // The inner message should be a generic Message with the media plus status flags
+                const groupStatusContent = {
+                    // Preserve original media or text message
+                    ...(messageOverride.imageMessage ? { imageMessage: messageOverride.imageMessage } : {}),
+                    ...(messageOverride.videoMessage ? { videoMessage: messageOverride.videoMessage } : {}),
+                    ...(messageOverride.extendedTextMessage ? { extendedTextMessage: messageOverride.extendedTextMessage } : {}),
+                    ...(messageOverride.conversation ? { extendedTextMessage: { text: messageOverride.conversation } } : {}),
+                    statusSourceType: mediaType === 'imageMessage' ? 0 :  // IMAGE = 0
+                                       mediaType === 'videoMessage' ? 1 :  // VIDEO = 1
+                                       undefined,
+                    statusAttributions: [],
+                    isGroupStatus: true
+                };
+
                 const finalPayload = {
                     groupStatusMessage: {
-                        message: messageOverride
+                        message: groupStatusContent
                     },
                     groupStatusMessageV2: {
-                        message: messageOverride
+                        message: groupStatusContent
                     }
                 };
 
