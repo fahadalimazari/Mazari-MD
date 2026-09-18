@@ -128,7 +128,7 @@ cmd({
         let text = `🛡️ 𝑺𝒖𝒅𝒐 𝑳𝒊𝒔𝒕\n\n`;
         
         sudoUsers.forEach((num, i) => {
-            text += `♛ ${i + 1}. +${num}\n`;
+            text += `♛ ${i + 1}. @${num}\n`;
         });
         
         text += `\n👥 𝑻𝒐𝒕𝒂𝒍 : ${sudoUsers.length}`;
