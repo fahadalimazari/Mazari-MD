@@ -63,6 +63,44 @@ async (conn, mek, m, { from, quoted, body, isCmd, command, args, q, isGroup, sen
     }
 });
 
+// Command to approve N pending join requests
+cmd({
+    pattern: "approved",
+    alias: ["approve", "appr", "approv"],
+    desc: "Approve a specific number of pending group join requests",
+    category: "admin",
+    react: "✅",
+    filename: __filename
+},
+async (conn, mek, m, { from, args, isGroup, isAdmins, isOwner, isBotAdmins, reply }) => {
+    try {
+        if (!isGroup) return reply("⚠️ 𝑮𝒓𝒐𝒖𝒑𝒔 𝑶𝒏𝒍𝒚\n> 𝑻𝒉𝒊𝒔 𝒄𝒐𝒎𝒎𝒂𝒏𝒅 𝒘𝒐𝒓𝒌𝒔 𝒊𝒏 𝒈𝒓𝒐𝒖𝒑𝒔 𝒐𝒏𝒍𝒚.");
+        if (!isAdmins && !isOwner) return reply("🔒 𝑨𝒅𝒎𝒊𝒏 𝑶𝒏𝒍𝒚\n> 𝑨𝒅𝒎𝒊𝒏 𝒑𝒆𝒓𝒎𝒊𝒔𝒔𝒊𝒐𝒏 𝒓𝒆𝒒𝒖𝒊𝒓𝒆𝒅.");
+        if (!isBotAdmins) return reply("🛡️ 𝑩𝒐𝒕 𝑨𝒅𝒎𝒊𝒏 𝑹𝒆𝒒𝒖𝒊𝒓𝒆𝒅\n> 𝑴𝒂𝒌𝒆 𝒃𝒐𝒕 𝒂𝒏 𝒂𝒅𝒎𝒊𝒏 𝒇𝒊𝒓𝒔𝒕.");
+        
+        const numArgs = parseInt(args[0]);
+        if (!numArgs || isNaN(numArgs) || numArgs <= 0) {
+            return reply(`⚠️ 𝑰𝒏𝒗𝒂𝒍𝒊𝒅 𝑹𝒆𝒒𝒖𝒆𝒔𝒕\n> 𝑼𝒔𝒆 : .approved <number>`);
+        }
+
+        const requests = await conn.groupRequestParticipantsList(from);
+        
+        if (!requests || requests.length === 0) {
+            return reply("⚠️ 𝑵𝒐 𝑷𝒆𝒏𝒅𝒊𝒏𝒈 𝑹𝒆𝒒𝒖𝒆𝒔𝒕𝒔\n> 𝑻𝒉𝒆𝒓𝒆 𝒂𝒓𝒆 𝒏𝒐 𝒓𝒆𝒒𝒖𝒆𝒔𝒕𝒔 𝒕𝒐 𝒂𝒑𝒑𝒓𝒐𝒗𝒆.");
+        }
+
+        const countToApprove = Math.min(numArgs, requests.length);
+        const jidsToApprove = requests.slice(0, countToApprove).map(u => u.jid);
+        
+        await conn.groupRequestParticipantsUpdate(from, jidsToApprove, "approve");
+        
+        return reply(`✅ 𝑹𝒆𝒒𝒖𝒆𝒔𝒕𝒔 𝑨𝒑𝒑𝒓𝒐𝒗𝒆𝒅\n> 𝑨𝒑𝒑𝒓𝒐𝒗𝒆𝒅 : ${countToApprove}`);
+    } catch (error) {
+        console.error("Approved command error:", error);
+        return reply("❌ Failed to approve join requests.");
+    }
+});
+
 // Command to accept all pending join requests
 cmd({
     pattern: "acceptall",
