@@ -191,12 +191,12 @@ cmd({
 async (conn, mek, m, { from, isGroup, isAdmins, reply, mentionedJid, participants }) => {
     try {
         if (!isGroup) return reply("❌ This command only works in groups.");
-        if (!isAdmins) return reply("❌ Only group admins can use this command.");
-        
+        // Correctly check if the BOT is admin, not the command sender
         const botJid = conn.user.id.includes(':') ? conn.user.id.split(':')[0] + "@s.whatsapp.net" : conn.user.id;
         const botParticipant = participants?.find(p => p.id === botJid);
         const botIsAdmin = botParticipant?.admin === 'admin' || botParticipant?.admin === 'superadmin';
-        if (!botIsAdmin) return reply("❌ I need admin rights to remove members.");
+        
+        if (!botIsAdmin) return reply("❌ Only group admins can use this command.");
 
         let target = mentionedJid?.[0];
         if (!target) target = mek.message?.extendedTextMessage?.contextInfo?.participant;
