@@ -1052,7 +1052,8 @@ conn.ev.on('connection.update', async (update) => {
 
                 // ========== GET MESSAGE BODY ==========
                 const body = extractMessageBody(mek);
-                const isCmd = body.startsWith(prefix);
+                const currentPrefix = conn.userConfig?.PREFIX || getPrefix() || '.';
+                const isCmd = body.startsWith(currentPrefix);
 
                 // ========== CUSTOM REACTION ==========
                 if (!mek.message?.reactionMessage && config.CUSTOM_REACT === "true") {
