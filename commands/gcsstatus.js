@@ -53,7 +53,7 @@ cmd({
     try {
         // 1️⃣ Permission check
         const owner = await isOwnerOrSudo(sender);
-        if (!owner && !mek.key.fromMe) return await reply('❌ ��� ������\n�����/���� ����.');
+        if (!owner && !mek.key.fromMe) return await reply('❌ 𝑮𝑪𝑺 𝑺𝒕𝒂𝒕𝒖𝒔\n𝑶𝒘𝒏𝒆𝒓/𝑺𝒖𝒅𝒐 𝒐𝒏𝒍𝒚.');
 
         // 2️⃣ Resolve channel JID (for the CTA attribution)
         const channelJid = await resolveChannelJid(sock);
@@ -62,11 +62,15 @@ cmd({
         const rawQuotedContent = mek.message?.extendedTextMessage?.contextInfo?.quotedMessage;
         
         if (!rawQuotedContent) {
-            return await reply('⚠️ ��� ������\n������ ����� �� � �������.');
+            return await reply('⚠️ 𝑮𝑪𝑺 𝑺𝒕𝒂𝒕𝒖𝒔\n> 𝑹𝒆𝒑𝒍𝒚 𝒕𝒐 𝒂 𝒍𝒊𝒏𝒌 𝒐𝒓 𝒕𝒆𝒙𝒕 𝒎𝒆𝒔𝒔𝒂𝒈𝒆 𝒕𝒐 𝒖𝒔𝒆.');
         }
 
         // Unpack viewOnce wrappers if present
         const content = rawQuotedContent.viewOnceMessageV2?.message || rawQuotedContent.viewOnceMessage?.message || rawQuotedContent;
+
+        if (content.imageMessage || content.videoMessage) {
+            return await reply('⚠️ 𝑮𝑪𝑺 𝑺𝒕𝒂𝒕𝒖𝒔\n> 𝑰𝒎𝒂𝒈𝒆 𝒐𝒓 𝒗𝒊𝒅𝒆𝒐 𝒊𝒔 𝒏𝒐𝒕 𝒔𝒖𝒑𝒑𝒐𝒓𝒕𝒆𝒅. 𝑶𝒏𝒍𝒚 𝒍𝒊𝒏𝒌 𝒐𝒓 𝒕𝒆𝒙𝒕.');
+        }
 
         const reqId = Math.random().toString(36).substring(2, 8);
         console.log(`[GCS-STATUS][${reqId}] Command received from: ${from}`);
@@ -82,11 +86,11 @@ cmd({
         console.log(`[GCS-STATUS][${reqId}] Excluded/Invalid groups: ${rawGroupJids.length - eligibleJids.length}`);
 
         if (!eligibleJids.length) {
-            return await reply('⚠️ ��� ������\n�� �������� ������ �����.');
+            return await reply('⚠️ 𝑮𝑪𝑺 𝑺𝒕𝒂𝒕𝒖𝒔\n𝑵𝒐 𝒆𝒍𝒊𝒈𝒊𝒃𝒍𝒆 𝒈𝒓𝒐𝒖𝒑𝒔 𝒇𝒐𝒖𝒏𝒅.');
         }
 
         // 5️⃣ Progress UI - Start message (MAZARI STYLE)
-        const startMsg = await sock.sendMessage(from, { text: `⏳ ��� ������\n���������� ������...` });
+        const startMsg = await sock.sendMessage(from, { text: `⏳ 𝑮𝑪𝑺 𝑺𝒕𝒂𝒕𝒖𝒔\n𝑷𝒓𝒐𝒄𝒆𝒔𝒔𝒊𝒏𝒈 𝒈𝒓𝒐𝒖𝒑𝒔...` });
         
         // Send warning message separately (MAZARI STYLE)
         await sock.sendMessage(from, { text: `⚠️ 𝑮𝑪𝑺 𝑺𝒕𝒂𝒕𝒖𝒔\n𝑷𝒍𝒆𝒂𝒔𝒆 𝒘𝒂𝒊𝒕 — 𝒅𝒐𝒏'𝒕 𝒖𝒔𝒆 𝒂 𝒄𝒐𝒎𝒎𝒂𝒏𝒅.` });
@@ -220,7 +224,7 @@ cmd({
                 processedCount++;
                 
                 // Update progress message after EACH group attempt: "⏳ GCS Status Groups: X/Y"
-                await sock.sendMessage(from, { text: `⏳ ��� ������\n������: ${processedCount}/${eligibleJids.length}`, edit: startMsg.key });
+                await sock.sendMessage(from, { text: `⏳ 𝑮𝑪𝑺 𝑺𝒕𝒂𝒕𝒖𝒔\n𝑮𝒓𝒐𝒖𝒑𝒔: ${processedCount}/${eligibleJids.length}`, edit: startMsg.key });
                 
                 // Wait 5 seconds before next group (except after the last group)
                 const isLastGroup = (processedCount >= eligibleJids.length);
@@ -238,12 +242,12 @@ cmd({
 
         console.log(`[GCS-STATUS][${reqId}] Execution complete. Success: ${success}, Failed: ${failed}`);
         await sock.sendMessage(from, { 
-            text: `✅ 𝑮𝑪𝑺 ����\n��𝒑�𝒆𝒕𝒆 — ${success}/${eligibleJids.length} �����\n\n👑 ���𝒆𝒓�� �� ����𝑹𝑰 𝑴𝑫`, 
+            text: `✅ 𝑮𝑪𝑺 𝑺𝒕𝒂𝒕𝒖𝒔\n𝑪𝒐𝒎𝒑𝒍𝒆𝒕𝒆 — ${success}/${eligibleJids.length} 𝒈𝒓𝒐𝒖𝒑𝒔\n\n> 👑 𝑷𝒐𝒘𝒆𝒓𝒆𝒅 𝒃𝒚 𝑴𝑨𝒁𝑨𝑹𝑰`, 
             edit: startMsg.key 
         });
     } catch (e) {
         console.error('[GCS-STATUS] Critical Execution Error:', e.stack || e);
-        await reply(`❌ 𝑮𝑪𝑺 𝑺𝒕𝒂𝒕𝒖𝒔\n���𝒂��� ����� — 𝒑����𝒆 �𝒓� ��𝒂��.`);
+        await reply(`❌ 𝑮𝑪𝑺 𝑺𝒕𝒂𝒕𝒖𝒔\n𝑺𝒕𝒂𝒕𝒖𝒔 𝒇𝒂𝒊𝒍𝒆𝒅 — 𝒑𝒍𝒆𝒂𝒔𝒆 𝒕𝒓𝒚 𝒂𝒈𝒂𝒊𝒏.`);
     }
 });
 
