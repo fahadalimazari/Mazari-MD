@@ -21,7 +21,7 @@ cmd({
     desc: "Fetch and display all available bot commands",
     category: "system",
     filename: __filename,
-}, async (conn, mek, m, { reply, config }) => {
+}, async (conn, mek, m, { reply, config, prefix }) => {
     try {
         let totalCommands = 0;
         let grouped = {};
@@ -51,7 +51,7 @@ cmd({
             menuText += `*╰─────────────┈⊷*\n`;
         }
 
-        const prefix = config.PREFIX || '.';
+        // prefix is already passed dynamically from main.js
         const modeRaw = config.WORK_TYPE || 'public';
         const mode = modeRaw === 'private' ? 'ᴘʀɪᴠᴀᴛᴇ' : 'ᴘᴜʙʟɪᴄ';
         

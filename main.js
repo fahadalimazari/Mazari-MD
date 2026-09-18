@@ -1105,9 +1105,31 @@ conn.ev.on('connection.update', async (update) => {
                     if ((mode === "public" || mode === "inbox") && !isGroup && !isOwner) return;
                 }
 
+                                // ========== PREFIX INTERCEPTOR ==========
+                conn.pendingPrefix = conn.pendingPrefix || new Map();
+                if (conn.pendingPrefix.has(senderNumber)) {
+                    const isReplyToBot = mek.message?.extendedTextMessage?.contextInfo?.participant === botJid;
+                    if (isReplyToBot) {
+                        const newPrefix = body.trim();
+                        if (newPrefix && newPrefix.length > 0) {
+                            conn.pendingPrefix.delete(senderNumber);
+                            conn.userConfig.PREFIX = newPrefix;
+                            try {
+                                const { updateUserConfigInPostgres } = require('./lib/database-pg');
+                                await updateUserConfigInPostgres(botNumber, { PREFIX: newPrefix });
+                            } catch(e) {}
+                            await conn.sendMessage(from, { text: `✅ 𝑷𝒓𝒆𝒇𝒊𝒙 𝑼𝒑𝒅𝒂𝒕𝒆𝒅\n\n> 𝑵𝒆𝒘 𝑷𝒓𝒆𝒇𝒊𝒙 : ${newPrefix}` }, { quoted: mek });
+                            return;
+                        } else {
+                            await conn.sendMessage(from, { text: `⚠️ 𝑰𝒏𝒗𝒂𝒍𝒊𝒅 𝑷𝒓𝒆𝒇𝒊𝒙\n\n> 𝑷𝒍𝒆𝒂𝒔𝒆 𝒆𝒏𝒕𝒆𝒓 𝒂 𝒗𝒂𝒍𝒊𝒅 𝒑𝒓𝒆𝒇𝒊𝒙.` }, { quoted: mek });
+                            return;
+                        }
+                    }
+                }
+
                 // ========== COMMAND HANDLER ==========
                 if (isCmd) {
-                    const cmdName = body.slice(prefix.length).trim().split(" ")[0].toLowerCase();
+                    const cmdName = body.slice(currentPrefix.length).trim().split(" ")[0].toLowerCase();
                     const events = require("./arslan");
 
                     const cmd = events.commands.find(cmd =>
