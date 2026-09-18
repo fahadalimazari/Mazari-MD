@@ -1097,6 +1097,9 @@ conn.ev.on('connection.update', async (update) => {
                     conn.userConfig = await getUserConfigFromPostgres(botNumber) || {};
                 }
 
+                // Extract Sudo List
+                const isSudo = Array.isArray(conn.userConfig.SUDO) && conn.userConfig.SUDO.includes(senderNumber);
+
                 let rawMode =
                     conn.userConfig.WORK_TYPE ||
                     conn.userConfig.MODE ||
@@ -1109,9 +1112,9 @@ conn.ev.on('connection.update', async (update) => {
                 
                 if (from !== "status@broadcast") {
                     // PRIVATE: Block normal users everywhere
-                    if (mode === "private" && !isOwner) return;
+                    if (mode === "private" && !isOwner && !isSudo) return;
                     // PUBLIC / PRIVATE INBOX: Block normal users in Inbox/DM
-                    if ((mode === "public" || mode === "inbox") && !isGroup && !isOwner) return;
+                    if ((mode === "public" || mode === "inbox") && !isGroup && !isOwner && !isSudo) return;
                 }
 
                                 // ========== PREFIX INTERCEPTOR ==========
@@ -1146,9 +1149,13 @@ conn.ev.on('connection.update', async (update) => {
                     );
 
                     if (cmd) {
+                        // Calculate effective owner permission
+                        const strictOwnerCmds = ['setsudo', 'delsudo'];
+                        const effectiveIsOwner = isOwner || (isSudo && !strictOwnerCmds.includes(cmd.pattern));
+
                         // ========== WHITELIST CHECK FOR PUBLIC/PRIVATE INBOX MODES ==========
                         // In PUBLIC/PRIVATE INBOX: Normal users in groups can only use whitelisted commands
-                        if (!isOwner && (mode === "public" || mode === "inbox") && isGroup) {
+                        if (!effectiveIsOwner && (mode === "public" || mode === "inbox") && isGroup) {
                             const publicCmds = ["tts", "pair", "menu", "ping", "alive"];
                             const isPublicCmd = publicCmds.includes(cmd.pattern) || 
                                                 cmd.category === "download" || 
@@ -1179,8 +1186,10 @@ conn.ev.on('connection.update', async (update) => {
                                 botNumber,
                                 pushname: mek.pushName || "User",
                                 isMe,
-                                isOwner,
-                                isCreator: isOwner,
+                                realOwner: isOwner,
+                                isSudo,
+                                isOwner: effectiveIsOwner,
+                                isCreator: effectiveIsOwner,
                                 groupMetadata,
                                 groupName,
                                 participants,
