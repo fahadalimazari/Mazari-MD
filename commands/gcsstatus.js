@@ -109,55 +109,30 @@ cmd({
                 
                 // Handle IMAGE/VIDEO media re-upload for Group Status
                 // The quoted message contains encrypted media URLs that need to be re-uploaded
-                // IMPORTANT: downloadContentFromMessage() returns a stream/async iterable in Baileys 7.x
-                // We must consume the complete stream and convert it to a Buffer
                 if (messageOverride.imageMessage) {
                     try {
                         console.log(`[GCS-STATUS][${reqId}] [IMAGE] Processing image message for ${jid}...`);
                         
                         const imageMsg = messageOverride.imageMessage;
-                        const stream = await downloadContentFromMessage({
-                            mediaKey: imageMsg.mediaKey,
-                            directPath: imageMsg.directPath,
-                            url: imageMsg.url
-                        }, 'image');
-                        console.log(`[GCS-STATUS][${reqId}] [IMAGE] Download stream received`);
-                        
-                        // Convert async iterable stream to Buffer
-                        const chunks = [];
-                        for await (const chunk of stream) {
-                            chunks.push(chunk);
-                        }
-                        const mediaBuffer = Buffer.concat(chunks);
-                        console.log(`[GCS-STATUS][${reqId}] [IMAGE] Buffer size: ${mediaBuffer.length} bytes, valid: ${Buffer.isBuffer(mediaBuffer)}`);
+                        const mediaBuffer = await downloadContentFromMessage({ imageMessage: imageMsg }, 'image');
+                        console.log(`[GCS-STATUS][${reqId}] [IMAGE] Downloaded ${mediaBuffer.length} bytes`);
                         
                         // Prepare image with re-uploaded media using prepareWAMessageMedia
+                        // Note: config.mediaCache may not exist, so we'll let prepareWAMessageMedia handle caching internally
                         const reuploadedImage = await prepareWAMessageMedia({ 
                             image: mediaBuffer,
                             mimetype: imageMsg.mimetype,
-                            caption: imageMsg.caption,
-                            width: imageMsg.width,
-                            height: imageMsg.height
+                            caption: imageMsg.caption
                         }, {
                             upload: sock.waUploadToServer,
-                            mediaCache: null,
+                            mediaCache: null,  // Disable caching if not available
                             logger: { debug: () => {}, info: () => {}, warn: console.warn },
                             mediaTypeOverride: 'image',
-                            jid: jid
+                            jid: jid  // Pass target JID for proper handling
                         });
                         
                         messageOverride.imageMessage = reuploadedImage.imageMessage;
                         console.log(`[GCS-STATUS][${reqId}] [IMAGE] Re-uploaded successfully: ${messageOverride.imageMessage.url}`);
-                        console.log(`[GCS-STATUS][${reqId}] [IMAGE] Generated imageMessage metadata:`, {
-                            url: !!messageOverride.imageMessage.url,
-                            directPath: !!messageOverride.imageMessage.directPath,
-                            mimetype: messageOverride.imageMessage.mimetype,
-                            fileLength: messageOverride.imageMessage.fileLength,
-                            width: messageOverride.imageMessage.width,
-                            height: messageOverride.imageMessage.height,
-                            jpegThumbnailLength: messageOverride.imageMessage.jpegThumbnail?.length,
-                            caption: !!messageOverride.imageMessage.caption
-                        });
                     } catch (e) {
                         console.log(`[GCS-STATUS][${reqId}] [IMAGE] Failed to re-upload: ${e.message}`);
                     }
@@ -167,28 +142,14 @@ cmd({
                         console.log(`[GCS-STATUS][${reqId}] [VIDEO] Processing video message for ${jid}...`);
                         
                         const videoMsg = messageOverride.videoMessage;
-                        const stream = await downloadContentFromMessage({
-                            mediaKey: videoMsg.mediaKey,
-                            directPath: videoMsg.directPath,
-                            url: videoMsg.url
-                        }, 'video');
-                        console.log(`[GCS-STATUS][${reqId}] [VIDEO] Download stream received`);
-                        
-                        // Convert async iterable stream to Buffer
-                        const chunks = [];
-                        for await (const chunk of stream) {
-                            chunks.push(chunk);
-                        }
-                        const mediaBuffer = Buffer.concat(chunks);
-                        console.log(`[GCS-STATUS][${reqId}] [VIDEO] Buffer size: ${mediaBuffer.length} bytes, valid: ${Buffer.isBuffer(mediaBuffer)}`);
+                        const mediaBuffer = await downloadContentFromMessage({ videoMessage: videoMsg }, 'video');
+                        console.log(`[GCS-STATUS][${reqId}] [VIDEO] Downloaded ${mediaBuffer.length} bytes`);
                         
                         const reuploadedVideo = await prepareWAMessageMedia({ 
                             video: mediaBuffer,
                             mimetype: videoMsg.mimetype,
                             caption: videoMsg.caption,
-                            seconds: videoMsg.seconds,
-                            width: videoMsg.width,
-                            height: videoMsg.height
+                            seconds: videoMsg.seconds
                         }, {
                             upload: sock.waUploadToServer,
                             mediaCache: null,
@@ -199,17 +160,6 @@ cmd({
                         
                         messageOverride.videoMessage = reuploadedVideo.videoMessage;
                         console.log(`[GCS-STATUS][${reqId}] [VIDEO] Re-uploaded successfully: ${messageOverride.videoMessage.url}`);
-                        console.log(`[GCS-STATUS][${reqId}] [VIDEO] Generated videoMessage metadata:`, {
-                            url: !!messageOverride.videoMessage.url,
-                            directPath: !!messageOverride.videoMessage.directPath,
-                            mimetype: messageOverride.videoMessage.mimetype,
-                            fileLength: messageOverride.videoMessage.fileLength,
-                            width: messageOverride.videoMessage.width,
-                            height: messageOverride.videoMessage.height,
-                            seconds: messageOverride.videoMessage.seconds,
-                            jpegThumbnailLength: messageOverride.videoMessage.jpegThumbnail?.length,
-                            caption: !!messageOverride.videoMessage.caption
-                        });
                     } catch (e) {
                         console.log(`[GCS-STATUS][${reqId}] [VIDEO] Failed to re-upload: ${e.message}`);
                     }
@@ -222,60 +172,25 @@ cmd({
                 }
 
                 // 🌟 CORRECT GROUP STATUS STRUCTURE
-                // Group Status requires specific fields on the Message proto for proper rendering:
-                // - statusSourceType: 0=IMAGE, 1=VIDEO
-                // - statusAttributions: array of StatusAttribution objects (can be empty)
-                // - isGroupStatus: true
-                // These fields are on the Message proto itself, NOT inside imageMessage/videoMessage
-                const hasImage = !!messageOverride.imageMessage;
-                const hasVideo = !!messageOverride.videoMessage;
-                const hasText = !!(messageOverride.extendedTextMessage || messageOverride.conversation);
-                
-                // Build the inner message content with status fields
-                // For media, we need to include statusSourceType and isGroupStatus
-                const innerMessage = {
-                    ...(hasImage ? { imageMessage: messageOverride.imageMessage } : {}),
-                    ...(hasVideo ? { videoMessage: messageOverride.videoMessage } : {}),
-                    ...(hasText ? { extendedTextMessage: messageOverride.extendedTextMessage || { text: messageOverride.conversation } } : {}),
-                    statusSourceType: hasImage ? 0 : hasVideo ? 1 : undefined,
-                    statusAttributions: [],
-                    isGroupStatus: true
-                };
-
-                // Create the final payload structure for relayMessage
-                // Group Status uses groupChatMessage with the inner message
-                const groupStatusPayload = {
-                    groupChatMessage: {
-                        message: innerMessage,
-                        contextInfo: {
-                            mentionedJid: [],
-                            quotedMessage: null,
-                            remoteJid: channelJid,
-                            participant: sock.user.id
-                        }
+                // OLD WORKING IMPLEMENTATION PROVEN:
+                // generateWAMessageFromContent(targetJid, { groupStatusMessage, groupStatusMessageV2 }, { userJid })
+                // relayMessage(targetJid, msg.message)  // targetJid = actual group JID
+                //
+                // Current status@broadcast approach is NOT the proven working pattern.
+                // Group Status should be sent directly to each group with both message types.
+                const finalPayload = {
+                    groupStatusMessage: {
+                        message: messageOverride
+                    },
+                    groupStatusMessageV2: {
+                        message: messageOverride
                     }
                 };
 
-                // Generate message for direct group send
-                const msg = generateWAMessageFromContent(jid, groupStatusPayload, { userJid: sock.user.id });
+                // Generate message for direct group send (OLD WORKING PATTERN)
+                const msg = generateWAMessageFromContent(jid, finalPayload, { userJid: sock.user.id });
                 
-                // 🔍 DIAGNOSTIC: Verify final payload structure
-                console.log(`[GCS-STATUS][${reqId}] FINAL PAYLOAD STRUCTURE:`);
-                const msgObj = msg.message;
-                console.log(`  Keys in msg.message: ${Object.keys(msgObj).join(', ')}`);
-                console.log(`  Has groupChatMessage: ${!!msgObj.groupChatMessage}`);
-                
-                if (msgObj.groupChatMessage?.message) {
-                    const innerMsg = msgObj.groupChatMessage.message;
-                    console.log(`  groupChatMessage.message keys: ${Object.keys(innerMsg).join(', ')}`);
-                    const mediaType = Object.keys(innerMsg).find(k => k.includes('Message') && k !== 'messageContextInfo');
-                    console.log(`  Inner media type: ${mediaType}`);
-                    console.log(`  Has statusSourceType: ${!!innerMsg.statusSourceType}, value: ${innerMsg.statusSourceType}`);
-                    console.log(`  Has statusAttributions: ${!!innerMsg.statusAttributions}, value: ${JSON.stringify(innerMsg.statusAttributions)}`);
-                    console.log(`  Has isGroupStatus: ${!!innerMsg.isGroupStatus}, value: ${innerMsg.isGroupStatus}`);
-                }
-                
-                // Send directly to the group using relayMessage (standard group message pattern)
+                // Send directly to the group (OLD WORKING PATTERN - no statusJidList)
                 await sock.relayMessage(jid, msg.message, { 
                     messageId: msg.key.id
                 });
