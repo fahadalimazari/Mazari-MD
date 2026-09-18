@@ -219,9 +219,8 @@ cmd({
                     }
                 }
                 
-                // If it's a raw conversation string and there's no existing extendedTextMessage, convert it
-                // Do NOT replace complete extendedTextMessage because it contains link-preview metadata
-                if (messageOverride.conversation && !messageOverride.extendedTextMessage) {
+                // If it's a raw conversation string, convert it to extendedTextMessage
+                if (messageOverride.conversation) {
                     messageOverride.extendedTextMessage = { text: messageOverride.conversation };
                     delete messageOverride.conversation;
                 }
@@ -300,6 +299,10 @@ cmd({
         for (let i = 0; i < eligibleJids.length; i += batchSize) {
             const batch = eligibleJids.slice(i, i + batchSize);
             
+            // Update progress message with MAZARI style: "⏳ GCS Status Groups: X/Y"
+            const endNum = Math.min(i + batchSize, eligibleJids.length);
+            await sock.sendMessage(from, { text: `⏳ 𝑮𝑪𝑺 𝑺𝒕𝒂𝒕𝒖𝒔\n�𝒓𝒐��𝒔: ${endNum}/${eligibleJids.length}`, edit: startMsg.key });
+            
             // Process groups in this batch sequentially (one by one, no parallel)
             for (let idx = 0; idx < batch.length; idx++) {
                 const jid = batch[idx];
@@ -309,25 +312,21 @@ cmd({
                 
                 processedCount++;
                 
-                // Update progress message after EACH group is processed
-                await sock.sendMessage(from, { text: `⏳ 𝑮𝑪𝑺 𝑺𝒕𝒂𝒕𝒖𝒔\n𝑮𝒓𝒐𝒖𝒑𝒔: ${processedCount}/${eligibleJids.length}`, edit: startMsg.key });
-                
-                // After completing a batch of 10 groups, wait 20 seconds
-                // But do NOT wait after the very last group (final completion)
+                // Wait 5 seconds before next group (except after the last group)
                 const isLastGroup = (processedCount >= eligibleJids.length);
-                const isBatchComplete = (processedCount % batchSize === 0);
-                
-                if (!isLastGroup && isBatchComplete) {
-                    // Wait 20 seconds after completing a full batch
-                    await new Promise(r => setTimeout(r, 20000));
-                } else if (!isLastGroup) {
-                    // Wait 5 seconds between normal groups (inside a batch)
+                if (!isLastGroup) {
                     await new Promise(r => setTimeout(r, 5000));
                 }
             }
+            
+            // After each batch, wait 20 seconds (but NOT after the final batch)
+            const isFinalBatch = (i + batchSize >= eligibleJids.length);
+            if (!isFinalBatch) {
+                await new Promise(r => setTimeout(r, 20000));
+            }
         }
 
-        // 7️⃣ Final completion message with exact MAZARI style
+        // 7️⃣ Final completion message with MAZARI style
         // Line 1: ✅ GCS Status Complete — X/Y groups
         // Line 2: 👑 Powered by MAZARI MD
         await sock.sendMessage(from, { 
