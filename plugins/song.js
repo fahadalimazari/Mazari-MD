@@ -90,7 +90,7 @@ await conn.sendMessage(from, { react: { text: "❌", key: m.key } });
 
 cmd({
   'pattern': 'video1',
-  'alias': ["vid", "ytv"],
+  'alias': ["vid1", "ytv"],
   'desc': "Download YouTube Video",
   'category': 'downloader',
   'react': '🪄',

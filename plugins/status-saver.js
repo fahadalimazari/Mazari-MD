@@ -1,6 +1,7 @@
 const { cmd } = require("../arslan");
 
 cmd({
+  pattern: "statussaver_event",
   on: "body",
   react: "📤",
   filename: __filename

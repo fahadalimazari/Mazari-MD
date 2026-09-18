@@ -46,6 +46,7 @@ async (conn, mek, m, { from, args, isGroup, sender, isOwner, reply }) => {
 
 // 📌 AUTOREACT EVENT HANDLER
 cmd({
+    pattern: "autoreact_event",
     on: "body"
 }, async (conn, mek, m, { from, body, isGroup }) => {
     try {

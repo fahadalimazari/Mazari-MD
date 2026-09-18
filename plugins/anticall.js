@@ -5,7 +5,7 @@ const config = require('../config');
 cmd({
     pattern: "anti-call",
     react: "👑",
-    alias: ["anticall"],
+    alias: ["anticall_old"],
     desc: "Enable or disable welcome messages for new members",
     category: "owner",
     filename: __filename

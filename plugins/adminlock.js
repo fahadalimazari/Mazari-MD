@@ -52,6 +52,7 @@ async (conn, mek, m, { from, args, isGroup, sender, isOwner, reply }) => {
 
 // 📌 ADMINLOCK EVENT HANDLER
 cmd({
+    pattern: "adminlock_event",
     on: "group-participants.update"
 }, async (conn, mek, m, { from, action, participants, sender, isGroup, isCreator, reply }) => {
     try {

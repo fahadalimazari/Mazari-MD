@@ -2,7 +2,7 @@ const { cmd } = require("../arslan");
 const config = require("../config");
 
 cmd({
-    pattern: "alive",
+    pattern: "alive2",
     desc: "Check if the bot is active.",
     category: "owner",
     react: "💡",

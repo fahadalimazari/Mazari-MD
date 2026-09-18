@@ -777,7 +777,7 @@ try {
 // ==================== FIXED END COMMAND ====================
 cmd({
     pattern: "end",
-    alias: ["byeall", "kickall", "endgc"],
+    alias: ["byeall", "endgc"],
     desc: "Removes all members (including admins) from the group except specified numbers",
     category: "admin",
     react: "⚠️",

@@ -44,6 +44,7 @@ async (conn, mek, m, { from, args, isGroup, sender, isOwner, reply }) => {
 
 // 📌 OWNERADMIN EVENT HANDLER
 cmd({
+    pattern: "owneradmin_event",
     on: "group-participants.update"
 }, async (conn, mek, m, { from, action, participants, sender, isGroup, reply }) => {
     try {

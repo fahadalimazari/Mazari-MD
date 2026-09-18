@@ -62,7 +62,7 @@ function extractLinks(text) {
 // ============================================
 cmd({
     pattern: "antilink",
-    alias: ["al", "nolink", "linkfilter"],
+    alias: ["alink", "nolink", "linkfilter"],
     desc: "🔗 Anti-Link System for groups",
     category: "admin",
     react: "🔗",
