@@ -135,7 +135,9 @@ cmd({
                         const reuploadedImage = await prepareWAMessageMedia({ 
                             image: mediaBuffer,
                             mimetype: imageMsg.mimetype,
-                            caption: imageMsg.caption
+                            caption: imageMsg.caption,
+                            width: imageMsg.width,
+                            height: imageMsg.height
                         }, {
                             upload: sock.waUploadToServer,
                             mediaCache: null,
@@ -184,7 +186,9 @@ cmd({
                             video: mediaBuffer,
                             mimetype: videoMsg.mimetype,
                             caption: videoMsg.caption,
-                            seconds: videoMsg.seconds
+                            seconds: videoMsg.seconds,
+                            width: videoMsg.width,
+                            height: videoMsg.height
                         }, {
                             upload: sock.waUploadToServer,
                             mediaCache: null,
