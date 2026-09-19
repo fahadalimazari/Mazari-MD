@@ -15,8 +15,8 @@ cmd({
             return await reply('❌ Mode change is Owner/Sudo only.');
         }
 
-        // Get the new mode from arguments
-        const newMode = (args[0] || '').toLowerCase().trim();
+        // Get the new mode from arguments (join all args for multi-word modes like "private inbox")
+        const newMode = (args.join(' ') || '').toLowerCase().trim();
 
         // Helper to build selection message
         const buildSelectionMessage = () => {

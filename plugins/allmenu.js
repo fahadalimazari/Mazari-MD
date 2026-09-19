@@ -1,6 +1,7 @@
 const { cmd, commands } = require("../arslan");
 const { getPrefix } = require('../lib/prefix');
 const { sendMenuWithChannelButton } = require('../lib/viewchannel');
+const { getModeDisplay } = require('../lib/mode');
 
 // Unicode small letter mapping
 const toSmallUnicode = (str) => {
@@ -94,17 +95,9 @@ cmd({
 
         // Get dynamic mode from current session
         const currentMode = conn.userConfig?.MODE || conn.userConfig?.WORK_TYPE || config.MODE || config.WORK_TYPE || 'public';
-        let modeNormalized = currentMode.toLowerCase().trim();
-        if (modeNormalized === 'private inbox') modeNormalized = 'private_inbox';
-        if (modeNormalized === 'inbox') modeNormalized = 'private_inbox';
         
-        // Get display value from mapping
-        const MODE_DISPLAY_MAP = {
-            'public': 'PUBLIC',
-            'private': 'PRIVATE',
-            'private_inbox': 'PRIVATE INBOX'
-        };
-        const mode = MODE_DISPLAY_MAP[modeNormalized] || 'PUBLIC';
+        // Use mode display function for proper formatting
+        const mode = getModeDisplay(currentMode);
 
         const caption = `
 *╭━━━〔 𝑴𝑨𝒁𝑨𝑹𝑰-𝑴𝑫 〕━━━⊷*
