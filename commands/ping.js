@@ -16,7 +16,7 @@ const MAZARI_CHANNEL = {
 cmd({
     pattern: "ping",
     desc: "⚡ Live ping speed monitor",
-    category: "main",
+    category: "system",
     react: "⚡",
     filename: __filename
 }, async (conn, mek, m, { from, reply }) => {

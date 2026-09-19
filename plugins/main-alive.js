@@ -7,7 +7,7 @@ cmd({
     pattern: "alive",
     alias: ["status", "live"],
     desc: "Check uptime and system status",
-    category: "main",
+    category: "system",
     react: "👑",
     filename: __filename
 },
