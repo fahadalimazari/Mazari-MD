@@ -36,12 +36,6 @@ async function resolveChannelJid(sock) {
     }
 }
 
-// ─── OWNER / SUDO CHECK ───
-async function isOwnerOrSudo(userId) {
-    if (!userId) return false;
-    return config.OWNER_NUMBER.some(num => userId.startsWith(num) || userId.includes(num + '@'));
-}
-
 cmd({
     pattern: "gcsstatus",
     alias: ["groupstatus", "gpstatus"],
@@ -49,11 +43,10 @@ cmd({
     category: "owner",
     react: "📢",
     filename: __filename
-}, async (sock, mek, m, { from, args, reply, sender }) => {
+}, async (sock, mek, m, { from, args, reply, sender, isOwner, isSudo }) => {
     try {
         // 1️⃣ Permission check
-        const owner = await isOwnerOrSudo(sender);
-        if (!owner && !mek.key.fromMe) return await reply('❌ 𝑮𝑪𝑺 𝑺𝒕𝒂𝒕𝒖𝒔\n𝑶𝒘𝒏𝒆𝒓/𝑺𝒖𝒅𝒐 𝒐𝒏𝒍𝒚.');
+        if (!isOwner && !isSudo && !mek.key.fromMe) return await reply('❌ 𝑮𝑪𝑺 𝑺𝒕𝒂𝒕𝒖𝒔\n𝑶𝒘𝒏𝒆𝒓/𝑺𝒖𝒅𝒐 𝒐𝒏𝒍𝒚.');
 
         // 2️⃣ Resolve channel JID (for the CTA attribution)
         const channelJid = await resolveChannelJid(sock);

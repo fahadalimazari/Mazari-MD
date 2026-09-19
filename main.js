@@ -1098,7 +1098,7 @@ conn.ev.on('connection.update', async (update) => {
                 }
 
                 // Extract Sudo List
-                const isSudo = Array.isArray(conn.userConfig.SUDO) && conn.userConfig.SUDO.includes(senderNumber);
+                const isSudo = Array.isArray(conn.userConfig?.SUDO) && conn.userConfig.SUDO.includes(senderNumber);
 
                 let rawMode =
                     conn.userConfig.WORK_TYPE ||
