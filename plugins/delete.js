@@ -18,10 +18,12 @@ cmd({
     reply
 }) => {
     try {
-        // Get quoted message
-        const quotedMessage = mek.message?.extendedTextMessage?.contextInfo?.quotedMessage;
-        
-        if (!quotedMessage) {
+        // Check if message is from me (for self-delete in private chat)
+        const isFromMe = mek.key.fromMe;
+
+        // Get quoted message using m.quoted structure
+        // m.quoted contains: message, stanzaId, participant
+        if (!m.quoted || !m.quoted.message) {
             // No reply case - show error but DON'T delete command message
             await conn.sendMessage(from, {
                 text: `⚠️ 𝑫𝒆𝒍𝒆𝒕𝒆 > 𝑷𝒍𝒆𝒂𝒔𝒆 𝒓𝒆𝒑𝒍𝒚 𝒕𝒐 𝒂 𝒎𝒆𝒔𝒔𝒂𝒈𝒆.`
@@ -29,23 +31,26 @@ cmd({
             return;
         }
 
-        // Extract message key from quoted message
-        const quotedKey = quotedMessage.key || quotedMessage?.extendedTextMessage?.contextInfo?.key;
-        
-        if (!quotedKey) return;
+        // Get the quoted message key
+        // stanzaId is the message ID, remoteJid is the chat
+        const quotedKey = {
+            remoteJid: from,
+            id: m.quoted.stanzaId,
+            fromMe: m.quoted.participant ? false : isFromMe,
+            participant: m.quoted.participant || (isFromMe ? conn.user.id : null)
+        };
 
-        // Get the sender of the quoted message
-        // quotedKey.participant is set for group messages
-        // For direct messages or when fromMe is true, use from
-        const quotedSenderJid = quotedKey.fromMe ? conn.user.id : (quotedKey.participant || quotedKey.remoteJid);
-        
         // Determine if user can delete this message
         // Can delete if: own message OR admin/owner/sudo
-        const isOwnMessage = quotedSenderJid === sender || quotedKey.fromMe;
+        
+        // Check if quoted message was sent by current user
+        const quotedSender = m.quoted.participant;
+        const isOwnMessage = quotedSender === sender || isFromMe;
+        
         const canDelete = isOwnMessage || isAdmins || isBotAdmins || isOwner || isSudo;
 
         if (!canDelete) {
-            // Cannot delete - silently return, DO NOT delete command message
+            // Cannot delete - silently return, DO NOT delete anything
             return;
         }
 
