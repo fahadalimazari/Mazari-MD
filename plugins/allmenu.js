@@ -1,5 +1,6 @@
 const { cmd, commands } = require("../arslan");
 const { getPrefix } = require('../lib/prefix');
+const { sendMenuWithChannelButton } = require('../lib/viewchannel');
 
 // Unicode small letter mapping
 const toSmallUnicode = (str) => {
@@ -112,24 +113,7 @@ ${cachedMenuText}
 > ${toSmallUnicode('POWERED BY MAZARI-MD')}
 `.trim();
 
-        // Send menu with channel button
-        await conn.sendMessage(m.chat, {
-            image: cachedImageBuffer ? cachedImageBuffer : { url: "https://files.catbox.moe/jtarms.png" },
-            caption: caption,
-            buttons: [
-                {
-                    name: "cta_url",
-                    buttonParamsJson: JSON.stringify({
-                        display_text: "📢 𝑽𝒊𝒆𝒘 𝑪𝒉𝒂𝒏𝒏𝒆𝒍",
-                        url: "https://whatsapp.com/channel/0029Vb6GUj8BPzjOWNfnhm1B",
-                        merchant_url: "https://whatsapp.com/channel/0029Vb6GUj8BPzjOWNfnhm1B"
-                    })
-                }
-            ],
-            contextInfo: {
-                mentionedJid: [m.sender]
-            }
-        }, { quoted: mek });
+        await sendMenuWithChannelButton(conn, m.chat, caption, cachedImageBuffer, m.sender, mek);
 
     } catch (err) {
         console.error("AllMenu Error:", err);

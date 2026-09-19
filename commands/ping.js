@@ -28,17 +28,7 @@ cmd({
         const initialPing = Date.now() - startTime;
         
         const pingMessage = await conn.sendMessage(from, {
-            text: `⚡ 𝑷𝒊𝒏𝒈 : ${initialPing} 𝒎𝒔`,
-            buttons: [
-                {
-                    name: "cta_url",
-                    buttonParamsJson: JSON.stringify({
-                        display_text: "📢 𝑽𝒊𝒆𝒘 𝑪𝒉𝒂𝒏𝒏𝒆𝒍",
-                        url: "https://whatsapp.com/channel/0029Vb6GUj8BPzjOWNfnhm1B",
-                        merchant_url: "https://whatsapp.com/channel/0029Vb6GUj8BPzjOWNfnhm1B"
-                    })
-                }
-            ]
+            text: `⚡ 𝑷𝒊𝒏𝒈 : ${initialPing} 𝒎𝒔`
         }, { quoted: mek });
         
     } catch (error) {
