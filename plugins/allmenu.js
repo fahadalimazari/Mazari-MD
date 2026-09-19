@@ -86,8 +86,19 @@ cmd({
         }
 
         // prefix is already passed dynamically from main.js
-        const modeRaw = config.WORK_TYPE || 'public';
-        const mode = modeRaw === 'private' ? 'ᴘʀɪᴠᴀᴛᴇ' : 'ᴘᴜʙʟɪᴄ';
+        // Use dynamic mode from current session (conn.userConfig.MODE)
+        // If not available, fall back to config
+        const currentMode = conn.userConfig?.MODE || conn.userConfig?.WORK_TYPE || config.MODE || config.WORK_TYPE || 'public';
+        let modeNormalized = currentMode.toLowerCase().trim();
+        if (modeNormalized === 'private inbox') modeNormalized = 'private_inbox';
+        
+        // Get display value from mapping
+        const MODE_DISPLAY_MAP = {
+            'public': '𝑷𝑼𝑩𝑳𝑰𝑪',
+            'private': '𝑷𝑹𝑰𝑽𝑨𝑻𝑬',
+            'private_inbox': '𝑷𝑹𝑰𝑽𝑨𝑻𝑬 𝑰𝑵𝑩𝑶𝑿'
+        };
+        const mode = MODE_DISPLAY_MAP[modeNormalized] || '𝑷𝑼𝑩𝑳𝑰𝑪';
         
         // Calculate bot uptime using process.uptime()
         const elapsedSeconds = Math.floor(process.uptime());

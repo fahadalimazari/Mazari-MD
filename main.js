@@ -66,6 +66,9 @@ const axios = require('axios');
 const moment = require('moment-timezone');
 const chalk = require('chalk');
 
+// ========== MODE SYSTEM ==========
+const modeSystem = require('./lib/mode');
+
 // ========== IMPORT MAZARI-MD FEATURES ==========
 const GroupEvents = require('./lib/groupevents');
 const { PresenceControl, BotActivityFilter } = require('./data/presence');
@@ -1116,7 +1119,7 @@ conn.ev.on('connection.update', async (update) => {
                     return;
                 }
 
-                // ========== MODE PERMISSION (PRE-CHECK) ==========
+                // ========== MODE PERMISSION CHECK (CENTRALIZED) ==========
                 if (!conn.userConfig) {
                     conn.userConfig = await getUserConfigFromPostgres(botNumber) || {};
                 }
@@ -1124,24 +1127,27 @@ conn.ev.on('connection.update', async (update) => {
                 // Extract Sudo List
                 const isSudo = Array.isArray(conn.userConfig?.SUDO) && conn.userConfig.SUDO.includes(senderNumber);
 
-                let rawMode =
-                    conn.userConfig.WORK_TYPE ||
-                    conn.userConfig.MODE ||
-                    config.WORK_TYPE ||
-                    config.MODE ||
-                    "public";
+                // Get effective mode for this session
+                const currentMode = modeSystem.getEffectiveMode(conn, config);
 
-                let mode = rawMode.toLowerCase().trim();
-                if (mode === "private inbox") mode = "inbox"; // normalize alias
-                
-                if (from !== "status@broadcast") {
-                    // PRIVATE: Block normal users everywhere
-                    if (mode === "private" && !isOwner && !isSudo) return;
-                    // PUBLIC / PRIVATE INBOX: Block normal users in Inbox/DM
-                    if ((mode === "public" || mode === "inbox") && !isGroup && !isOwner && !isSudo) return;
+                // ========== MODE-BASED ACCESS CONTROL ==========
+                // Owner/Sudo bypass all mode restrictions
+                if (!isOwner && !isSudo) {
+                    if (from !== "status@broadcast") {
+                        // PRIVATE mode: Block normal users everywhere (both inbox and groups)
+                        if (currentMode === "private") {
+                            return; // Silent block
+                        }
+                        
+                        // PUBLIC mode: Normal users allowed in both inbox and groups (whitelist check later)
+                        // PRIVATE_INBOX mode: Normal users blocked in inbox, allowed in groups
+                        if (currentMode === "private_inbox" && !isGroup) {
+                            return; // Silent block in inbox
+                        }
+                    }
                 }
 
-                                // ========== PREFIX INTERCEPTOR ==========
+                // ========== PREFIX INTERCEPTOR ==========
                 conn.pendingPrefix = conn.pendingPrefix || new Map();
                 if (conn.pendingPrefix.has(senderNumber)) {
                     const isReplyToBot = mek.message?.extendedTextMessage?.contextInfo?.participant === botJid;
@@ -1177,14 +1183,31 @@ conn.ev.on('connection.update', async (update) => {
                         const strictOwnerCmds = ['setsudo', 'delsudo'];
                         const effectiveIsOwner = isOwner || (isSudo && !strictOwnerCmds.includes(cmd.pattern));
 
-                        // ========== WHITELIST CHECK FOR PUBLIC/PRIVATE INBOX MODES ==========
-                        // In PUBLIC/PRIVATE INBOX: Normal users in groups can only use whitelisted commands
-                        if (!effectiveIsOwner && (mode === "public" || mode === "inbox") && isGroup) {
-                            const publicCmds = ["tts", "pair", "menu", "ping", "alive"];
-                            const isPublicCmd = publicCmds.includes(cmd.pattern) || 
-                                                cmd.category === "download" || 
-                                                cmd.category === "downloader";
-                            if (!isPublicCmd) return; // Silent block for non-whitelisted commands
+                        // ========== MODE-BASED COMMAND WHITELIST CHECK ==========
+                        // Only apply whitelist check for normal users (not owner/sudo)
+                        if (!effectiveIsOwner) {
+                            // Check if command is a download category command
+                            const isDownloadCmd = cmd.category === 'download' || cmd.category === 'downloader';
+                            
+                            // Get whitelisted commands
+                            const publicCmds = ['ping', 'menu', 'alive', 'tagall', 'pair', 'video', 'tts'];
+                            const isPublicCmd = publicCmds.includes(cmd.pattern) || isDownloadCmd;
+                            
+                            // Apply mode-based restrictions for normal users
+                            if (currentMode === 'public' || currentMode === 'private_inbox') {
+                                // In PUBLIC and PRIVATE_INBOX modes:
+                                // - Normal users in groups can use whitelisted commands
+                                // - Normal users in inbox are blocked (handled above)
+                                if (isGroup) {
+                                    // Allow if whitelisted, otherwise silently block
+                                    if (!isPublicCmd) return;
+                                }
+                                // If not isGroup, we already returned above (blocked in inbox for private_inbox)
+                            } else if (currentMode === 'private') {
+                                // PRIVATE mode: Normal users blocked everywhere (handled above)
+                                // But also apply whitelist check just in case
+                                if (!isPublicCmd) return;
+                            }
                         }
 
                         if (cmd.react) {
