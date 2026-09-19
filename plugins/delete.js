@@ -35,11 +35,13 @@ cmd({
         if (!quotedKey) return;
 
         // Get the sender of the quoted message
-        const quotedSender = quotedKey.participant || quotedKey.fromMe ? sender : quotedKey.participant;
+        // quotedKey.participant is set for group messages
+        // For direct messages or when fromMe is true, use from
+        const quotedSenderJid = quotedKey.fromMe ? conn.user.id : (quotedKey.participant || quotedKey.remoteJid);
         
         // Determine if user can delete this message
         // Can delete if: own message OR admin/owner/sudo
-        const isOwnMessage = quotedSender === sender || quotedKey.fromMe;
+        const isOwnMessage = quotedSenderJid === sender || quotedKey.fromMe;
         const canDelete = isOwnMessage || isAdmins || isBotAdmins || isOwner || isSudo;
 
         if (!canDelete) {
