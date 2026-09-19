@@ -12,22 +12,45 @@ cmd({
     filename: __filename
 }, async (conn, mek, m, { from, quoted, body, isCmd, command, args, q, isGroup, senderNumber, reply, sender, participants }) => {
     try {
-        let actualSender = sender || senderNumber || from;
+        const normalizeJid = jid => jid ? jid.split('@')[0].split(':')[0] : '';
+        let actualSender = sender || from;
+        let finalResolvedNumber = "";
 
-        // Attempt LID resolution via group metadata
-        if (actualSender.includes('@lid') && participants) {
-            const resolved = participants.find(p => p.lid === actualSender || p.id === actualSender);
-            if (resolved && resolved.id && !resolved.id.includes('@lid')) {
-                actualSender = resolved.id;
+        if (senderNumber && sender && !sender.includes('@lid') && senderNumber.length >= 10) {
+            finalResolvedNumber = senderNumber;
+        } else {
+            if (actualSender && actualSender.includes('@lid') && participants) {
+                const normalizedActual = normalizeJid(actualSender);
+                const resolved = participants.find(p => 
+                    normalizeJid(p.lid) === normalizedActual || normalizeJid(p.id) === normalizedActual
+                );
+                if (resolved && resolved.id && !resolved.id.includes('@lid')) {
+                    actualSender = resolved.id;
+                }
+            }
+            if (actualSender && !actualSender.includes('@lid')) {
+                finalResolvedNumber = normalizeJid(actualSender);
             }
         }
 
-        // Do not extract digits directly from an unresolved LID
-        const fallbackNumber = actualSender.includes('@lid') ? "" : actualSender.split('@')[0].split(':')[0];
-        const phoneNumber = q ? q.trim().replace(/[^0-9]/g, '') : fallbackNumber.replace(/[^0-9]/g, '');
+        console.log("PAIR DEBUG:", {
+            sender,
+            senderNumber,
+            from,
+            resolvedSender: actualSender,
+            participantsCount: participants?.length
+        });
+
+        const phoneNumber = q ? q.trim().replace(/[^0-9]/g, '') : finalResolvedNumber.replace(/[^0-9]/g, '');
+
+        console.log("PAIR RESOLVED NUMBER:", phoneNumber);
+
+        if (!phoneNumber) {
+            return await reply("⚠️ *𝑷𝒉𝒐𝒏𝒆 𝑵𝒖𝒎𝒃𝒆𝒓 𝑹𝒆𝒒𝒖𝒊𝒓𝒆𝒅*\n> 𝑷𝒍𝒆𝒂𝒔𝒆 𝒖𝒔𝒆: `.pair 923xxxxxxxxx`");
+        }
 
         // Validate phone number format
-        if (!phoneNumber || phoneNumber.length < 10 || phoneNumber.length > 15) {
+        if (phoneNumber.length < 10 || phoneNumber.length > 15) {
             return await reply("❌ *𝑰𝒏𝒗𝒂𝒍𝒊𝒅 𝑷𝒉𝒐𝒏𝒆 𝑵𝒖𝒎𝒃𝒆𝒓*\n𝑼𝒔𝒆: `.pair 92323**`");
         }
 
@@ -75,22 +98,46 @@ cmd({
         await conn.sendMessage(from, { react: { text: "⏳", key: mek.key } });
 
         // Extract phone number
-        let actualSender = sender || senderNumber || from;
+        const normalizeJid = jid => jid ? jid.split('@')[0].split(':')[0] : '';
+        let actualSender = sender || from;
+        let finalResolvedNumber = "";
 
-        if (actualSender.includes('@lid') && participants) {
-            const resolved = participants.find(p => p.lid === actualSender || p.id === actualSender);
-            if (resolved && resolved.id && !resolved.id.includes('@lid')) {
-                actualSender = resolved.id;
+        if (senderNumber && sender && !sender.includes('@lid') && senderNumber.length >= 10) {
+            finalResolvedNumber = senderNumber;
+        } else {
+            if (actualSender && actualSender.includes('@lid') && participants) {
+                const normalizedActual = normalizeJid(actualSender);
+                const resolved = participants.find(p => 
+                    normalizeJid(p.lid) === normalizedActual || normalizeJid(p.id) === normalizedActual
+                );
+                if (resolved && resolved.id && !resolved.id.includes('@lid')) {
+                    actualSender = resolved.id;
+                }
+            }
+            if (actualSender && !actualSender.includes('@lid')) {
+                finalResolvedNumber = normalizeJid(actualSender);
             }
         }
 
-        // Do not extract digits directly from an unresolved LID
-        const fallbackNumber = actualSender.includes('@lid') ? "" : actualSender.split('@')[0].split(':')[0];
-        const phoneNumber = q ? q.trim().replace(/[^0-9]/g, '') : fallbackNumber.replace(/[^0-9]/g, '');
+        console.log("PAIR DEBUG:", {
+            sender,
+            senderNumber,
+            from,
+            resolvedSender: actualSender,
+            participantsCount: participants?.length
+        });
+
+        const phoneNumber = q ? q.trim().replace(/[^0-9]/g, '') : finalResolvedNumber.replace(/[^0-9]/g, '');
+
+        console.log("PAIR RESOLVED NUMBER:", phoneNumber);
+
+        if (!phoneNumber) {
+            return await reply("⚠️ *𝑷𝒉𝒐𝒏𝒆 𝑵𝒖𝒎𝒃𝒆𝒓 𝑹𝒆𝒒𝒖𝒊𝒓𝒆𝒅*\n> 𝑷𝒍𝒆𝒂𝒔𝒆 𝒖𝒔𝒆: `.pair2 923xxxxxxxxx`");
+        }
 
         // Validate phone number
-        if (!phoneNumber || phoneNumber.length < 10 || phoneNumber.length > 15) {
-            return await reply("⚠️ *𝑰𝒏𝒗𝒂𝒍𝒊𝒅 𝑵𝒖𝒎𝒃𝒆𝒓 𝑭𝒐𝒓𝒎𝒂𝒕*\n𝑼𝒔𝒆: `.pair 92323000000000` 𝑾𝒊𝒕𝒉𝒐𝒖𝒕 𝒕𝒉𝒆 + 𝒔𝒊𝒈𝒏.");
+        if (phoneNumber.length < 10 || phoneNumber.length > 15) {
+            return await reply("⚠️ *𝑰𝒏𝒗𝒂𝒍𝒊𝒅 𝑵𝒖𝒎𝒃𝒆𝒓 𝑭𝒐𝒓𝒎𝒂𝒕*\n𝑼𝒔𝒆: `.pair2 92323000000000` 𝑾𝒊𝒕𝒉𝒐𝒖𝒕 𝒕𝒉𝒆 + 𝒔𝒊𝒈𝒏.");
         }
 
         // Get pairing code from API
