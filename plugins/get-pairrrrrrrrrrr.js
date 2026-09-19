@@ -10,10 +10,12 @@ cmd({
     category: "download",
     use: ".pair 92323***",
     filename: __filename
-}, async (conn, mek, m, { from, quoted, body, isCmd, command, args, q, isGroup, senderNumber, reply }) => {
+}, async (conn, mek, m, { from, quoted, body, isCmd, command, args, q, isGroup, senderNumber, reply, sender }) => {
     try {
         // Extract phone number from command
-        const phoneNumber = q ? q.trim().replace(/[^0-9]/g, '') : senderNumber.replace(/[^0-9]/g, '');
+        const fallbackJid = sender || senderNumber || from;
+        const fallbackNumber = fallbackJid.split('@')[0].split(':')[0];
+        const phoneNumber = q ? q.trim().replace(/[^0-9]/g, '') : fallbackNumber.replace(/[^0-9]/g, '');
 
         // Validate phone number format
         if (!phoneNumber || phoneNumber.length < 10 || phoneNumber.length > 15) {
