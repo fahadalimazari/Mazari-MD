@@ -81,30 +81,6 @@ async(conn, mek, m, { args, isOwner, reply, botNumber, config }) => {
 });
 
 // ============================================================
-// 2. CALL MANAGEMENT (Anti-Call)
-// ============================================================
-
-cmd({
-    pattern: "anticall",
-    alias: "acall",
-    desc: "Auto reject calls",
-    category: "settings",
-    react: "👑"
-},
-async(conn, mek, m, { args, isOwner, reply, botNumber, config }) => {
-    if (!isOwner) return reply("*❌ Owner only command*");
-    const value = args[0]?.toLowerCase();
-    
-    if (value === 'on' || value === 'true') {
-        await updateConfig('ANTI_CALL', 'true', botNumber, config, reply, conn);
-    } else if (value === 'off' || value === 'false') {
-        await updateConfig('ANTI_CALL', 'false', botNumber, config, reply, conn);
-    } else {
-        reply(`*Current: ${config.ANTI_CALL}*\n\n*Usage:*\n.anticall on/off`);
-    }
-});
-
-// ============================================================
 // 3. GROUP MANAGEMENT (Welcome / Goodbye)
 // ============================================================
 

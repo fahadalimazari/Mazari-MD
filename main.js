@@ -711,8 +711,8 @@ async function arslanPair(number, res = null) {
         activeSockets.set(sanitizedNumber, conn);
         store.bind(conn.ev);
 
-        // ========== SETUP CALL HANDLERS ==========
-        setupCallHandlers(conn, number);
+        // ========== SETUP ANTI-CALL ==========
+        registerAntiCall(conn, config);
 
         // ========== SETUP AUTO RESTART ==========
         setupAutoRestart(conn, number);
@@ -1332,28 +1332,6 @@ async function getCachedGroupMetadata(conn, jid) {
         console.error(`[ ❌ ] Failed to fetch group metadata for ${jid}:`, error.message);
         return { participants: [], subject: "Unknown Group", id: jid };
     }
-}
-
-// ========== CALL HANDLERS ==========
-async function setupCallHandlers(socket, number) {
-    registerAntiCall(socket, config);
-
-    socket.ev.on('call', async (calls) => {
-        try {
-            const userConfig = await getUserConfigFromMongoDB(number);
-            if (userConfig.ANTI_CALL !== 'true') return;
-            for (const call of calls) {
-                if (call.status !== 'offer') continue;
-                await socket.rejectCall(call.id, call.from);
-                await socket.sendMessage(call.from, {
-                    text: userConfig.REJECT_MSG || config.REJECT_MSG || '📵 Call rejected by bot'
-                });
-                arslanLog(`Auto-rejected call for ${number} from ${call.from}`, 'info');
-            }
-        } catch (err) {
-            arslanLog(`Anti-call error for ${number}: ${err.message}`, 'error');
-        }
-    });
 }
 
 // ========== AUTO RESTART ==========
