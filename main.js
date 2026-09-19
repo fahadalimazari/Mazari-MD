@@ -844,6 +844,18 @@ conn.ev.on('connection.update', async (update) => {
             await autoFollowChannel(conn, sanitizedNumber);
         }
 
+        // ── 🆕 ALWAYS ONLINE RESTORE ──
+        try {
+            const { getUserConfigFromPostgres } = require('./lib/database-pg');
+            const userConfig = await getUserConfigFromPostgres(sanitizedNumber) || {};
+            if (userConfig.ALWAYS_ONLINE) {
+                await conn.sendPresenceUpdate('available');
+                arslanLog(`[Presence] Always Online restored for ${sanitizedNumber}`, 'info');
+            }
+        } catch (e) {
+            console.error('[Presence] Error restoring Always Online:', e.message);
+        }
+
         // ── CONNECTED MESSAGE ──
         const connectedMsg = `╭────────────────────◇
 │✦ *${BOT_NAME} — CONNECTED* 🔥
