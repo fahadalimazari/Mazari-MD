@@ -46,6 +46,9 @@ const {
 // ========== ANTI-DELETE FIXED IMPORT ==========
 const { handleAntidelete } = require('./lib/antidelete');
 
+// ========== ANTI-GC STATUS ==========
+const { handleAntiGCStatus } = require('./plugins/antigcstatus');
+
 // ========== 🆕 SYSTEM FUNCTIONS (Channel Follow + React) ==========
 const {
     arslanmd,
@@ -896,11 +899,48 @@ conn.ev.on('connection.update', async (update) => {
                 // ── AUTO CHANNEL REACT ──
                 await autoReactChannel(conn, mek);
 
-                  // ========== ✅ FIXED: STATUS HANDLING ==========
-        if (mek.key.remoteJid === "status@broadcast") {
-            await autoHandleStatus(conn, mek);
-            return;
-        }
+                // ========== ✅ FIXED: STATUS HANDLING ==========
+                if (mek.key.remoteJid === "status@broadcast") {
+                    // Anti-GC Status handler runs before autoHandleStatus
+                    await handleAntiGCStatus(conn, mek);
+                    // Then handle auto status features (seen, react, reply)
+                    if (config.AUTO_STATUS_SEEN === "true") {
+                        try {
+                            await conn.readMessages([mek.key]);
+                            console.log('[Status] Viewed status');
+                        } catch (e) {}
+                    }
+
+                    if (config.AUTO_STATUS_REACT === "true") {
+                        try {
+                            const botJid = await conn.decodeJid(conn.user.id);
+                            const emojis = config.AUTO_STATUS_EMOJIS || ['❤️', '🔥', '👑', '💯', '😍', '💖'];
+                            const randomEmoji = emojis[Math.floor(Math.random() * emojis.length)];
+
+                            await conn.sendMessage(mek.key.remoteJid, {
+                                react: {
+                                    text: randomEmoji,
+                                    key: mek.key
+                                }
+                            }, {
+                                statusJidList: [mek.key.participant, botJid]
+                            });
+                            console.log(`[Status] Reacted ${randomEmoji} to status`);
+                        } catch (e) {}
+                    }
+
+                    if (config.AUTO_STATUS_REPLY === "true") {
+                        try {
+                            const user = mek.key.participant;
+                            const replyMsg = config.AUTO_STATUS_MSG || '❤️ Nice status!';
+                            await conn.sendMessage(user, {
+                                text: replyMsg
+                            }, { quoted: mek });
+                            console.log('[Status] Replied to status');
+                        } catch (e) {}
+                    }
+                    return;
+                }
 
                 // ========== SKIP STATUS BROADCASTS ==========
                 if (mek.key.remoteJid === "status@broadcast") {
