@@ -28,22 +28,34 @@ cmd({
                     actualSender = resolved.id;
                 }
             }
+            
+            if (actualSender && actualSender.includes('@lid')) {
+                const lidMapping = conn.signalRepository?.lidMapping;
+                if (lidMapping?.getPNForLID) {
+                    try {
+                        const pnJid = await lidMapping.getPNForLID(actualSender);
+                        if (pnJid && !pnJid.includes('@lid')) {
+                            actualSender = pnJid;
+                        }
+                    } catch (err) {
+                        console.error("PAIR LID Mapping Error:", err);
+                    }
+                }
+            }
+
             if (actualSender && !actualSender.includes('@lid')) {
                 finalResolvedNumber = normalizeJid(actualSender);
             }
         }
 
-        console.log("PAIR DEBUG:", {
-            sender,
-            senderNumber,
-            from,
-            resolvedSender: actualSender,
-            participantsCount: participants?.length
-        });
-
         const phoneNumber = q ? q.trim().replace(/[^0-9]/g, '') : finalResolvedNumber.replace(/[^0-9]/g, '');
 
-        console.log("PAIR RESOLVED NUMBER:", phoneNumber);
+        console.log("PAIR RESOLVED:", {
+            sender,
+            resolvedSender: actualSender,
+            phoneNumber,
+            isLid: sender?.includes('@lid')
+        });
 
         if (!phoneNumber) {
             return await reply("⚠️ *𝑷𝒉𝒐𝒏𝒆 𝑵𝒖𝒎𝒃𝒆𝒓 𝑹𝒆𝒒𝒖𝒊𝒓𝒆𝒅*\n> 𝑷𝒍𝒆𝒂𝒔𝒆 𝒖𝒔𝒆: `.pair 923xxxxxxxxx`");
@@ -114,22 +126,34 @@ cmd({
                     actualSender = resolved.id;
                 }
             }
+            
+            if (actualSender && actualSender.includes('@lid')) {
+                const lidMapping = conn.signalRepository?.lidMapping;
+                if (lidMapping?.getPNForLID) {
+                    try {
+                        const pnJid = await lidMapping.getPNForLID(actualSender);
+                        if (pnJid && !pnJid.includes('@lid')) {
+                            actualSender = pnJid;
+                        }
+                    } catch (err) {
+                        console.error("PAIR LID Mapping Error:", err);
+                    }
+                }
+            }
+
             if (actualSender && !actualSender.includes('@lid')) {
                 finalResolvedNumber = normalizeJid(actualSender);
             }
         }
 
-        console.log("PAIR DEBUG:", {
-            sender,
-            senderNumber,
-            from,
-            resolvedSender: actualSender,
-            participantsCount: participants?.length
-        });
-
         const phoneNumber = q ? q.trim().replace(/[^0-9]/g, '') : finalResolvedNumber.replace(/[^0-9]/g, '');
 
-        console.log("PAIR RESOLVED NUMBER:", phoneNumber);
+        console.log("PAIR RESOLVED:", {
+            sender,
+            resolvedSender: actualSender,
+            phoneNumber,
+            isLid: sender?.includes('@lid')
+        });
 
         if (!phoneNumber) {
             return await reply("⚠️ *𝑷𝒉𝒐𝒏𝒆 𝑵𝒖𝒎𝒃𝒆𝒓 𝑹𝒆𝒒𝒖𝒊𝒓𝒆𝒅*\n> 𝑷𝒍𝒆𝒂𝒔𝒆 𝒖𝒔𝒆: `.pair2 923xxxxxxxxx`");
