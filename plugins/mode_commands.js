@@ -33,6 +33,7 @@ cmd({
         let normalizedMode = newMode;
         if (normalizedMode === 'privateinbox') normalizedMode = 'private_inbox';
         if (normalizedMode === 'private inbox') normalizedMode = 'private_inbox';
+        if (normalizedMode === 'inbox') normalizedMode = 'private_inbox';
         
         if (!VALID_MODES.includes(normalizedMode)) {
             return await reply(buildSelectionMessage());

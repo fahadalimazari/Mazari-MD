@@ -199,21 +199,28 @@ async(conn, mek, m, { args, isOwner, reply, botNumber, config }) => {
     if (!isOwner) return reply("⚠️ 𝑨𝒅𝒎𝒊𝒏 𝑹𝒆𝒒𝒖𝒊𝒓𝒆𝒅");
     
     const mode = args[0]?.toLowerCase();
-    const validModes = ['public', 'private', 'inbox'];
+    const validModes = ['public', 'private', 'private_inbox'];
     
     // If no argument provided, show current mode status
     if (!mode) {
         const currentMode = conn.userConfig?.WORK_TYPE || config.WORK_TYPE || config.MODE || "public";
-        const modeDisplay = currentMode === "inbox" ? "𝑷𝑹𝑰𝑽𝑨𝑻𝑬 𝑰𝑵𝑩𝑶𝑿" : currentMode.toUpperCase();
+        // Normalize mode for display
+        let displayMode = currentMode.toLowerCase().trim();
+        if (displayMode === 'inbox') displayMode = 'private_inbox';
+        const modeDisplay = displayMode === 'private_inbox' ? 'PRIVATE INBOX' : displayMode.toUpperCase();
         return reply(`⚙️ 𝑪𝒖𝒓𝒓𝒆𝒏𝒕 𝑴𝒐𝒅𝒆 : ${modeDisplay}`);
     }
 
     if (validModes.includes(mode)) {
+        // Normalize to canonical value
+        let canonicalMode = mode;
+        if (canonicalMode === 'inbox') canonicalMode = 'private_inbox';
+        
         // Custom reply messages for each mode
         let modeIcon = "";
         let modeText = "";
         
-        switch(mode) {
+        switch(canonicalMode) {
             case "private":
                 modeIcon = "🔒";
                 modeText = "𝑷𝑹𝑰𝑽𝑨𝑻𝑬";
@@ -222,13 +229,13 @@ async(conn, mek, m, { args, isOwner, reply, botNumber, config }) => {
                 modeIcon = "🌐";
                 modeText = "𝑷𝑼𝑩𝑳𝑰𝑪";
                 break;
-            case "inbox":
+            case "private_inbox":
                 modeIcon = "📥";
                 modeText = "𝑷𝑹𝑰𝑽𝑨𝑻𝑬 𝑰𝑵𝑩𝑶𝑿";
                 break;
         }
         
-        await updateConfig('WORK_TYPE', mode, botNumber, config, 
+        await updateConfig('WORK_TYPE', canonicalMode, botNumber, config, 
             () => reply(`${modeIcon} 𝑴𝒐𝒅𝒆 𝑼𝒑𝒅𝒂𝒕𝒆𝒅 — ${modeText}`), conn);
     } else {
         reply(`❌ 𝑰𝒏𝒗𝒂𝒍𝒊𝒅 𝑴𝒐𝒅𝒆\n*Usage:* .mode <${validModes.join('|')}>`);

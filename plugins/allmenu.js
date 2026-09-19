@@ -96,6 +96,7 @@ cmd({
         const currentMode = conn.userConfig?.MODE || conn.userConfig?.WORK_TYPE || config.MODE || config.WORK_TYPE || 'public';
         let modeNormalized = currentMode.toLowerCase().trim();
         if (modeNormalized === 'private inbox') modeNormalized = 'private_inbox';
+        if (modeNormalized === 'inbox') modeNormalized = 'private_inbox';
         
         // Get display value from mapping
         const MODE_DISPLAY_MAP = {
