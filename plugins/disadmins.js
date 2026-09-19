@@ -6,6 +6,7 @@ cmd({
     alias: ["dadmin", "disall", "dall"],
     desc: "Demote all other admins in the group",
     category: "admin",
+    react: "📉",
     filename: __filename
 }, async (conn, mek, m, { from, isGroup, groupMetadata, groupAdmins, isBotAdmins, isAdmins }) => {
     try {
