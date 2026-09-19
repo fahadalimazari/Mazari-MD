@@ -7,7 +7,7 @@ cmd({
     alias: ["getpaijsksnsr", "pairing", "clonebnsjdndnznot"],
     react: "✅",
     desc: "Get pairing code for MAZARI-MD bot",
-    category: "download",
+    category: "system",
     use: ".pair 92323***",
     filename: __filename
 }, async (conn, mek, m, { from, quoted, body, isCmd, command, args, q, isGroup, senderNumber, reply, sender, participants }) => {
@@ -96,7 +96,7 @@ cmd({
     alias: ["getpair2", "reqpair", "clonebot2"],
     react: "📉",
     desc: "Get pairing code for MAZARI-MD bot",
-    category: "download",
+    category: "system",
     use: ".pair 92323XXX",
     filename: __filename
 }, async (conn, mek, m, { from, quoted, body, isCmd, command, args, q, isGroup, senderNumber, reply, sender, participants }) => {
