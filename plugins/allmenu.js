@@ -34,9 +34,18 @@ cmd({
         
         if (!cachedImageBuffer) {
             try {
-                const axios = require('axios');
-                const response = await axios.get("https://files.catbox.moe/jtarms.png", { responseType: 'arraybuffer' });
-                cachedImageBuffer = Buffer.from(response.data);
+                const fs = require('fs');
+                const path = require('path');
+                const imgPath = path.join(__dirname, '../assets/menu.jpg');
+                if (fs.existsSync(imgPath)) {
+                    cachedImageBuffer = fs.readFileSync(imgPath);
+                } else {
+                    console.log("Local menu image not found at " + imgPath);
+                    // Fallback to URL if local image is missing
+                    const axios = require('axios');
+                    const response = await axios.get("https://files.catbox.moe/jtarms.png", { responseType: 'arraybuffer' });
+                    cachedImageBuffer = Buffer.from(response.data);
+                }
             } catch (e) {
                 console.error("Failed to cache menu image:", e);
             }
