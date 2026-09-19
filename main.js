@@ -422,15 +422,33 @@ function extractButtonId(mek) {
     } catch { return null; }
 }
 
+// ========== COMMAND REGISTRY CACHE ==========
+let commandRegistryCache = null;
+
+function buildCommandCache() {
+    const events = require("./arslan");
+    const cache = new Map();
+    for (const cmd of events.commands) {
+        if (cmd.pattern) {
+            cache.set(String(cmd.pattern).toLowerCase(), cmd);
+        }
+        if (cmd.alias && Array.isArray(cmd.alias)) {
+            for (const alias of cmd.alias) {
+                cache.set(String(alias).toLowerCase(), cmd);
+            }
+        }
+    }
+    return cache;
+}
+
 // ========== FIND COMMAND ==========
 function findCommand(cmdName) {
     try {
-        const events = require("./arslan");
+        if (!commandRegistryCache) {
+            commandRegistryCache = buildCommandCache();
+        }
         const name = String(cmdName || "").trim().toLowerCase();
-        return events.commands.find(cmd =>
-            String(cmd.pattern || "").toLowerCase() === name ||
-            (cmd.alias && cmd.alias.map(a => String(a).toLowerCase()).includes(name))
-        );
+        return commandRegistryCache.get(name) || null;
     } catch { return null; }
 }
 

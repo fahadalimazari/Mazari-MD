@@ -16,6 +16,10 @@ const toSmallUnicode = (str) => {
     return str.split('').map(c => mapping[c] || c).join('');
 };
 
+let cachedMenuText = null;
+let cachedTotalCommands = 0;
+let cachedImageBuffer = null;
+
 cmd({
     pattern: "menu",
     alias: ["commandlist", "allmenu", "help", "m", "manu"],
@@ -28,32 +32,47 @@ cmd({
         // Resolve the active prefix (use passed multi-session prefix or fallback to global)
         const activePrefix = prefix || getPrefix() || '.';
         
-        let totalCommands = 0;
-        let grouped = {};
-
-        // Group commands by category
-        for (const cmd of commands) {
-            if (!cmd.pattern || !cmd.category || cmd.dontAddCommandList) continue;
-            if (cmd.on && cmd.on !== 'body') continue;
-
-            totalCommands++;
-            if (!grouped[cmd.category]) grouped[cmd.category] = [];
-            grouped[cmd.category].push(cmd.pattern);
+        if (!cachedImageBuffer) {
+            try {
+                const axios = require('axios');
+                const response = await axios.get("https://files.catbox.moe/jtarms.png", { responseType: 'arraybuffer' });
+                cachedImageBuffer = Buffer.from(response.data);
+            } catch (e) {
+                console.error("Failed to cache menu image:", e);
+            }
         }
 
-        let menuText = "";
-        for (const cat in grouped) {
-            menuText += `*╭─〔 ${toSmallUnicode(cat.toUpperCase())} 〕*\n`;
-            const sortedCommands = grouped[cat].sort();
-            for (let i = 0; i < sortedCommands.length; i++) {
-                const cmdName = sortedCommands[i];
-                if (i === sortedCommands.length - 1) {
-                    menuText += `*│⬥└─ _${toSmallUnicode(cmdName)}_*\n`;
-                } else {
-                    menuText += `*│⬥├─ _${toSmallUnicode(cmdName)}_*\n`;
-                }
+        if (!cachedMenuText) {
+            let totalCommands = 0;
+            let grouped = {};
+
+            // Group commands by category
+            for (const cmd of commands) {
+                if (!cmd.pattern || !cmd.category || cmd.dontAddCommandList) continue;
+                if (cmd.on && cmd.on !== 'body') continue;
+
+                totalCommands++;
+                if (!grouped[cmd.category]) grouped[cmd.category] = [];
+                grouped[cmd.category].push(cmd.pattern);
             }
-            menuText += `*╰─────────────┈⊷*\n`;
+
+            let menuText = "";
+            for (const cat in grouped) {
+                menuText += `*╭─〔 ${toSmallUnicode(cat.toUpperCase())} 〕*\n`;
+                const sortedCommands = grouped[cat].sort();
+                for (let i = 0; i < sortedCommands.length; i++) {
+                    const cmdName = sortedCommands[i];
+                    if (i === sortedCommands.length - 1) {
+                        menuText += `*│⬥└─ _${toSmallUnicode(cmdName)}_*\n`;
+                    } else {
+                        menuText += `*│⬥├─ _${toSmallUnicode(cmdName)}_*\n`;
+                    }
+                }
+                menuText += `*╰─────────────┈⊷*\n`;
+            }
+
+            cachedMenuText = menuText;
+            cachedTotalCommands = totalCommands;
         }
 
         // prefix is already passed dynamically from main.js
@@ -73,20 +92,20 @@ cmd({
 *┃ ✦ ${toSmallUnicode('HELLO')} @${m.sender.split('@')[0]}*
 *┃*
 *┃ ✦╭────〔 ${toSmallUnicode('BOT INFO')} 〕────⊷*
-*┃ ✦│▸ ${toSmallUnicode('TOTAL COMMANDS')} : ${totalCommands}*
+*┃ ✦│▸ ${toSmallUnicode('TOTAL COMMANDS')} : ${cachedTotalCommands}*
 *┃ ✦│▸ ${toSmallUnicode('TIME')} : ${time}*
 *┃ ✦│▸ ${toSmallUnicode('PREFIX')} : ${activePrefix}*
 *┃ ✦│▸ ${toSmallUnicode('MODE')} : ${mode}*
 *┃ ✦╰─────────────┈⊷*
 *┃*
 *╰━━━━━━━━━━━━━━━━━━━━⊷*
-${menuText}
+${cachedMenuText}
 > ${toSmallUnicode('POWERED BY MAZARI-MD')}
 `.trim();
 
         // Send menu with channel button
         await conn.sendMessage(m.chat, {
-            image: { url: "https://files.catbox.moe/jtarms.png" },
+            image: cachedImageBuffer ? cachedImageBuffer : { url: "https://files.catbox.moe/jtarms.png" },
             caption: caption,
             buttons: [
                 {
