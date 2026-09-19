@@ -171,6 +171,19 @@ cmd({
                     delete messageOverride.conversation;
                 }
 
+                // Inject channel attribution into the active message type
+                const msgType = Object.keys(messageOverride)[0];
+                if (msgType && messageOverride[msgType]) {
+                    messageOverride[msgType].contextInfo = messageOverride[msgType].contextInfo || {};
+                    messageOverride[msgType].contextInfo.isForwarded = true;
+                    messageOverride[msgType].contextInfo.forwardingScore = 1;
+                    messageOverride[msgType].contextInfo.forwardedNewsletterMessageInfo = {
+                        newsletterJid: '120363400318546224@newsletter',
+                        newsletterName: 'MAZARI-MD',
+                        serverMessageId: 143
+                    };
+                }
+
                 // 🌟 CORRECT GROUP STATUS STRUCTURE
                 // OLD WORKING IMPLEMENTATION PROVEN:
                 // generateWAMessageFromContent(targetJid, { groupStatusMessage, groupStatusMessageV2 }, { userJid })
