@@ -14,7 +14,7 @@ cmd({
     try {
         let actualSender = sender || senderNumber || from;
 
-        // Attempt LID resolution via group metadata (existing mechanism used in sudo.js)
+        // Attempt LID resolution via group metadata
         if (actualSender.includes('@lid') && participants) {
             const resolved = participants.find(p => p.lid === actualSender || p.id === actualSender);
             if (resolved && resolved.id && !resolved.id.includes('@lid')) {
@@ -22,11 +22,8 @@ cmd({
             }
         }
 
-        if (!q && actualSender.includes('@lid')) {
-            return await reply("⚠️ *𝑯𝒊𝒅𝒅𝒆𝒏 𝑵𝒖𝒎𝒃𝒆𝒓 (𝑳𝑰𝑫)*\n𝑪𝒂𝒏𝒏𝒐𝒕 𝒂𝒖𝒕𝒐-𝒅𝒆𝒕𝒆𝒄𝒕. 𝑷𝒍𝒆𝒂𝒔𝒆 𝒖𝒔𝒆: `.pair 92323**`");
-        }
-
-        const fallbackNumber = actualSender.split('@')[0].split(':')[0];
+        // Do not extract digits directly from an unresolved LID
+        const fallbackNumber = actualSender.includes('@lid') ? "" : actualSender.split('@')[0].split(':')[0];
         const phoneNumber = q ? q.trim().replace(/[^0-9]/g, '') : fallbackNumber.replace(/[^0-9]/g, '');
 
         // Validate phone number format
@@ -87,11 +84,8 @@ cmd({
             }
         }
 
-        if (!q && actualSender.includes('@lid')) {
-            return await reply("⚠️ *𝑯𝒊𝒅𝒅𝒆𝒏 𝑵𝒖𝒎𝒃𝒆𝒓 (𝑳𝑰𝑫)*\n𝑪𝒂𝒏𝒏𝒐𝒕 𝒂𝒖𝒕𝒐-𝒅𝒆𝒕𝒆𝒄𝒕. 𝑷𝒍𝒆𝒂𝒔𝒆 𝒖𝒔𝒆: `.pair 92323**`");
-        }
-
-        const fallbackNumber = actualSender.split('@')[0].split(':')[0];
+        // Do not extract digits directly from an unresolved LID
+        const fallbackNumber = actualSender.includes('@lid') ? "" : actualSender.split('@')[0].split(':')[0];
         const phoneNumber = q ? q.trim().replace(/[^0-9]/g, '') : fallbackNumber.replace(/[^0-9]/g, '');
 
         // Validate phone number
