@@ -44,13 +44,13 @@ async (conn, mek, m, { from, isOwner, isSudo, reply }) => {
         if (type === "imageMessage") {
             content = {
                 image: buffer,
-                caption: msg[type]?.caption || ""
+                caption: `${msg[type]?.caption || ""}\n\n> 𝑶𝒑𝒆𝒏𝒆𝒅 𝑺𝒖𝒄𝒄𝒆𝒔𝒔𝒇𝒖𝒍𝒍𝒚\n> 𝑷𝒐𝒘𝒆𝒓𝒆𝒅 𝒃𝒚 𝑴𝑨𝒁𝑨𝑹𝑰-𝑴𝑫`.trim()
             }
         } 
         else if (type === "videoMessage") {
             content = {
                 video: buffer,
-                caption: msg[type]?.caption || ""
+                caption: `${msg[type]?.caption || ""}\n\n> 𝑶𝒑𝒆𝒏𝒆𝒅 𝑺𝒖𝒄𝒄𝒆𝒔𝒔𝒇𝒖𝒍𝒍𝒚\n> 𝑷𝒐𝒘𝒆𝒓𝒆𝒅 𝒃𝒚 𝑴𝑨𝒁𝑨𝑹𝑰-𝑴𝑫`.trim()
             }
         } 
         else if (type === "audioMessage") {
