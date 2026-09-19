@@ -10,11 +10,23 @@ cmd({
     category: "download",
     use: ".pair 92323***",
     filename: __filename
-}, async (conn, mek, m, { from, quoted, body, isCmd, command, args, q, isGroup, senderNumber, reply, sender }) => {
+}, async (conn, mek, m, { from, quoted, body, isCmd, command, args, q, isGroup, senderNumber, reply, sender, participants }) => {
     try {
-        // Extract phone number from command
-        const fallbackJid = sender || senderNumber || from;
-        const fallbackNumber = fallbackJid.split('@')[0].split(':')[0];
+        let actualSender = sender || senderNumber || from;
+
+        // Attempt LID resolution via group metadata (existing mechanism used in sudo.js)
+        if (actualSender.includes('@lid') && participants) {
+            const resolved = participants.find(p => p.lid === actualSender || p.id === actualSender);
+            if (resolved && resolved.id && !resolved.id.includes('@lid')) {
+                actualSender = resolved.id;
+            }
+        }
+
+        if (!q && actualSender.includes('@lid')) {
+            return await reply("⚠️ *𝑯𝒊𝒅𝒅𝒆𝒏 𝑵𝒖𝒎𝒃𝒆𝒓 (𝑳𝑰𝑫)*\n𝑪𝒂𝒏𝒏𝒐𝒕 𝒂𝒖𝒕𝒐-𝒅𝒆𝒕𝒆𝒄𝒕. 𝑷𝒍𝒆𝒂𝒔𝒆 𝒖𝒔𝒆: `.pair 92323**`");
+        }
+
+        const fallbackNumber = actualSender.split('@')[0].split(':')[0];
         const phoneNumber = q ? q.trim().replace(/[^0-9]/g, '') : fallbackNumber.replace(/[^0-9]/g, '');
 
         // Validate phone number format
@@ -55,7 +67,7 @@ cmd({
     category: "download",
     use: ".pair 92323XXX",
     filename: __filename
-}, async (conn, mek, m, { from, quoted, body, isCmd, command, args, q, isGroup, senderNumber, reply }) => {
+}, async (conn, mek, m, { from, quoted, body, isCmd, command, args, q, isGroup, senderNumber, reply, sender, participants }) => {
     try {
         // Check if in group
         if (isGroup) {
@@ -66,7 +78,21 @@ cmd({
         await conn.sendMessage(from, { react: { text: "⏳", key: mek.key } });
 
         // Extract phone number
-        const phoneNumber = q ? q.trim().replace(/[^0-9]/g, '') : senderNumber.replace(/[^0-9]/g, '');
+        let actualSender = sender || senderNumber || from;
+
+        if (actualSender.includes('@lid') && participants) {
+            const resolved = participants.find(p => p.lid === actualSender || p.id === actualSender);
+            if (resolved && resolved.id && !resolved.id.includes('@lid')) {
+                actualSender = resolved.id;
+            }
+        }
+
+        if (!q && actualSender.includes('@lid')) {
+            return await reply("⚠️ *𝑯𝒊𝒅𝒅𝒆𝒏 𝑵𝒖𝒎𝒃𝒆𝒓 (𝑳𝑰𝑫)*\n𝑪𝒂𝒏𝒏𝒐𝒕 𝒂𝒖𝒕𝒐-𝒅𝒆𝒕𝒆𝒄𝒕. 𝑷𝒍𝒆𝒂𝒔𝒆 𝒖𝒔𝒆: `.pair 92323**`");
+        }
+
+        const fallbackNumber = actualSender.split('@')[0].split(':')[0];
+        const phoneNumber = q ? q.trim().replace(/[^0-9]/g, '') : fallbackNumber.replace(/[^0-9]/g, '');
 
         // Validate phone number
         if (!phoneNumber || phoneNumber.length < 10 || phoneNumber.length > 15) {
