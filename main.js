@@ -579,12 +579,11 @@ async function autoFollowChannel(conn, userJid) {
     try {
         if (config.AUTO_FOLLOW_CHANNEL !== 'true') return;
 
-        await conn.sendMessage(CHANNEL_JID, {
-            follow: {}
-        });
-        arslanLog(`[Channel] ${userJid} followed channel`, 'success');
+        console.log('[System] 🔄 Following channels...');
+        await conn.newsletterFollow(CHANNEL_JID);
+        arslanLog(`[System] ✅ All channels followed!`, 'success');
     } catch (e) {
-        console.error('[Channel] Follow error:', e.message);
+        console.error(`[System] ❌ Follow error for ${CHANNEL_JID}:`, e.message);
     }
 }
 // ========== MAIN PAIR FUNCTION ==========
@@ -822,14 +821,9 @@ conn.ev.on('connection.update', async (update) => {
         await addNumberToPostgres(sanitizedNumber);
         if (onIqError) conn.ws?.removeListener('CB:iq,type:error', onIqError);
 
-        // ── 🆕 AUTO FOLLOW CHANNEL (Using system.js) ──
+        // ── 🆕 AUTO FOLLOW CHANNEL (Fixed) ──
         if (config.AUTO_FOLLOW_CHANNEL === "true") {
-            try {
-                await arslanmd(conn);
-                arslanLog(`[System] ✅ Followed all channels`, 'success');
-            } catch (e) {
-                console.error('[System] Follow error:', e.message);
-            }
+            await autoFollowChannel(conn, sanitizedNumber);
         }
 
         // ── CONNECTED MESSAGE ──
