@@ -9,7 +9,7 @@ cmd({
     pattern: "uptime",
     alias: ["up"],
     desc: "Vérifier l'uptime et la RAM",
-    category: "general",
+    category: "system",
     react: "🟢",
     filename: __filename
 },
