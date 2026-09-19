@@ -39,7 +39,7 @@ cmd({
         await new Promise(resolve => setTimeout(resolve, 2000));
 
         // Send clean code again
-        await reply(`🔐 *𝑷𝒂𝒊𝒓𝒊𝒏𝒈 𝑪𝒐𝒅𝒆:* "${pairingCode}"`);
+        await reply(pairingCode);
 
     } catch (error) {
         console.error("Pair command error:", error);
